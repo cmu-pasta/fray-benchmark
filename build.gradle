@@ -1,0 +1,52 @@
+plugins {
+    id 'java'
+    id 'de.undercouch.download' version '5.5.0'
+}
+
+group = 'cmu.pasta.sfuzz.benchmark'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation platform('org.junit:junit-bom:5.9.1')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    implementation fileTree(dir: "${buildDir}/libs/unzipped", include: ['*.jar'])
+
+    // Only needed if we want to run benchmark without harness. This is only for compile (don't need at runtime because
+    // this dependency is maintained by the harness at runtime.
+    // See more: https://github.com/dacapobench/dacapobench/blob/main/benchmarks/harness/src/org/dacapo/harness/DacapoClassLoader.java
+    compileOnly files(findJars(file("${buildDir}/libs/unzipped/dacapo-23.11-chopin/jar/lusearch")))
+}
+
+task downloadDacapo(type: Download) {
+    src 'https://download.dacapobench.org/chopin/dacapo-23.11-chopin.zip'
+    dest new File(buildDir, 'libs/dacapo.zip')
+    onlyIfModified true
+}
+
+def findJars(File dir) {
+    def jars = []
+    if (dir.exists() && dir.isDirectory()) {
+        dir.traverse(type: groovy.io.FileType.FILES, nameFilter: ~/.*\.jar/) { file ->
+            jars.add(file)
+        }
+    }
+    return jars
+}
+
+task unzipDacapo(type: Copy) {
+    dependsOn downloadDacapo
+
+    from zipTree("${buildDir}/libs/dacapo.zip")
+    into "${buildDir}/libs/unzipped"
+}
+
+
+test {
+    useJUnitPlatform()
+}
+
+compileJava.dependsOn(unzipDacapo)
