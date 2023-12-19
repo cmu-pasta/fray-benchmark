@@ -23,6 +23,7 @@ public class RunLusearch {
         // Switch class loader.
         lusearch.startIteration();
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
+        System.setProperty("os.name", "Linux");
 
 
         // We need to use reflection here because it is loaded through the context class loader.
