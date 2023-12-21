@@ -18,7 +18,25 @@ dependencies {
     // Only needed if we want to run benchmark without harness. This is only for compile (don't need at runtime because
     // this dependency is maintained by the harness at runtime.
     // See more: https://github.com/dacapobench/dacapobench/blob/main/benchmarks/harness/src/org/dacapo/harness/DacapoClassLoader.java
-    compileOnly files(findJars(file("${buildDir}/libs/unzipped/dacapo-23.11-chopin/jar/lusearch")))
+    implementation files(findJars(file("${buildDir}/libs/unzipped/dacapo-23.11-chopin/jar/lusearch")))
+    implementation files(findJars(file("${buildDir}/libs/unzipped/dacapo-23.11-chopin/jar/lib/lucene")))
+}
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(11))
+    }
+}
+
+
+task customFatJar(type: Jar) {
+    manifest {
+        attributes 'Main-Class': 'cmu.pasta.sfuzz.benchmark.RunLusearch'
+    }
+    archiveBaseName = 'all-in-one-jar'
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
 }
 
 task downloadDacapo(type: Download) {
