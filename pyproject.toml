@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "sfuzz-benchmark"
+version = "0.1.0"
+description = ""
+authors = ["Vasu Vikram <vvikram@andrew.cmu.edu>"]
+readme = "README.md"
+packages = [{include = "sfuzz_benchmark"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+anthropic = "^0.18.1"
+openai = "^1.13.3"
+google-cloud-aiplatform = "^1.43.0"
+google-generativeai = "^0.4.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
