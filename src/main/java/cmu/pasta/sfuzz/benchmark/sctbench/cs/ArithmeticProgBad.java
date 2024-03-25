@@ -24,14 +24,14 @@ public class ArithmeticProgBad {
           empty.await();
         }
         num++;
-        System.out.println("produce ...." + i);  
+        System.out.println("produce ...." + i);
+        full.signal();
       } catch (InterruptedException e) {
         e.printStackTrace();
       } finally {
         m.unlock();
       }
 
-      full.signal();
       i++;
     }
   }
@@ -49,13 +49,13 @@ public class ArithmeticProgBad {
         System.out.println("total ...." + total);
         num--;
         System.out.println("consume ...." + j);
+        empty.signal();
       } catch (InterruptedException e) {
-        e.printStackTrace(); 
+        e.printStackTrace();
       } finally {
         m.unlock();
       }
 
-      empty.signal();
       j++;
     }
     total = total + j;

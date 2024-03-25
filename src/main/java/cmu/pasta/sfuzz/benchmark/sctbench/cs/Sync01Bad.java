@@ -8,13 +8,13 @@ import java.util.concurrent.locks.Condition;
 
 public class Sync01Bad {
     static final int N = 1;
-    
+
     static int num;
-    
+
     static Lock m = new ReentrantLock();
     static Condition empty = m.newCondition();
     static Condition full = m.newCondition();
-    
+
     static void thread1() {
         m.lock();
         try {
@@ -22,14 +22,14 @@ public class Sync01Bad {
                 empty.await();  // BAD: deadlock
             }
             num++;
+            full.signal();
         } catch (InterruptedException e) {
             e.printStackTrace();
         } finally {
             m.unlock();
-            full.signal();
         }
     }
-    
+
     static void thread2() {
         m.lock();
         try {
@@ -38,23 +38,23 @@ public class Sync01Bad {
             }
             // num--;
             // System.out.println("consume ....");
+            empty.signal();
         } catch (InterruptedException e) {
             e.printStackTrace();
         } finally {
             m.unlock();
-            empty.signal();
         }
     }
-    
+
     public static void main(String[] args) {
         num = 1;
-        
+
         Thread t1 = new Thread(() -> thread1());
         Thread t2 = new Thread(() -> thread2());
-        
+
         t1.start();
         t2.start();
-        
+
         try {
             t1.join();
             t2.join();
