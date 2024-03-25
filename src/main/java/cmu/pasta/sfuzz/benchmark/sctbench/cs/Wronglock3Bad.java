@@ -15,16 +15,6 @@ public class Wronglock3Bad {
     public static void main(String[] args) {
         int i;
 
-        if (args.length != 1) {
-            if (args.length != 3) {
-                System.err.println("./wronglock <param1> <param2>");
-                System.exit(-1);
-            } else {
-                iNum1 = Integer.parseInt(args[1]);
-                iNum2 = Integer.parseInt(args[2]);
-            }
-        }
-
         dataLock = new ReentrantLock();
         thisLock = new ReentrantLock();
 

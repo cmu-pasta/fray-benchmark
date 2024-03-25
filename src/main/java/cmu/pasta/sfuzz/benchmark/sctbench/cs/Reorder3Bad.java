@@ -12,16 +12,6 @@ public class Reorder3Bad {
     public static void main(String[] args) {
         int i, err;
 
-        if (args.length != 1) {
-            if (args.length != 3) {
-                System.err.println("./reorder <param1> <param2>");
-                System.exit(-1);
-            } else {
-                iSet = Integer.parseInt(args[1]);
-                iCheck = Integer.parseInt(args[2]);
-            }
-        }
-
         Thread[] setPool = new Thread[iSet];
         Thread[] checkPool = new Thread[iCheck];
 

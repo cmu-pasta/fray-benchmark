@@ -21,12 +21,12 @@ public class Sync02Bad {
         while (num > 0)
           empty.await();
         num++; // produce
+        full.signal();
       } catch (InterruptedException e) {
         e.printStackTrace();
       } finally {
         m.unlock();
       }
-      full.signal();
       i++;
     }
   }
@@ -39,12 +39,12 @@ public class Sync02Bad {
         while (num == 0)
           full.await();
         num--; // consume
+        empty.signal();
       } catch (InterruptedException e) {
         e.printStackTrace();
       } finally {
         m.unlock();
       }
-      empty.signal();
       j++;
     }
   }
