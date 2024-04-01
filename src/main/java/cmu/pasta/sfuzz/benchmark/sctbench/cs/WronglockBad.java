@@ -39,13 +39,7 @@ public class WronglockBad {
     }
 
     public static void main(String[] args) {
-        if (args.length != 0 && args.length != 2) {
-            System.err.println(USAGE);
-            System.exit(-1); 
-        } else if (args.length == 2) {
-            iNum1 = Integer.parseInt(args[0]);
-            iNum2 = Integer.parseInt(args[1]);
-        }
+        dataValue = 0;
 
         dataLock = new ReentrantLock();
         thisLock = new ReentrantLock();

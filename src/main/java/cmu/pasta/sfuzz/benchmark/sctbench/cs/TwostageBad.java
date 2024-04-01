@@ -58,15 +58,10 @@ public class TwostageBad {
     }
     
     public static void main(String[] args) {
-        if (args.length != 0) {
-            if (args.length != 2) {
-                System.err.println(USAGE);
-                System.exit(-1);
-            } else {
-                iTThreads = Integer.parseInt(args[0]);
-                iRThreads = Integer.parseInt(args[1]);
-            }
-        }
+        iTThreads = 1;
+        iRThreads = 1;
+        data1Value = 0;
+        data2Value = 0;
         
         Thread[] tPool = new Thread[iTThreads];
         Thread[] rPool = new Thread[iRThreads];

@@ -15,6 +15,7 @@ public class Wronglock3Bad {
     public static void main(String[] args) {
         int i;
 
+        dataValue = 0;
         dataLock = new ReentrantLock();
         thisLock = new ReentrantLock();
 

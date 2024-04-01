@@ -52,16 +52,11 @@ public class Twostage100Bad {
   }
   
   public static void main(String[] args) {
-    if (args.length != 0) {
-      if (args.length != 2) {
-        System.err.println("./twostage <param1> <param2>");
-        System.exit(-1);
-      } else {
-        iTThreads = Integer.parseInt(args[0]);
-        iRThreads = Integer.parseInt(args[1]);
-      }
-    }
-    
+    iTThreads = 99;
+    iRThreads = 1;
+    data1Value = 0;
+    data2Value = 0;
+
     data1Lock = new ReentrantLock();
     data2Lock = new ReentrantLock();
     
