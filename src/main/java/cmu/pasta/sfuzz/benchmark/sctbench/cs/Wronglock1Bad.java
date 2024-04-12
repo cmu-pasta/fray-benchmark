@@ -4,11 +4,11 @@ package cmu.pasta.sfuzz.benchmark.sctbench.cs;
 
 import java.util.concurrent.locks.ReentrantLock;
 
-public class WronglockBad {
+public class Wronglock1Bad {
     private static final String USAGE = "./wronglock <param1> <param2>\n";
     
     private static int iNum1 = 1;
-    private static int iNum2 = 7;
+    private static int iNum2 = 1;
     private static volatile int dataValue = 0;
     private static ReentrantLock dataLock;
     private static ReentrantLock thisLock;
