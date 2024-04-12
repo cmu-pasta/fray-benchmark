@@ -1,9 +1,7 @@
-package cmu.pasta.sfuzz.benchmark.sctbench.cs;
+package cmu.pasta.sfuzz.benchmark.sctbench.cs.hard;
 
-// Translated from: https://github.com/mc-imperial/sctbench/blob/d59ab26ddaedcd575ffb6a1f5e9711f7d6d2d9f2/benchmarks/concurrent-software-benchmarks/reorder_3_bad.c
-
-public class Reorder10Bad {
-    private static int iSet = 9;
+public class Reorder100Bad {
+    private static int iSet = 99;
     private static int iCheck = 1;
 
     private static volatile int a = 0;

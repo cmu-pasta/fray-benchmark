@@ -1,6 +1,6 @@
 // Translated from: https://github.com/mc-imperial/sctbench/blob/d59ab26ddaedcd575ffb6a1f5e9711f7d6d2d9f2/benchmarks/concurrent-software-benchmarks/fsbench_bad.c
 
-package cmu.pasta.sfuzz.benchmark.sctbench.cs;
+package cmu.pasta.sfuzz.benchmark.sctbench.cs.origin;
 
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
