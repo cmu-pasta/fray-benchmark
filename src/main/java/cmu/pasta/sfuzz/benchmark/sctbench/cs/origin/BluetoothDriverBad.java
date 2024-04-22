@@ -6,12 +6,12 @@ public class BluetoothDriverBad {
     private static final boolean TRUE = true;
     private static final boolean FALSE = false;
     
-    private static volatile boolean stopped;
+    private static boolean stopped;
 
     private static class Device {
         int pendingIo;
-        volatile boolean stoppingFlag;
-        volatile boolean stoppingEvent;
+        boolean stoppingFlag;
+        boolean stoppingEvent;
     }
 
     private static int BCSP_IoIncrement(Device e) {

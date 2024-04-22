@@ -4,8 +4,8 @@ public class Reorder50Bad {
     private static int iSet = 49;
     private static int iCheck = 1;
 
-    private static volatile int a = 0;
-    private static volatile int b = 0;
+    private static  int a = 0;
+    private static  int b = 0;
 
     public static void main(String[] args) {
         int i, err;

@@ -8,7 +8,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class Wronglock3Bad {
     private static int iNum1 = 1;
     private static int iNum2 = 3;
-    private static volatile int dataValue = 0;
+    private static int dataValue = 0;
     private static Lock dataLock;
     private static Lock thisLock;
 
