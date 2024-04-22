@@ -9,7 +9,7 @@ public class WronglockBad {
     
     private static int iNum1 = 1;
     private static int iNum2 = 7;
-    private static  int dataValue = 0;
+    private static volatile int dataValue = 0;
     private static ReentrantLock dataLock;
     private static ReentrantLock thisLock;
 
