@@ -33,7 +33,7 @@ def run(sfuzz_path: str, bm_name: str, args: str, interleave_memory_ops: bool = 
         "examples:runSCT",
         f"-Pclasspath={BASE}/build/classes/java/main",
         f"-PmainClass={bm_name}",
-        f"-PextraArgs={args}" + " -m true" if interleave_memory_ops else "",
+        f"-PextraArgs={args}" + (" -m true" if interleave_memory_ops else ""),
     ]
     print(" ".join(command))
     output = subprocess.check_output(command, cwd=sfuzz_path).decode("utf-8")
@@ -48,19 +48,19 @@ def run(sfuzz_path: str, bm_name: str, args: str, interleave_memory_ops: bool = 
     else:
         return -1, time
 
-def main(sfuzz_path: str, iteration: int, iterate_memory_ops: bool, output: str):
+def main(sfuzz_path: str, iteration: int, interleave_memory_ops: bool, output: str):
     result_csv = open(output, "w")
     for bm in find_tests():
         for name, args in SCHEDULERS.items():
             print(f"Running {bm} with {name}")
             for _ in range(iteration):
-                iter, time = run(sfuzz_path, bm, args, iterate_memory_ops)
+                iter, time = run(sfuzz_path, bm, args, interleave_memory_ops)
                 result_csv.write(f"{bm},{name},{iter},{time}\n")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("sfuzz_path", type=str, help="Path to the sfuzz project")
-    parser.add_argument("--interleave_memory_ops", action="store_true", help="Interleave memory operations")
-    parser.add_argument("--output", type=str, help="Output file")
+    parser.add_argument("output", type=str, help="Output file")
+    parser.add_argument("--interleave_memory_ops", action="store_true", help="Interleave memory operations", default=False)
     parser.add_argument("--iteration", type=int, default=10, help="Number of iteration")
     main(**vars(parser.parse_args()))
