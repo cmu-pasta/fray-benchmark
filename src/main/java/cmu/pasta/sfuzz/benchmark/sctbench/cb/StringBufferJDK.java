@@ -1,13 +1,13 @@
 package cmu.pasta.sfuzz.benchmark.sctbench.cb;
 
 /**
-* Translated from: https://github.com/mc-imperial/sctbench/tree/master/benchmarks/conc-bugs/stringbuffer-jdk1.4
-*/
+ * Translated from:
+ * https://github.com/mc-imperial/sctbench/tree/master/benchmarks/conc-bugs/stringbuffer-jdk1.4
+ */
 public class StringBufferJDK {
     private char[] value;
     private int valueLength;
     private int count;
-    private final Object mutexLock = new Object();
 
     private static StringBufferJDK nullBuffer = new StringBufferJDK("null");
 
@@ -31,84 +31,72 @@ public class StringBufferJDK {
         append(str);
     }
 
-    public int length() {
-        synchronized (mutexLock) {
-            return count;
-        }
+    public synchronized int length() {
+        return count;
     }
 
-    public void getChars(int srcBegin, int srcEnd, char[] dst, int dstBegin) {
-        synchronized (mutexLock) {
-            if (srcBegin < 0) {
-                assert false;
-            }
-            if ((srcEnd < 0) || (srcEnd > count)) {
-                assert false;
-            }
-            if (srcBegin > srcEnd) {
-                assert false;
-            }
-            System.arraycopy(value, srcBegin, dst, dstBegin, srcEnd - srcBegin);
+    public synchronized void getChars(int srcBegin, int srcEnd, char[] dst, int dstBegin) {
+        if (srcBegin < 0) {
+            assert false;
         }
+        if ((srcEnd < 0) || (srcEnd > count)) {
+            assert false;
+        }
+        if (srcBegin > srcEnd) {
+            assert false;
+        }
+        System.arraycopy(value, srcBegin, dst, dstBegin, srcEnd - srcBegin);
     }
 
-    public StringBufferJDK append(StringBufferJDK sb) {
-        synchronized (mutexLock) {
-            if (sb == null) {
-                sb = nullBuffer;
-            }
-
-            int len = sb.length();
-            int newcount = count + len;
-            if (newcount > valueLength)
-                expandCapacity(newcount);
-            sb.getChars(0, len, value, count);
-            count = newcount;
-            return this;
+    public synchronized StringBufferJDK append(StringBufferJDK sb) {
+        if (sb == null) {
+            sb = nullBuffer;
         }
+
+        int len = sb.length();
+        int newcount = count + len;
+        if (newcount > valueLength)
+            expandCapacity(newcount);
+        sb.getChars(0, len, value, count);
+        count = newcount;
+        return this;
     }
 
-    public StringBufferJDK append(String str) {
-        synchronized (mutexLock) {
-            if (str == null) {
-                str = "null";
-            }
-
-            int len = str.length();
-            int newcount = count + len;
-            if (newcount > valueLength)
-                expandCapacity(newcount);
-            str.getChars(0, len, value, count);
-            count = newcount;
-            return this;
+    public synchronized StringBufferJDK append(String str) {
+        if (str == null) {
+            str = "null";
         }
+
+        int len = str.length();
+        int newcount = count + len;
+        if (newcount > valueLength)
+            expandCapacity(newcount);
+        str.getChars(0, len, value, count);
+        count = newcount;
+        return this;
     }
 
-    public StringBufferJDK erase(int start, int end) {
-        synchronized (mutexLock) {
-            if (start < 0)
-                assert false;
-            if (end > count)
-                end = count;
-            if (start > end)
-                assert false;
+    public synchronized StringBufferJDK erase(int start, int end) {
+        if (start < 0)
+            assert false;
+        if (end > count)
+            end = count;
+        if (start > end)
+            assert false;
 
-            int len = end - start;
-            if (len > 0) {
-                System.arraycopy(value, start + len, value, start, count - end);
-                count -= len;
-            }
-            return this;
+        int len = end - start;
+        if (len > 0) {
+            System.arraycopy(value, start + len, value, start, count - end);
+            count -= len;
         }
+        return this;
     }
 
-    public void print() {
-        synchronized (mutexLock) {
-            for (int i = 0; i < count; i++) {
-                System.out.print(value[i]);
-            }
-            System.out.println();
+    public synchronized void print() {
+        for (int i = 0; i < count; i++) {
+            System.out.print(value[i]);
         }
+        System.out.println();
     }
 
     private void expandCapacity(int minimumCapacity) {
