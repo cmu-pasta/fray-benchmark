@@ -9,8 +9,8 @@ public class WorkStealQueue<T> {
     private static final long MaxSize = 1024 * 1024;
     private static final long InitialSize = 1024; // must be a power of 2
 
-    private final AtomicLong head = new AtomicLong(0); // only updated by Take
-    private final AtomicLong tail = new AtomicLong(0); // only updated by Push and Pop
+    private volatile AtomicLong head = new AtomicLong(0); // only updated by Take
+    private volatile AtomicLong tail = new AtomicLong(0); // only updated by Push and Pop
     private T[] elems; // the array of tasks
     private long mask; // the mask for taking modulus
 
