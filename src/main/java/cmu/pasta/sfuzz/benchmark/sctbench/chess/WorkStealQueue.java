@@ -93,7 +93,7 @@ public class WorkStealQueue<T> {
 
     public void push(T elem) {
         long t = readV(tail);
-        if (t < readV(head) + mask && t < MaxSize) {
+        if (t < readV(head) + mask + 1 && t < MaxSize) {
             elems[(int) (t & mask)] = elem;
             writeV(tail, t + 1);
         } else {
@@ -188,7 +188,7 @@ public class WorkStealQueue<T> {
             items[i] = new ObjType();
         }
 
-        WorkStealQueue<ObjType> q = new WorkStealQueue<>(InitialSize);
+        WorkStealQueue<ObjType> q = new WorkStealQueue<>(2);
 
         final int finalNStealAttempts = nStealAttempts;
         for (int i = 0; i < nStealers; i++) {
