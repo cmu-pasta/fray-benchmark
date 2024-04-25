@@ -158,24 +158,24 @@ public class WorkStealQueue<T> {
         int nItems = 4;
         int nStealAttempts = 2;
 
-        if (args.length > 0) {
-            int arg1 = Integer.parseInt(args[0]);
-            if (arg1 > 0) {
-                nStealers = arg1;
-            }
-        }
-        if (args.length > 1) {
-            int arg2 = Integer.parseInt(args[1]);
-            if (arg2 > 0) {
-                nItems = arg2;
-            }
-        }
-        if (args.length > 2) {
-            int arg3 = Integer.parseInt(args[2]);
-            if (arg3 > 0) {
-                nStealAttempts = arg3;
-            }
-        }
+        // if (args.length > 0) {
+        // int arg1 = Integer.parseInt(args[0]);
+        // if (arg1 > 0) {
+        // nStealers = arg1;
+        // }
+        // }
+        // if (args.length > 1) {
+        // int arg2 = Integer.parseInt(args[1]);
+        // if (arg2 > 0) {
+        // nItems = arg2;
+        // }
+        // }
+        // if (args.length > 2) {
+        // int arg3 = Integer.parseInt(args[2]);
+        // if (arg3 > 0) {
+        // nStealAttempts = arg3;
+        // }
+        // }
         System.out.println("\nWorkStealQueue Test: " +
                 nStealers + " stealers, " +
                 nItems + " items, " +
