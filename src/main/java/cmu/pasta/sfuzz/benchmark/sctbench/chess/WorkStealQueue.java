@@ -7,7 +7,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class WorkStealQueue<T> {
     private static final long MaxSize = 1024 * 1024;
-    private static final long InitialSize = 1024; // must be a power of 2
+    private static final long InitialSize = 2; // must be a power of 2
 
     private volatile AtomicLong head = new AtomicLong(0); // only updated by Take
     private volatile AtomicLong tail = new AtomicLong(0); // only updated by Push and Pop
@@ -188,7 +188,7 @@ public class WorkStealQueue<T> {
             items[i] = new ObjType();
         }
 
-        WorkStealQueue<ObjType> q = new WorkStealQueue<>(2);
+        WorkStealQueue<ObjType> q = new WorkStealQueue<>(InitialSize);
 
         final int finalNStealAttempts = nStealAttempts;
         for (int i = 0; i < nStealers; i++) {
