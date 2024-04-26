@@ -13,8 +13,8 @@ BM_FOLDER = os.path.join(BASE, "src/main/java/cmu/pasta/sfuzz/benchmark/")
 SCHEDULERS = {
     "pct3": '--scheduler=pct --num-switch-points 3',
     "pct10": '--scheduler=pct --num-switch-points 10',
-    "pct50": '--scheduler=pct --num-switch-points 50',
-    "pct100": '--scheduler=pct --num-switch-points 100',
+    "pct25": '--scheduler=pct --num-switch-points 25',
+    #  "pct100": '--scheduler=pct --num-switch-points 100',
     "pos": '--scheduler=pos',
     "random": '--scheduler=random',
 }
