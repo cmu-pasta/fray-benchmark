@@ -1,10 +1,10 @@
 [tool.poetry]
-name = "sfuzz-benchmark"
+name = "fray-benchmark"
 version = "0.1.0"
 description = ""
 authors = ["Vasu Vikram <vvikram@andrew.cmu.edu>"]
 readme = "README.md"
-packages = [{include = "sfuzz_benchmark"}]
+packages = [{include = "fray_benchmark"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"

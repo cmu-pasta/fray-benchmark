@@ -8,7 +8,7 @@ from typing import Iterator
 
 
 BASE = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..")
-BM_FOLDER = os.path.join(BASE, "src/main/java/cmu/pasta/sfuzz/benchmark/")
+BM_FOLDER = os.path.join(BASE, "src/main/java/cmu/pasta/fray/benchmark/")
 
 SCHEDULERS = {
     "pct3": '--scheduler=pct --num-switch-points 3',
@@ -27,7 +27,7 @@ def find_tests() -> Iterator[str]:
         yield bm
 
 
-def run(sfuzz_path: str, bm_name: str, args: str, interleave_memory_ops: bool = True) -> int:
+def run(fray_path: str, bm_name: str, args: str, interleave_memory_ops: bool = True) -> int:
     command = [
         "./gradlew",
         "examples:runSCT",
@@ -36,7 +36,7 @@ def run(sfuzz_path: str, bm_name: str, args: str, interleave_memory_ops: bool = 
         f"-PextraArgs={args}" + (" -m true" if interleave_memory_ops else ""),
     ]
     print(" ".join(command))
-    output = subprocess.check_output(command, cwd=sfuzz_path).decode("utf-8")
+    output = subprocess.check_output(command, cwd=fray_path).decode("utf-8")
     time_pattern = re.compile(r"Analysis done in: (\d+) ms")
     match = time_pattern.search(output)
     if match:
@@ -48,18 +48,18 @@ def run(sfuzz_path: str, bm_name: str, args: str, interleave_memory_ops: bool = 
     else:
         return -1, time
 
-def main(sfuzz_path: str, iteration: int, interleave_memory_ops: bool, output: str):
+def main(fray_path: str, iteration: int, interleave_memory_ops: bool, output: str):
     result_csv = open(output, "w")
     for bm in find_tests():
         for name, args in SCHEDULERS.items():
             print(f"Running {bm} with {name}")
             for _ in range(iteration):
-                iter, time = run(sfuzz_path, bm, args, interleave_memory_ops)
+                iter, time = run(fray_path, bm, args, interleave_memory_ops)
                 result_csv.write(f"{bm},{name},{iter},{time}\n")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("sfuzz_path", type=str, help="Path to the sfuzz project")
+    parser.add_argument("fray_path", type=str, help="Path to the fray project")
     parser.add_argument("output", type=str, help="Output file")
     parser.add_argument("--interleave_memory_ops", action="store_true", help="Interleave memory operations", default=False)
     parser.add_argument("--iteration", type=int, default=10, help="Number of iteration")

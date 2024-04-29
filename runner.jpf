@@ -3,7 +3,7 @@ cg.randomize_choices=VAR_SEED
 listener=gov.nasa.jpf.listener.AssertionProperty
 report.console.finished=null
 vm.storage.class=null
-target=cmu.pasta.sfuzz.benchmark.RunLusearch
+target=cmu.pasta.fray.benchmark.RunLusearch
 classpath=build/classes/java/main:build/libs/unzipped/dacapo-23.11-chopin/jar/lusearch/dacapo-lusearch.jar:build/libs/unzipped/dacapo-23.11-chopin/jar/lib/lucene/lucene-backward-codecs-9.7.0-SNAPSHOT.jar:build/libs/unzipped/dacapo-23.11-chopin/jar/lib/lucene/lucene-core-9.7.0-SNAPSHOT.jar:build/libs/unzipped/dacapo-23.11-chopin/jar/lib/lucene/lucene-demo-9.7.0-SNAPSHOT.jar:build/libs/unzipped/dacapo-23.11-chopin/jar/lib/lucene/lucene-queryparser-9.7.0-SNAPSHOT.jar:build/libs/unzipped/dacapo-23.11-chopin.jar 
 report.exceptions=none
 

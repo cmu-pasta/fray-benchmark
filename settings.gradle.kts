@@ -1,2 +1,2 @@
-rootProject.name = "sfuzz-benchmark"
+rootProject.name = "fray-benchmark"
 

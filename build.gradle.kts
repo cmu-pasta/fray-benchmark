@@ -2,7 +2,7 @@ plugins {
     id("java")
 }
 
-group = "cmu.pasta.sfuzz.benchmark"
+group = "cmu.pasta.fray.benchmark"
 version = "1.0-SNAPSHOT"
 
 repositories {
