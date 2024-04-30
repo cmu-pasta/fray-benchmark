@@ -1,0 +1,215 @@
+<html lang="en-US"> 
+<head>
+<title>JPF Handbook for SIR Subjects</title>
+</head>
+<body>
+<h2>SIR Objects JPF Handbook</h2>
+<p>
+Java Pathfinder (JPF) is an extensible tool set providing model checking and defect detection
+of Java bytecode artifacts.  JPF, when used as a program verifier platform is capable of:
+<ol>
+<li>finding and explaining defects</li>
+<li>collecting "deep" runtime information like coverage metrics</li>
+<li>deducing interesting test vectors and create corresponding test drivers.</li>
+</ol>
+This list is far from inclusive of all the capabilites that JPF provides however.
+</p>
+<p>
+Using JPF on the concurrency subjects provided by the SIR
+can reveal the deficiencies manifested by these implementations.
+JPF enables the revelation of these faults by searching the state space of for all combinations
+and then optimizes this search in several ways to minimize the time required to cover
+the state space.
+</p>
+<p>
+The SIR concurrency subjects provide a basic JPF analysis script including a predetermined
+configuration of JPF properties with each subject.  Users can choose to use this script, or to
+generate their own JPF properties configurations and include different JPF plugins in there
+experimentation.
+</p>
+<p>
+JPF evolves fast, different versions of JPF may need different configurations. This
+handbook is written and tested based on JPF 1202.
+</p>
+<!--
+****************************1. Before running JPF****************************
+-->
+<h3>JPF Run Preparation</h3>
+<p>
+In order to run JPF, make sure the target you would like to run has already been properly installed and compiled
+using the <code>${experiment_root}/SUBJECT_NAME/scripts/install.sh</code>, and the compiled classes and necessary files
+are installed into the <code>${experiment_root}/SUBJECT_NAME/source</code> directory.  The SIR concurrency subjects
+provide the original version of the subject which manifests one or more concurrency
+deficiencies. In some SIR concurrency subjects, a fixed version which has been modified to eliminate the cause
+of the deficiency is also provided.  Specifying which version you desire to install is necessary when you execute the
+install script.  To determine which versions a particular concurrency subject provides examine the
+<code>SUBJECT_NAME/versions.alt</code> directory and any subdirectories therein.
+</p>
+<p>
+For example, to compile target JaConTeBe subject's tests for log4j1:
+<div>
+<code>
+${experiment_root}/JaConTeBe/scripts/install.sh orig log4j1
+</code>
+</div>
+</p>
+<p>
+This copies and builds the <em>orig</em> version of the source code, which is stored
+under the <code>${experiment_root}/JaConTeBe/versions.alt/orig</code> directory
+into the <code>${experiment_root}/JaConTeBe/source</code> directory.
+After running this command, the <em>orig</em> version of the <em>log4j1</em> object,
+which is provided as part of the <em>JaConTeBe</em> SIR subject, is ready for experimentation.
+</p>
+<h3>JPF Runtime Considerations</h3>
+<p>
+Once installed, the object is now ready to have JPF executed.
+The runJPF.sh script provided is intended to execute JPF on
+the SIR concurrency object.  For SIR subjects that encapsulate more than one
+concurrency subject, e.g. JaConTeBe, the JaConTeBe/testplans.alt/jpfscripts
+directory contains properties files that configure JPF for one or more
+of the concurrency objects within the SIR object package.
+</p> 
+<!-- ****************************2. Prepare JPF configuration file**************************** -->
+<h3>JPF Configuration Files</h3>
+<p>
+JPF typically is used with a properties file to set the parameters of behavior.  The parameters
+of JPF are an ever expanding set due to the continued use and enhancement being done by
+both NASA and other researchers.  For the subjects maintained in the SIR,
+we use a single JPF launcher script file, <em>runJPF.sh</em>, to start each JPF run.
+Some subjects provide object specific parameters on the JPF command line within the
+<em>runJPF.sh</em> script while others may require users to supply their own parameters
+configuration file.  Further detailed information on JPF configuration files can be found
+on the <a href="http://babelfish.arc.nasa.gov/trac/jpf/wiki/user/config" target="_blank">JPF WIKI page</a>
+on configuration.
+</p>
+<p>
+Other subjects in the SIR may provide one or more
+JPF configuration files.  These files are located in the ${expriment_root}/SUBJECT_NAME/testplan.alt/jpfscripts
+directory and are named as <target>.jpf, where <target> is one of the <i>orig</i> or <i>fixed</i>
+versions.
+</p>
+<p>
+For example, a simple test log4j1's JPF configuration file
+would be located in ${expriment_root}/JaConTeBe/testplan.alt/jpfscripts/log4j1.jpf,
+and its contents contain:
+
+<div>
+<pre>
+target = Test44032
+classpath =./source:./lib/javaee-api-5.jar:./versions.alt/lib/realLib/coring-1.4.jar:./versions.alt/lib/realLib/jacontebe-1.0.jar
+target.args = -tn,2,-l,1
+</pre>
+</div>
+
+Each test may require different target.args values to run the experiment.
+Also note that the paths specified are relative paths, thus
+this script expects to ultimately be executed from the ${experiment_root}/JaConTeBe directory.
+</p>
+<p>
+Not all concurrency subjects will function within JPF due to unimplemented
+native functions and other limitations imposed by the JPF framework.  Typical
+errors presented by JPF in these instances will reflect a failure to find one
+or more classes that are normally part of the standard JVM.  The object description
+for <a href="http://sir.unl.edu/portal/bios/JaConTeBe.php">JaConTeBe</a> provides a listing of the
+objects provided along with the associated JPF failure or error detected by
+the authors.
+For more advanced settings and usage tips refer to JPF's online manual,
+<a href="http://babelfish.arc.nasa.gov/trac/jpf/wiki/user/start" target="_blank">
+http://babelfish.arc.nasa.gov/trac/jpf/wiki/user/start</a>.
+</p>
+<h3>Running JPF Analyses</h3>
+<p>
+Many of the SIR concurrency objects provide a shell script that executes JPF analysis on the object.
+For the JaConTeBe subject the
+<code>${experiment_root}/JaConTeBe/scripts/runJPF.sh</code> script is the JPF launcher for
+all JPF runs. A minimum of 2 command-line arguments are necessary to perform a JPF analysis.
+<div>
+<code>
+runJPF.sh target-test search-type [number-of-iterations] [-v] 
+</code>
+<ul>
+<li>first argument: target test's name.</li>
+<li>second argument: JPF search algorithm type: <b>default</b> or <b>random</b></li>
+<li>third argument: desired JPF run iterations (optional): number of times JPF is invoked
+while performing <em>random</em> search iterations</li>
+<li>fourth argument: -v (optional): display verbose output, sets the <em>-log -show</em> debugging
+flags on the JPF command line</li>
+</ul>
+</div>
+</p>
+<p>
+For example, to run the default JPF analysis on the log4j1 library, provided
+as part of the JaConTeBe subject, the command line would be:
+</p>
+<p>
+<code>
+${experiment_root}/JaConTeBe/scripts/runJPF.sh log4j1 default
+</code>
+</p>
+<p>
+The JPF output result would be:
+</p>
+<pre>
+====================================================== system under test
+Test44032.main("-tn","2","-l","1")
+
+====================================================== search started: 11/11/14 7:55 PM
+********************************
+Starting test: log4j44032
+Expected bug type: race
+********************************
+
+
+Finished test: Failed to reproduce the bug.
+
+Finished test: Failed to reproduce the bug.
+
+====================================================== error 1
+gov.nasa.jpf.vm.NoUncaughtExceptionsProperty
+java.lang.NullPointerException
+        at Test44032$TestThread.run(Test44032.java:58)
+
+
+====================================================== snapshot #1
+thread java.lang.Thread:{id:0,name:main,status:WAITING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  waiting on: Test44032$TestThread@502
+  call stack:
+        at java.lang.Thread.join(Thread.java)
+        at Test44032.run(Test44032.java:42)
+        at Test44032.main(Test44032.java:72)
+
+thread Test44032$TestThread:{id:2,name:Thread-2,status:RUNNING,priority:5,isDaemon:false,lockCount:0,suspendCount:0}
+  call stack:
+        at Test44032$TestThread.run(Test44032.java:58)
+
+
+====================================================== results
+error #1: gov.nasa.jpf.vm.NoUncaughtExceptionsProperty "java.lang.NullPointerException  at Test44032$TestT..."
+
+====================================================== statistics
+elapsed time:       00:00:01
+states:             new=64,visited=11,backtracked=27,end=2
+search:             maxDepth=48,constraints=0
+choice generators:  thread=63 (signal=0,lock=19,sharedRef=26,threadApi=8,reschedule=10), data=0
+heap:               new=1384,released=276,maxLive=1229,gcCycles=71
+instructions:       16782
+max memory:         240MB
+loaded code:        classes=130,methods=2302
+
+====================================================== search finished: 11/11/14 7:55 PM
+</pre>
+</p>
+<p>
+The output above represents one of the analyses that JPF is capable of, and as expected
+the concurrency bug is not exposed in every execution.  The choices of JPF
+analyses depends upon the JPF components installed.
+</p>
+<p>
+While JPF is not limited to use on the concurrency subjects, it has not been used with
+the other (non-concurrency) testing research subjects by the SIR staff.
+Thus, we have no experience with
+using JPF with these subjects and we suggest following the JPF users guide if you intend
+to experiment with JPF and these subjects.
+</p>
+</body>
+</html>

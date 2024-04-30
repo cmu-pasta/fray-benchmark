@@ -1,0 +1,66 @@
+This directory contains the following files:
+
+    - CONTENTS
+    : this file 
+
+    - README
+    : a general description and instructions on usage of the objects
+
+    - install.sh
+   
+    - runJPF.sh
+
+1. install.sh <application directory> <application name>
+
+   <application directory> : orig
+   
+   <application name> : the name of the application about to run  
+
+   Example:
+
+   %install.sh orig dbcp1
+
+
+   Tasks done by this script:
+
+       - Removes all previous files in ~/source directory
+
+       - Removes all previous files in ~/outputs directory
+
+       - Copies Java source files to ~/source directory
+
+       - Compiles the Java source files
+
+2. runJPF.sh <application directory> <application name> <search type> <number of runs> <show log switch>
+
+   <application directory> : orig
+   
+   <application name> : the name of the application about to test
+   
+   <search type> : default or random
+
+   <number of runs> : (optional - ignored unless a random search order
+                      is specified) the number of times JPF is invoked;
+                      default is 1
+   <show log switch> : -v
+
+   Example:
+
+   %runJPF.sh orig dbcp1 random 10 -v
+
+   Tasks done by this script:
+
+       - Runs the Java PathFinder model checker on the dbcp1 code in the 'orig'
+         directory structure 10 times using the random search order
+       - Generates a new seed for each run of JPF. 
+       - Names the resulting log file using the generated seed.
+       - Turn on "-log -show" switch for JPF
+
+   Example:
+
+   %runJPF.sh orig dbcp1 default
+
+   Tasks done by this script:
+
+       - Runs the Java PathFinder model checker on the dbcp1 code in the 'orig'
+         directory structure using the default search order

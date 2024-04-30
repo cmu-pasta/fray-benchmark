@@ -1,0 +1,37 @@
+Before you start an experiment, you should complete steps 1 and 2:
+
+1. Set the environment variable experiment_root to point to the parent
+directory where the SIR subject is installed.
+
+   For example, assume you have a subject directory "account" which has
+been installed under /cs_machine/exp_group/experiments, then you would
+set experiment_root by executing the command:
+
+for csh/tcsh:
+        setenv experiment_root /cs_machine/exp_group/experiments
+for bash:
+	export experiment_root=/cs_machine/exp_group/experiments
+
+2. If you plan to model check the account example using 
+Java PathFinder (JPF), set the environment variable jpf_root to point
+to the root directory of the JPF installation.
+
+   For example, assuming you have installed JPF  at
+/usr/tools/javapathfinder, then you would set jpf_root by executing
+the command:
+
+for csh/tcsh:
+        setenv jpf_root /usr/tools/javapathfinder
+for bash:
+	export jpf_root=/usr/tools/javapathfinder
+
+Notes
+1. JDK Version 1.6 or later is required to run the tests, while a few of
+them depend on specific versions of JDK, please refer to
+${experiment_root}/JaConTeBe/docs/bugList.html for details.  Also note
+that tests that require JDK Version 1.6 are not compatible with latest
+JPF that requires the use of JDK Version 1.7 or later.
+2. The runJPF.sh shell script can be modified to use the expect tool to limit
+the amount of time JPF will spend searching the state space. This is useful
+for programs with a large statespace. Refer to the runJPF.sh script for
+details (shown in the random run sections).
