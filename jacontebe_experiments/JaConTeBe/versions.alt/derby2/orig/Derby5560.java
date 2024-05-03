@@ -39,7 +39,7 @@ public class Derby5560 {
         public void run() {
             try {
                 latch.await();
-                Thread.sleep(10);
+                // Thread.sleep(10);
                 logicalConnection.close();
             } catch (SQLException e) {
 
@@ -78,7 +78,7 @@ public class Derby5560 {
         if (!OptionHelper.optionParse(args)) {
             return;
         }
-        Helpers.startDeadlockMonitor();
+        // Helpers.startDeadlockMonitor();
 
         Derby5560 test = new Derby5560();
         test.startThreads();

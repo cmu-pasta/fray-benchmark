@@ -10,7 +10,7 @@ import edu.illinois.jacontebe.framework.Reporter;
  * 
  * Options:
  * --threadnum, -tn: number of threads, deafault is 50.
- * --loops, -l:      number of iterations, default is 30.
+ * --loops, -l: number of iterations, default is 30.
  * 
  * @author Ziyi Lin
  */
@@ -19,7 +19,7 @@ public class Test44032 {
     private static final int DEFAULT_LOOPS = 30;
 
     private static final int DEFAULT_THREAD_NUM = 50;
-    
+
     private ThrowableInformation ti;
     private static volatile boolean buggy;
 
@@ -63,10 +63,10 @@ public class Test44032 {
 
     public static void main(String[] args) {
         Reporter.reportStart("log4j44032", 0, "race");
-        if(!OptionHelper.optionParse(args)){
+        if (!OptionHelper.optionParse(args)) {
             return;
         }
-        int loops=OptionHelper.getLoopsValue(DEFAULT_LOOPS);
+        int loops = OptionHelper.getLoopsValue(DEFAULT_LOOPS);
         for (int i = 0; i < loops; i++) {
             Test44032 test = new Test44032();
             test.run();

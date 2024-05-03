@@ -58,7 +58,7 @@ public class Groovy3495 {
         File file = new File(System.getProperty("java.home")
                 + "/lib/charsets.jar");
         if (!file.exists()) {
-            System.out.println("declared jar file:"+ file.getAbsolutePath() +" does not exist");
+            System.out.println("declared jar file:" + file.getAbsolutePath() + " does not exist");
         }
         URL[] classpath = new URL[] { new URL("jar:" + file.toURI().toURL()
                 + "!/") };

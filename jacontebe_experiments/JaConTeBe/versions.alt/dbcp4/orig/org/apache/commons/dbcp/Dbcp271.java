@@ -87,8 +87,8 @@ public class Dbcp271 {
                 } else {
                     value = test.getLastUsed();
                 }
-                if (value == SIZE - 1) {
-                    break;
+                if (value != SIZE - 1) {
+                    assert (false);
                 }
             }
         }
@@ -135,8 +135,6 @@ public class Dbcp271 {
         System.out
                 .println("Now executing not synchronized version. It might go into an endless loop:");
 
-        // Start an endless loop monitor in case endless loop happens.
-        Helpers.startEndlessLoopMonitor(10);
         // Run inconsistent synchronized version.
         Dbcp271 unsyncTest = new Dbcp271(false);
         start = System.currentTimeMillis();

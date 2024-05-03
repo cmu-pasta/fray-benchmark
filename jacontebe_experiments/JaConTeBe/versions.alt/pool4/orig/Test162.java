@@ -1,3 +1,4 @@
+
 /* 
    
 
@@ -28,11 +29,11 @@ import edu.illinois.jacontebe.OptionHelper;
 import edu.illinois.jacontebe.framework.Reporter;
 
 /**
- * Bug URL:https://issues.apache.org/jira/browse/POOL-162 
+ * Bug URL:https://issues.apache.org/jira/browse/POOL-162
  * This is a wait-notify deadlock.
  * Reproduce environment: commons-pool 1.5, JDK 1.6.0_33.
  * 
- *  A thread supposed to notify a later started
+ * A thread supposed to notify a later started
  * thread is interrupted and terminates, so no one will notify the other thread
  * from waiting.
  * 
@@ -257,7 +258,7 @@ public class Test162 {
         if (!OptionHelper.optionParse(args)) {
             return;
         }
-        Helpers.startWaitingMonitor(timeOut);
+        // Helpers.startWaitingMonitor(timeOut);
         Test162 t = new Test162();
         t.testWhenExhaustedBlockInterupt();
         Reporter.reportEnd(false);

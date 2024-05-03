@@ -76,7 +76,6 @@ public class Dbcp65 {
         if (!OptionHelper.optionParse(args)) {
             return;
         }
-        Helpers.startDeadlockMonitor();
         Dbcp65 test = new Dbcp65();
         test.run();
     }

@@ -63,7 +63,7 @@ public class Derby5447 {
         if (!OptionHelper.optionParse(args)) {
             return;
         }
-        Helpers.startDeadlockMonitor();
+        // Helpers.startDeadlockMonitor();
         Derby5447 test = new Derby5447();
         test.runThreads();
         Reporter.reportEnd(false);

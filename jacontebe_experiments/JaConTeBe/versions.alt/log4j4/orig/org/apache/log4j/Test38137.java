@@ -11,7 +11,7 @@ import edu.illinois.jacontebe.framework.Reporter;
  * This is a wait-notify deadlock.
  * Reproduce environment: log4j 1.2.13 ,JDK 1.6.0_33
  * 
- * Options: 
+ * Options:
  * --monitoroff, -mo : Turn forever waiting monitor off. When monitor
  * is turned on, it reports the forever waiting message and stop the program.
  * 
@@ -64,7 +64,7 @@ public class Test38137 {
         if (!OptionHelper.optionParse(args)) {
             return;
         }
-        Helpers.startWaitingMonitor();
+        // Helpers.startWaitingMonitor();
 
         Test38137 test = new Test38137();
         test.callAppender();

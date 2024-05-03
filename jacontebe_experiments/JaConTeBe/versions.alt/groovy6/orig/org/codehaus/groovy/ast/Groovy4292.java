@@ -14,9 +14,9 @@ import edu.illinois.jacontebe.framework.Reporter;
  * Reproduce environment: groovy 1.7.9, JDK 1.6.0_33, JDK 1.7.0 and JDK 1.8.0
  * 
  * Options:
- * --threadnum, -tn    thread number, default value is 4.
- * --loops, -l         loop number, default value is 5
- *  --monitoroff, -mo  Turn endless looping monitor off. When
+ * --threadnum, -tn thread number, default value is 4.
+ * --loops, -l loop number, default value is 5
+ * --monitoroff, -mo Turn endless looping monitor off. When
  * monitor is turned on, it reports the endless looping message and stops the
  * program.
  * 
@@ -37,7 +37,7 @@ public class Groovy4292 {
         if (!OptionHelper.optionParse(args)) {
             return;
         }
-        Helpers.startEndlessLoopMonitor(timeout, "WorkerThread");
+        // Helpers.startEndlessLoopMonitor(timeout, "WorkerThread");
         int numberOfLoops = OptionHelper.getLoopsValue(DEFAULT_LOOPS);
         int numberOfThreads = OptionHelper.getThreadNumValue(DEFAULT_THREADS);
         for (int loop = 1; loop <= numberOfLoops; loop++) {

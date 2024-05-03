@@ -1,6 +1,5 @@
 #!/bin/bash
 
-jenv local 11
 echo $(javac -version)
 if [ ! ${experiment_root} ]
 then

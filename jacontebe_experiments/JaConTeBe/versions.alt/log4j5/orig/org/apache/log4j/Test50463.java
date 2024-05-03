@@ -27,7 +27,7 @@ import edu.illinois.jacontebe.OptionHelper;
 import edu.illinois.jacontebe.framework.Reporter;
 
 /**
- * bug URL: https://issues.apache.org/bugzilla/show_bug.cgi?id=50463 
+ * bug URL: https://issues.apache.org/bugzilla/show_bug.cgi?id=50463
  * This is a wait-notify deadlock.
  * Reproduce environment: log4j 1.2.14, JDK 1.6.0_33
  * 
@@ -54,7 +54,7 @@ public class Test50463 {
         if (!OptionHelper.optionParse(args)) {
             return;
         }
-        Helpers.startWaitingMonitor(timeout);
+        // Helpers.startWaitingMonitor(timeout);
         Reporter.reportStart("log4j50463", timeout, "deadlock");
 
         Test50463 test = new Test50463();

@@ -42,33 +42,32 @@ public class Groovy5198 {
         binding.setVariable("threadNum", threadNum);
         binding.setVariable("loopNum", loopNum);
 
-        String scriptText=
-        "import edu.illinois.jacontebe.framework.Reporter;"+
-        "import java.util.concurrent.atomic.AtomicBoolean;"+
-        "enum Foo {"+
-            "foo,"+
-            "bar,"+
-            "baz"+
-        "}\n"+
-        "AtomicBoolean buggy=new AtomicBoolean(false);"+
-        "List<Closure> closures = []\n"+
-        "threadNum.times { int index ->"+
-            "closures << {"+
-                "loopNum.times {"+
-                    "String key = \"bar\"\n"+
-                    "try{"+
-                        "Foo f = key as Foo"+
-                    "}"+
-                    "catch(MissingMethodException e){"+
-                        "if(!buggy.get()){"+
-                            "e.printStackTrace();"+
-                        "}\n"+
-                        "buggy.set(true);"+
-                    "}}}}\n"+
-        "List<Thread> threads = closures.collect { Thread.start(it) }\n"+
-        "threads.each { it.join() }\n"+
-        "Reporter.reportEnd(buggy.get());";
-        GroovyShell shell=new GroovyShell(binding);
+        String scriptText = "import edu.illinois.jacontebe.framework.Reporter;" +
+                "import java.util.concurrent.atomic.AtomicBoolean;" +
+                "enum Foo {" +
+                "foo," +
+                "bar," +
+                "baz" +
+                "}\n" +
+                "AtomicBoolean buggy=new AtomicBoolean(false);" +
+                "List<Closure> closures = []\n" +
+                "threadNum.times { int index ->" +
+                "closures << {" +
+                "loopNum.times {" +
+                "String key = \"bar\"\n" +
+                "try{" +
+                "Foo f = key as Foo" +
+                "}" +
+                "catch(MissingMethodException e){" +
+                "if(!buggy.get()){" +
+                "e.printStackTrace();" +
+                "}\n" +
+                "buggy.set(true);" +
+                "}}}}\n" +
+                "List<Thread> threads = closures.collect { Thread.start(it) }\n" +
+                "threads.each { it.join() }\n" +
+                "Reporter.reportEnd(buggy.get());";
+        GroovyShell shell = new GroovyShell(binding);
         Script script = shell.parse(scriptText);
         script.run();
     }

@@ -19,8 +19,8 @@ import java.net.URL;
  * This is a deadlock
  * Reproduce environment: groovy 1.7.9, JDK 1.6.0_33
  * 
- * --threadnum, -tn thread number, default value is 3. 
- * --monitoroff, -mo : Turn deadlock monitor off. 
+ * --threadnum, -tn thread number, default value is 3.
+ * --monitoroff, -mo : Turn deadlock monitor off.
  * When monitor is turned on, it reports the deadlock
  * message and stops the program.
  * 
@@ -121,7 +121,7 @@ public class Groovy4736 {
         if (!OptionHelper.optionParse(args)) {
             return;
         }
-        Helpers.startDeadlockMonitor();
+        // Helpers.startDeadlockMonitor();
         int threadNumber = OptionHelper.getThreadNumValue(DEFAULT_THREAD_NUM);
 
         final Groovy4736 test = new Groovy4736();

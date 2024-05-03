@@ -200,7 +200,7 @@ public class Test2783 extends LuceneTestCase293 {
     public void testAtomicUpdates() throws Exception {
         int timeout = 30;
         Reporter.reportStart("lucene2783", timeout, "notify-wait deadlock");
-        Helpers.startWaitingMonitor();
+        // Helpers.startWaitingMonitor();
         RANDOM = newRandom();
         Directory directory;
 
@@ -217,5 +217,10 @@ public class Test2783 extends LuceneTestCase293 {
         directory.close();
         _TestUtil293.rmDir(dirPath);
         Reporter.reportEnd(false);
+    }
+
+    public static void main(String[] args) throws Exception {
+        Test2783 test = new Test2783();
+        test.testAtomicUpdates();
     }
 }

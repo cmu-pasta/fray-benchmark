@@ -14,7 +14,7 @@ import edu.illinois.jacontebe.framework.Reporter;
 
 /**
  * 
- * Bug URL:https://issues.apache.org/jira/browse/LUCENE-1544 
+ * Bug URL:https://issues.apache.org/jira/browse/LUCENE-1544
  * This is a wait-notify deadlock.
  * Reproduce environment: lucene 2.4.0, Java 1.6.0_33
  * 
@@ -61,10 +61,10 @@ public class Test1544 extends LuceneTestCase240 {
     }
 
     public void testAddIndexesByIndexReader() throws Exception {
-       
+
         int timeout = 30;
         Reporter.reportStart("lucene1544", timeout, "deadlock");
-        Helpers.startWaitingMonitor(timeout);
+        // Helpers.startWaitingMonitor(timeout);
         createIndex(coldIndexPath, 100000, coldDocCount);
         createIndex(hotIndexPath, 200000, hotDocCount);
 
@@ -89,6 +89,13 @@ public class Test1544 extends LuceneTestCase240 {
                 reader.numDocs());
         reader.close();
         Reporter.reportEnd(false);
+    }
+
+    public static void main(String[] args) throws Exception {
+        Test1544 test = new Test1544();
+        test.setUp();
+        test.testAddIndexesByIndexReader();
+        test.tearDown();
     }
 
     private IndexWriter getWriter(String directory) throws Exception {

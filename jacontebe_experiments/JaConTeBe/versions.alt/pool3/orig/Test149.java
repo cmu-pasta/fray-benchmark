@@ -10,13 +10,13 @@ import edu.illinois.jacontebe.framework.Reporter;
 
 /**
  * Bug URL:https://issues.apache.org/jira/browse/POOL-149
- * This is a wait-notify deadlock. 
+ * This is a wait-notify deadlock.
  * Reproduce environment: commons-pool-1.5, JDK 1.6.0_33.
  * 
- * Options: --loops,-l:Number of test iterations, default number is 10. 
- * --monitoroff, -mo: Turn monitor off. When monitor is turned on, 
- *                    it reports the forever waiting message and
- *                    stop the program.
+ * Options: --loops,-l:Number of test iterations, default number is 10.
+ * --monitoroff, -mo: Turn monitor off. When monitor is turned on,
+ * it reports the forever waiting message and
+ * stop the program.
  * 
  * @collector Ziyi Lin
  */
@@ -54,7 +54,7 @@ public class Test149 {
         if (!OptionHelper.optionParse(args)) {
             return;
         }
-        Helpers.startWaitingMonitor(timeOut);
+        // Helpers.startWaitingMonitor(timeOut);
         Test149 test = new Test149();
         test.run();
         Reporter.reportEnd(false);

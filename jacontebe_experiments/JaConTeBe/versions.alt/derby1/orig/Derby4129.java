@@ -30,7 +30,7 @@ public class Derby4129 {
         if (!OptionHelper.optionParse(args)) {
             return;
         }
-        Helpers.startDeadlockMonitor();
+        // Helpers.startDeadlockMonitor();
 
         Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
         final Connection c = DriverManager.getConnection(URL + ";create=true");
@@ -78,14 +78,10 @@ public class Derby4129 {
         new Thread(r).start();
         new Thread(r).start();
 
-        while (true) {
-            Thread.sleep(5000);
-            int ops = opCounter.getAndSet(0);
-            int errors = errCounter.getAndSet(0);
-            System.out.println("Operations last 5 seconds: " + ops);
-            if (errors > 0) {
-                System.out.println("  Errors: " + errors);
-            }
+        int ops = opCounter.getAndSet(0);
+        int errors = errCounter.getAndSet(0);
+        if (errors > 0) {
+            assert (false);
         }
     }
 }

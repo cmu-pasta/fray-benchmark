@@ -20,7 +20,7 @@ import edu.illinois.jacontebe.framework.Reporter;
 import edu.illinois.jacontebe.monitors.DeadlockMonitor;
 
 /**
- * Bug URL: https://issues.apache.org/jira/browse/DERBY-764 
+ * Bug URL: https://issues.apache.org/jira/browse/DERBY-764
  * This is a deadlock bug.
  * Reproduce environment: junit 4, derby 10.5.1.1, JDK 1.6.0_33
  * 
@@ -32,7 +32,7 @@ import edu.illinois.jacontebe.monitors.DeadlockMonitor;
 @PrepareForTest({ Monitor.class, IdUtil.class })
 public class Derby764 {
 
-    private class Thread1 extends Thread {
+    private static class Thread1 extends Thread {
         public void run() {
             try {
                 updateLoader.modifyJar(false);
@@ -42,7 +42,7 @@ public class Derby764 {
         }
     }
 
-    private class Thread2 extends Thread {
+    private static class Thread2 extends Thread {
         public void run() {
 
             try {
@@ -53,36 +53,17 @@ public class Derby764 {
         }
     }
 
-    private UpdateLoader updateLoader;
-    private SinglePool factory;
-    private LockOperator operator;
+    private static UpdateLoader updateLoader;
+    private static SinglePool factory;
+    private static LockOperator operator;
 
-    @Test
-    public void run() throws StandardException, InterruptedException {
-        Reporter.reportStart("derby764", 0, "deadlock");
-        DeadlockMonitor monitor = new DeadlockMonitor();
-        monitor.start();
-
-        Thread th1 = new Thread1();
-        Thread th2 = new Thread2();
-
-        th1.start();
-        th2.start();
-        th1.join();
-        th2.join();
-        // If test comes to this line, it means no deadlock happens.So we need
-        // to report the failure of bug reproduction.
-        Reporter.reportEnd(false);
-    }
-
-    @Before
-    public void setUp() throws StandardException {
+    public static void main(String[] args) throws StandardException, InterruptedException {
         factory = new SinglePool();
 
         // Prepare mock methods and instances to make sure
         // the program goes along the expected path.
         mockStatic(Monitor.class);
-        Mockito.when(Monitor.getServiceModule(Mockito.any(ReflectClassesJava2.class),Mockito.anyString()))
+        Mockito.when(Monitor.getServiceModule(Mockito.any(ReflectClassesJava2.class), Mockito.anyString()))
                 .thenReturn(factory);
         String classpath = "org/class";
 
@@ -95,5 +76,27 @@ public class Derby764 {
         Lockable classloaderLock = new ClassLoaderLock(updateLoader);
         operator = new LockOperator(factory, classloaderLock, qualifier);
         operator.lock();
+        Reporter.reportStart("derby764", 0, "deadlock");
+        // DeadlockMonitor monitor = new DeadlockMonitor();
+        // monitor.start();
+
+        // If test comes to this line, it means no deadlock happens.So we need
+        // to report the failure of bug reproduction.
+        try {
+            run();
+        } catch (Exception e) {
+
+        }
+        Reporter.reportEnd(false);
+    }
+
+    private static void run() throws InterruptedException {
+        Thread th1 = new Thread1();
+        Thread th2 = new Thread2();
+
+        th1.start();
+        th2.start();
+        th1.join();
+        th2.join();
     }
 }
