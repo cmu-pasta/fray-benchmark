@@ -1,11 +1,12 @@
 package org.apache.log4j.helpers;
 
 import org.apache.log4j.ConsoleAppender;
+import java.lang.NullPointerException;
 
 import edu.illinois.jacontebe.framework.Reporter;
 
 /**
- * Bug URL: https://issues.apache.org/bugzilla/show_bug.cgi?id=54325 
+ * Bug URL: https://issues.apache.org/bugzilla/show_bug.cgi?id=54325
  * This is a race.
  * Reproduce environment: log4j 1.2.13, JDK 1.6.0_33
  * 
@@ -44,9 +45,9 @@ public class Test54325 {
         public void run() {
             try {
                 aai.removeAllAppenders();
-            } catch (ArrayIndexOutOfBoundsException e) {
+            } catch (ArrayIndexOutOfBoundsException | NullPointerException e) {
                 buggy = true;
-                e.printStackTrace();
+                assert (false);
             }
         }
     }
