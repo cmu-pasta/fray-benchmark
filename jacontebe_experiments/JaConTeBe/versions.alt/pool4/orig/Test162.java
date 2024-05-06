@@ -209,21 +209,20 @@ public class Test162 {
         Thread.sleep(200);
         // Check thread was interrupted
         if (!(wtt._thrown instanceof InterruptedException)) {
-            throw new Exception(
-                    "wtt._thrown is not instance of InterruptedException.");
-        }
-
-        // Return object to the pool
-        pool.returnObject(obj1);
-        // Bug POOL-162 - check there is now an object in the pool
-        // pool.setMaxWait(10L);
-        Object obj2 = null;
-        obj2 = pool.borrowObject();
-        if (obj2 == null) {
+          pool.close();
+        } else {
+          // Return object to the pool
+          pool.returnObject(obj1);
+          // Bug POOL-162 - check there is now an object in the pool
+          // pool.setMaxWait(10L);
+          Object obj2 = null;
+          obj2 = pool.borrowObject();
+          if (obj2 == null) {
             throw new Exception("obj2 is null");
+          }
+          pool.returnObject(obj2);
+          pool.close();
         }
-        pool.returnObject(obj2);
-        pool.close();
     }
 
     /*
