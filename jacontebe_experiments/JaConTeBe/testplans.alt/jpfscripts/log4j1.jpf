@@ -1,5 +1,2 @@
-#--- what class JPF should run - Expected to be used/executed from within $experiment_root/JaConTeBe directory
 target = Test44032
-classpath =./source:./versions.alt/lib/realLib/log4j-1.2.15.jar:./versions.alt/lib/realLib/coring-1.4.jar:./versions.alt/lib/realLib/jacontebe-1.0.jar
-target.args = -tn,2,-l,1
-#--- other stuff that defines how to run JPF
+classpath = ./source:./versions.alt/lib/realLib/coring-1.4.jar:./versions.alt/lib/realLib/jacontebe-1.0.jar:./versions.alt/lib/realLib/log4j-1.2.15.jar

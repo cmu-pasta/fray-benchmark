@@ -1,2 +1,2 @@
-target = com.main.Test41214
+target = org.apache.log4j.helpers.Test54325
 classpath = ./source:./versions.alt/lib/realLib/coring-1.4.jar:./versions.alt/lib/realLib/jacontebe-1.0.jar:./versions.alt/lib/realLib/log4j-1.2.13.jar
