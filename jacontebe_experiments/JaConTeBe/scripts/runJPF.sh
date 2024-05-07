@@ -63,6 +63,7 @@ fi
     
 subject_dir=${experiment_root}/JaConTeBe/
 cd ${subject_dir}
+./scripts/install.sh orig $1
 
 if test $2 = "default"
 then
