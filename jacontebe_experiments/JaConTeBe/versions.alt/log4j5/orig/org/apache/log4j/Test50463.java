@@ -36,16 +36,19 @@ import edu.illinois.jacontebe.framework.Reporter;
  */
 public class Test50463 {
     private static int BUFFER_SIZE = 12;
+    private static int index = 0;
     private Logger logger;
     private static final int THREAD_NUM = 10;
     private CyclicBarrier barrier;
 
     public Test50463() {
+      index += 1;
+        LogManager.getRootLogger().removeAllAppenders();
         AsyncAppender asyncAppender = new AsyncAppender();
         asyncAppender.setBufferSize(BUFFER_SIZE);
         asyncAppender.addAppender(new ConsoleAppender(new SimpleLayout()));
         LogManager.getRootLogger().addAppender(asyncAppender);
-        logger = Logger.getLogger(Test50463.class);
+        logger = Logger.getLogger("" + index);
         barrier = new CyclicBarrier(THREAD_NUM + 1);
     }
 
@@ -55,11 +58,11 @@ public class Test50463 {
             return;
         }
         // Helpers.startWaitingMonitor(timeout);
-        Reporter.reportStart("log4j50463", timeout, "deadlock");
+        // Reporter.reportStart("log4j50463", timeout, "deadlock");
 
         Test50463 test = new Test50463();
         test.logToFillBuffer();
-        Reporter.reportEnd(false);
+        // Reporter.reportEnd(false);
     }
 
     private void logToFillBuffer() {
@@ -94,6 +97,9 @@ public class Test50463 {
         }
     }
 
+    public static class InjectedException extends RuntimeException {
+    }
+
     private void logToKillDispatcher() {
         try {
             barrier.await();
@@ -104,7 +110,7 @@ public class Test50463 {
         }
         logger.error(new Object() {
             public String toString() {
-                throw new RuntimeException();
+                throw new InjectedException();
             }
         });
     }

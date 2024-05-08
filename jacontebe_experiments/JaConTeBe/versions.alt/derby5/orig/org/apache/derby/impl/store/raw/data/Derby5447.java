@@ -9,6 +9,7 @@ import org.apache.derby.iapi.store.raw.ContainerKey;
 import org.apache.derby.iapi.store.raw.LockingPolicy;
 import org.apache.derby.iapi.store.raw.PageKey;
 import org.apache.derby.iapi.store.raw.xact.RawTransaction;
+import org.apache.derby.shared.common.sanity.AssertFailure;
 
 import edu.illinois.jacontebe.Helpers;
 import edu.illinois.jacontebe.OptionHelper;
@@ -41,7 +42,11 @@ public class Derby5447 {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
-            storedPage.releaseExclusive();
+            try {
+              storedPage.releaseExclusive();
+            } catch (NullPointerException | AssertFailure e) {
+
+            }
         }
     }
 
@@ -53,20 +58,23 @@ public class Derby5447 {
 
         public void run() {
             latch.countDown();
-            baseContainerHandle.close();
+            try {
+              baseContainerHandle.close();
+            } catch (NullPointerException e) {
+            }
         }
     }
 
     public static void main(String[] args) throws StandardException,
             InterruptedException {
-        Reporter.reportStart("derby5447", 0, "deadlock");
+        // Reporter.reportStart("derby5447", 0, "deadlock");
         if (!OptionHelper.optionParse(args)) {
             return;
         }
         // Helpers.startDeadlockMonitor();
         Derby5447 test = new Derby5447();
         test.runThreads();
-        Reporter.reportEnd(false);
+        // Reporter.reportEnd(false);
     }
 
     private StoredPage storedPage;

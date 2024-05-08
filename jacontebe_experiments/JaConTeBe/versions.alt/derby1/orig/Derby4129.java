@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.apache.derby.shared.common.sanity.AssertFailure;
 
 import edu.illinois.jacontebe.Helpers;
 import edu.illinois.jacontebe.OptionHelper;
@@ -61,7 +62,7 @@ public class Derby4129 {
                         rs.next();
                         try {
                             rs.getBytes(1);
-                        } catch (SQLException sqle) {
+                        } catch (SQLException | AssertFailure sqle) {
                             // Expect errors here now and then since the
                             // other thread may commit and close the container
                             errCounter.incrementAndGet();
