@@ -1,0 +1,2 @@
+target = org.apache.log4j.Test50463
+classpath = ./source:./versions.alt/lib/realLib/coring-1.4.jar:./versions.alt/lib/realLib/jacontebe-1.0.jar:./versions.alt/lib/realLib/log4j-1.2.14.jar

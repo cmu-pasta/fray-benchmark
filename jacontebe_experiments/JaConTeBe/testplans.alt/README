@@ -1,0 +1,15 @@
+The test scripts and jpfscripts found here are intended for use with
+the Java Pathfinder (JPF) model testing and analysis package.
+
+The directory jpfscripts contains the script files that are
+provided to JPF that configure JPF for the analysis performed.
+
+The testscript directory contains the LINUX shell script files that
+launch the fault exposing test class on the desired Java library.
+
+Each testscript utilizes the testscript/jacontebe.sh script
+which contains functions to check the environment and set
+environment variables.  These scripts also condition the
+runtime environment to allow JPF to find the libraries and
+class files necessary to run each test.
+
