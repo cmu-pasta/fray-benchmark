@@ -8,12 +8,13 @@ packages = [{include = "fray_benchmark"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"
-anthropic = "^0.18.1"
-openai = "^1.13.3"
-google-cloud-aiplatform = "^1.43.0"
-google-generativeai = "^0.4.0"
+click = "^8.1.7"
 
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+runner = "fray_benchmark:runner:main"
+

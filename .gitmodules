@@ -1,0 +1,3 @@
+[submodule "bms/guava"]
+	path = bms/guava
+	url = https://github.com/google/guava
