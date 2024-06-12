@@ -15,7 +15,8 @@ class GuavaBenchmark(UnitTestBenchmark):
                 os.path.join(self.guava_test_dir, "target/guava-tests-HEAD-jre-SNAPSHOT-tests.jar"),
                 os.path.join(self.guava_test_dir, "target/dependency/*.jar"),
             ], [
-                "com.google.common.cache.CacheLoadingTest#testConcurrentLoading"
+                "com.google.common.util.concurrent.GeneratedMonitorTest#enterIf(nonfair)(+oo)/UnsatisfiedAndUnoccupiedBeforeEntering->Failure",
+                # "com.google.common.cache.CacheLoadingTest#testConcurrentLoading",
                 # "com.google.common.hash.BloomFilterTest#testNoRaceConditions",
                 # "com.google.common.util.concurrent.ExecutionListTest#testExecute_idempotentConcurrently",
             ])

@@ -20,9 +20,9 @@ class BenchmarkBase(object):
             os.makedirs(log_path)
             args.extend([
                 "-o", f"{out_dir}/{test_index}",
-                "--logger", "csv",
-                "--iter", "1000",
-                "-s", "100000000"
+                "--logger", "json",
+                "--iter", "-1",
+                "-s", "10000000"
                 ])
             args.extend(config)
             test_index += 1
