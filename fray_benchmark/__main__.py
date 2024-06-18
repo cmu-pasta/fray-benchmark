@@ -9,6 +9,7 @@ from datetime import datetime
 from multiprocessing import Pool
 from .configs import BENCHMARKS, SCHEDULERS, FRAY_PATH, OUTPUT_PATH
 from .bms.benchmark_base import BenchmarkBase
+from .utils import run_command
 from typing import List
 
 
@@ -25,11 +26,6 @@ def build(app: BenchmarkBase):
     app.build()
 
 
-def run_command(command: List[str], log_path: str):
-    with open(os.path.join(log_path, "command.txt"), "w") as f:
-        f.write(" ".join(command))
-    subprocess.call(command, cwd=FRAY_PATH, stdout=open(os.path.join(log_path, "stdout.txt"), "w"), stderr=open(os.path.join(log_path, "stderr.txt"), "w")
-
 @main.command(name="run")
 @click.pass_obj
 @click.option("--scheduler", type=click.Choice(list(SCHEDULERS.keys())), default="pct3")
@@ -43,23 +39,53 @@ def run(app: BenchmarkBase, scheduler: str, name: str, debug_jvm: bool, timeout:
         shutil.rmtree(out_dir)
     os.makedirs(out_dir)
     with Pool(processes=cpu) as pool:
-        pool.map(run_command, app.generate_test_commands(SCHEDULERS[scheduler], out_dir, debug_jvm))
+        pool.starmap(run_command, app.generate_test_commands(SCHEDULERS[scheduler], out_dir, debug_jvm))
 
-
-@main.command(name="replay")
-@click.pass_obj
-@click.option("--path", type=str)
+@main.command(name="runSingle")
+@click.argument("path", type=str)
 @click.option("--debug-jvm", type=bool, is_flag=True, show_default=True, default=False)
-def run(app: BenchmarkBase, path: str, debug_jvm: bool):
+def run(path: str, debug_jvm: bool):
     out_dir = os.path.join("/tmp/replay")
     if os.path.exists(out_dir):
         shutil.rmtree(out_dir)
     os.makedirs(out_dir)
-    for command, _ in app.generate_test_commands([
-        "--scheduler=replay",
-        f"--path={path}",
-    ], out_dir, debug_jvm):
-        subprocess.call(command, cwd=FRAY_PATH)
+    subprocess.call([
+        './gradlew',
+        "runFray",
+        "-PconfigPath=" + os.path.join(path, "config.json"),
+        "-PextraArgs=" + " ".join([
+            "--scheduler=pct",
+            "--logger=csv",
+            "--iter",
+            "-100",
+            "-s",
+            "10000000"
+        ],),
+        "--debug-jvm"
+    ], cwd=FRAY_PATH)
+
+@main.command(name="replay")
+@click.argument("path", type=str)
+@click.argument("replay", type=str)
+@click.option("--debug-jvm", type=bool, is_flag=True, show_default=True, default=False)
+def run(path: str, replay: str, debug_jvm: bool):
+    out_dir = os.path.join("/tmp/replay")
+    if os.path.exists(out_dir):
+        shutil.rmtree(out_dir)
+    os.makedirs(out_dir)
+    subprocess.call([
+        './gradlew',
+        "runFray",
+        "-PconfigPath=" + os.path.join(path, "config.json"),
+        "-PextraArgs=" + " ".join([
+            "--scheduler=replay",
+            f"--path={os.path.join(path, "report", f"schedule_simplified_{replay}.csv")}",
+            "--logger=csv",
+            "-s",
+            "10000000"
+        ],),
+        "--debug-jvm"
+    ], cwd=FRAY_PATH)
 
 if __name__ == '__main__':
     main(None, None)

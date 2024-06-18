@@ -3,8 +3,10 @@
 
 import os
 import subprocess
+
 from .benchmark_base import UnitTestBenchmark
-from ..configs import ARTIFACTS_PATH
+from ..configs import ARTIFACTS_PATH, ASSETS_PATH
+from ..utils import load_test_cases
 
 class GuavaBenchmark(UnitTestBenchmark):
     def __init__(self) -> None:
@@ -14,12 +16,8 @@ class GuavaBenchmark(UnitTestBenchmark):
             [
                 os.path.join(self.guava_test_dir, "target/guava-tests-HEAD-jre-SNAPSHOT-tests.jar"),
                 os.path.join(self.guava_test_dir, "target/dependency/*.jar"),
-            ], [
-                "com.google.common.util.concurrent.GeneratedMonitorTest#enterIf(nonfair)(+oo)/UnsatisfiedAndUnoccupiedBeforeEntering->Failure",
-                # "com.google.common.cache.CacheLoadingTest#testConcurrentLoading",
-                # "com.google.common.hash.BloomFilterTest#testNoRaceConditions",
-                # "com.google.common.util.concurrent.ExecutionListTest#testExecute_idempotentConcurrently",
-            ])
+            ], load_test_cases(os.path.join(ASSETS_PATH, "guava.txt"))
+            )
 
     def build(self) -> None:
         subprocess.call([

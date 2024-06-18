@@ -2,11 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import os
-import glob
-import inspect
-import importlib.util
 from typing import Dict
-from .bms.benchmark_base import BenchmarkBase, UnitTestBenchmark
 
 SCHEDULERS = {
     "pct3": ['--scheduler=pct', '--num-switch-points=3'],
@@ -19,9 +15,15 @@ FRAY_PATH = os.environ["FRAY_PATH"]
 SCRIPT_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)))
 PROJECT_PATH = os.path.join(SCRIPT_PATH, "..")
 ARTIFACTS_PATH = os.path.join(PROJECT_PATH, "bms")
+ASSETS_PATH = os.path.join(SCRIPT_PATH, "assets")
 OUTPUT_PATH = os.path.join(PROJECT_PATH, "output")
-BENCHMARKS: Dict[str, BenchmarkBase] = {}
 
+import glob
+import inspect
+import importlib.util
+from .bms.benchmark_base import BenchmarkBase, UnitTestBenchmark
+
+BENCHMARKS: Dict[str, BenchmarkBase] = {}
 for file in glob.glob(os.path.join(SCRIPT_PATH, "bms/*.py")):
     name = os.path.splitext(os.path.basename(file))[0]
     try:
