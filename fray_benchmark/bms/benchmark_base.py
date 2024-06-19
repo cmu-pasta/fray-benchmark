@@ -64,7 +64,7 @@ class UnitTestBenchmark(BenchmarkBase):
                     "classpaths": self.classpath,
                 },
                 "ignoreUnhandledExceptions": False,
-                "timedOpAsYield": True,
+                "timedOpAsYield": False,
                 "interleaveMemoryOps": False,
                 "maxScheduledStep": 1000000
             }
