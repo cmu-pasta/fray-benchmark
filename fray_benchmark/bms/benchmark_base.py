@@ -26,7 +26,6 @@ class BenchmarkBase(object):
                 "-o", f"{log_path}/report",
                 "--logger", "json",
                 "--iter", "-1",
-                "-s", "10000000"
                 ]
             args.extend(config)
             test_index += 1
@@ -56,10 +55,16 @@ class UnitTestBenchmark(BenchmarkBase):
     def get_test_cases(self) -> Iterator[Dict[str, str]]:
         for test_case in self.test_cases:
             yield {
-                "clazz": "cmu.pasta.fray.examples.JUnitRunnerKt",
-                "method": "main",
-                "args": [
-                    f"{test_case}",
-                ],
-                "classpaths": self.classpath
+                "executor": {
+                    "clazz": "cmu.pasta.fray.examples.JUnitRunnerKt",
+                    "method": "main",
+                    "args": [
+                        f"{test_case}",
+                    ],
+                    "classpaths": self.classpath,
+                },
+                "ignoreUnhandledExceptions": False,
+                "timedOpAsYield": True,
+                "interleaveMemoryOps": False,
+                "maxScheduledStep": 1000000
             }

@@ -58,8 +58,6 @@ def run(path: str, debug_jvm: bool):
             "--logger=csv",
             "--iter",
             "-100",
-            "-s",
-            "10000000"
         ],),
         "--debug-jvm"
     ], cwd=FRAY_PATH)
@@ -81,8 +79,6 @@ def run(path: str, replay: str, debug_jvm: bool):
             "--scheduler=replay",
             f'--path={os.path.join(path, "report", f"schedule_simplified_{replay}.csv")}',
             "--logger=csv",
-            "-s",
-            "10000000"
         ],),
         "--debug-jvm"
     ], cwd=FRAY_PATH)
