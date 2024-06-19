@@ -10,7 +10,6 @@ from multiprocessing import Pool
 from .configs import BENCHMARKS, SCHEDULERS, FRAY_PATH, OUTPUT_PATH
 from .bms.benchmark_base import BenchmarkBase
 from .utils import run_command
-from typing import List
 
 
 @click.group(name="mode")

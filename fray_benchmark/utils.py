@@ -9,7 +9,10 @@ def run_command(command: List[str], log_path: str, cwd: str, timeout: int):
     print(f"Running {cwd}")
     with open(os.path.join(log_path, "command.txt"), "w") as f:
         f.write(" ".join(command))
-    subprocess.call(command, cwd=cwd, stdout=open(os.path.join(log_path, "stdout.txt"), "w"), stderr=open(os.path.join(log_path, "stderr.txt"), "w"), timeout=timeout)
+    try:
+        subprocess.call(command, cwd=cwd, stdout=open(os.path.join(log_path, "stdout.txt"), "w"), stderr=open(os.path.join(log_path, "stderr.txt"), "w"), timeout=timeout)
+    except subprocess.TimeoutExpired:
+        pass
 
 
 def load_test_cases(file_path: str) -> List[str]:
