@@ -39,7 +39,7 @@ def run(app: BenchmarkBase, scheduler: str, name: str, debug_jvm: bool, timeout:
         shutil.rmtree(out_dir)
     os.makedirs(out_dir)
     with Pool(processes=cpu) as pool:
-        pool.starmap(run_command, app.generate_test_commands(SCHEDULERS[scheduler], out_dir, debug_jvm))
+        pool.starmap(run_command, map(lambda it: (*it, timeout), app.generate_test_commands(SCHEDULERS[scheduler], out_dir, debug_jvm)))
 
 @main.command(name="runSingle")
 @click.argument("path", type=str)

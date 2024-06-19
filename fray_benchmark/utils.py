@@ -4,12 +4,12 @@ from typing import List
 import subprocess
 
 
-def run_command(command: List[str], log_path: str, cwd: str):
+def run_command(command: List[str], log_path: str, cwd: str, timeout: int):
     print(f"Running {log_path}")
     print(f"Running {cwd}")
     with open(os.path.join(log_path, "command.txt"), "w") as f:
         f.write(" ".join(command))
-    subprocess.call(command, cwd=cwd, stdout=open(os.path.join(log_path, "stdout.txt"), "w"), stderr=open(os.path.join(log_path, "stderr.txt"), "w"))
+    subprocess.call(command, cwd=cwd, stdout=open(os.path.join(log_path, "stdout.txt"), "w"), stderr=open(os.path.join(log_path, "stderr.txt"), "w"), timeout=timeout)
 
 
 def load_test_cases(file_path: str) -> List[str]:
