@@ -24,7 +24,7 @@ class BenchmarkBase(object):
             json.dump(config_data, open(f"{log_path}/config.json", "w"), indent=4)
             args = [
                 "-o", f"{log_path}/report",
-                "--logger", "csv",
+                "--logger", "json",
                 "--iter", "-1",
                 "-s", "10000000"
                 ]

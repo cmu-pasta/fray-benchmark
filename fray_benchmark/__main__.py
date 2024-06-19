@@ -79,7 +79,7 @@ def run(path: str, replay: str, debug_jvm: bool):
         "-PconfigPath=" + os.path.join(path, "config.json"),
         "-PextraArgs=" + " ".join([
             "--scheduler=replay",
-            f"--path={os.path.join(path, "report", f"schedule_simplified_{replay}.csv")}",
+            f'--path={os.path.join(path, "report", f"schedule_simplified_{replay}.csv")}',
             "--logger=csv",
             "-s",
             "10000000"
