@@ -43,23 +43,29 @@ def run(app: BenchmarkBase, scheduler: str, name: str, debug_jvm: bool, timeout:
 @main.command(name="runSingle")
 @click.argument("path", type=str)
 @click.option("--debug-jvm", type=bool, is_flag=True, show_default=True, default=False)
-def run(path: str, debug_jvm: bool):
+@click.option("--no-fray", type=bool, is_flag=True, show_default=True, default=False)
+def run(path: str, debug_jvm: bool, no_fray: bool):
     out_dir = os.path.join("/tmp/replay")
     if os.path.exists(out_dir):
         shutil.rmtree(out_dir)
     os.makedirs(out_dir)
-    subprocess.call([
-        './gradlew',
-        "runFray",
-        "-PconfigPath=" + os.path.join(path, "config.json"),
-        "-PextraArgs=" + " ".join([
+    fray_args = [
             "--scheduler=pct",
             "--logger=csv",
             "--iter",
             "-100",
-        ],),
-        "--debug-jvm"
-    ], cwd=FRAY_PATH)
+        ]
+    if no_fray:
+        fray_args.append("--no-fray")
+    command = [
+        './gradlew',
+        "runFray",
+        "-PconfigPath=" + os.path.join(path, "config.json"),
+        "-PextraArgs=" + " ".join(fray_args),
+    ]
+    if debug_jvm:
+        command.append("--debug-jvm")
+    subprocess.call(command, cwd=FRAY_PATH)
 
 @main.command(name="replay")
 @click.argument("path", type=str)
