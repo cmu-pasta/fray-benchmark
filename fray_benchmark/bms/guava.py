@@ -16,8 +16,8 @@ class GuavaBenchmark(UnitTestBenchmark):
             [
                 os.path.join(self.guava_test_dir, "target/guava-tests-HEAD-jre-SNAPSHOT-tests.jar"),
                 os.path.join(self.guava_test_dir, "target/dependency/*.jar"),
-            ], load_test_cases(os.path.join(ASSETS_PATH, "guava.txt"))
-            )
+            ], load_test_cases(os.path.join(ASSETS_PATH, "guava.txt")),
+            {})
 
     def build(self) -> None:
         subprocess.call([

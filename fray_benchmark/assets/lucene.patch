@@ -1,0 +1,13 @@
+diff --git a/lucene/core/build.gradle b/lucene/core/build.gradle
+index e55c0853f61..dcca32d29a1 100644
+--- a/lucene/core/build.gradle
++++ b/lucene/core/build.gradle
+@@ -23,3 +23,8 @@ dependencies {
+   moduleTestImplementation project(':lucene:codecs')
+   moduleTestImplementation project(':lucene:test-framework')
+ }
++
++task copyDependencies(type: Copy) {
++  from configurations.moduleTestRuntimePath
++  into "build/dependency"
++}

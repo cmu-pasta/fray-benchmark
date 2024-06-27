@@ -33,12 +33,12 @@ def build(app: BenchmarkBase):
 @click.option("--timeout", "-t", type=int, default=10 * 60)
 @click.option("--cpu", type=int, default = os.cpu_count())
 def run(app: BenchmarkBase, scheduler: str, name: str, debug_jvm: bool, timeout: int, cpu: int):
-    out_dir = os.path.join(OUTPUT_PATH, name, scheduler)
+    out_dir = os.path.join(OUTPUT_PATH, name, app.name, scheduler)
     if os.path.exists(out_dir):
         shutil.rmtree(out_dir)
     os.makedirs(out_dir)
     with Pool(processes=cpu) as pool:
-        pool.starmap(run_command, map(lambda it: (*it, timeout), app.generate_test_commands(SCHEDULERS[scheduler], out_dir, debug_jvm)))
+        pool.starmap(run_command, map(lambda it: (*it, timeout), app.generate_fray_test_commands(SCHEDULERS[scheduler], out_dir, debug_jvm)))
 
 @main.command(name="runSingle")
 @click.argument("path", type=str)

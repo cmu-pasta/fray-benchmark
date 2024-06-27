@@ -1,3 +1,7 @@
 [submodule "bms/guava"]
 	path = bms/guava
 	url = https://github.com/google/guava
+[submodule "bms/lucene"]
+	path = bms/lucene
+	url = https://github.com/apache/lucene
+  ignore = dirty
