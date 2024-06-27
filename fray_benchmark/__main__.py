@@ -9,7 +9,7 @@ from datetime import datetime
 from multiprocessing import Pool
 from .configs import BENCHMARKS, SCHEDULERS, FRAY_PATH, OUTPUT_PATH
 from .bms.benchmark_base import BenchmarkBase
-from .utils import run_command
+from .utils import run_fray, run_rr
 
 
 @click.group(name="mode")
@@ -24,6 +24,18 @@ def main(ctx, application: str):
 def build(app: BenchmarkBase):
     app.build()
 
+@main.command(name="runRR")
+@click.pass_obj
+@click.option("--name", type=str, default=datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
+@click.option("--timeout", "-t", type=int, default=10 * 60)
+@click.option("--cpu", type=int, default = os.cpu_count())
+def run(app: BenchmarkBase, name: str, timeout: int, cpu: int):
+    out_dir = os.path.join(OUTPUT_PATH, name, app.name, "rr")
+    if os.path.exists(out_dir):
+        shutil.rmtree(out_dir)
+    os.makedirs(out_dir)
+    with Pool(processes=cpu) as pool:
+        pool.starmap(run_rr, map(lambda it: (*it, timeout), app.generate_rr_test_commands(out_dir)))
 
 @main.command(name="run")
 @click.pass_obj
@@ -38,7 +50,7 @@ def run(app: BenchmarkBase, scheduler: str, name: str, debug_jvm: bool, timeout:
         shutil.rmtree(out_dir)
     os.makedirs(out_dir)
     with Pool(processes=cpu) as pool:
-        pool.starmap(run_command, map(lambda it: (*it, timeout), app.generate_fray_test_commands(SCHEDULERS[scheduler], out_dir, debug_jvm)))
+        pool.starmap(run_fray, map(lambda it: (*it, timeout), app.generate_fray_test_commands(SCHEDULERS[scheduler], out_dir, debug_jvm)))
 
 @main.command(name="runSingle")
 @click.argument("path", type=str)

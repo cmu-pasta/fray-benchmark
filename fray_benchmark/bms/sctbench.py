@@ -4,11 +4,11 @@
 import os
 import subprocess
 
-from .benchmark_base import UnitTestBenchmark
+from .benchmark_base import MainMethodBenchmark
 from ..configs import ARTIFACTS_PATH, ASSETS_PATH
 from ..utils import load_test_cases
 
-class SCTBenchBenchmark(UnitTestBenchmark):
+class SCTBenchBenchmark(MainMethodBenchmark):
     def __init__(self) -> None:
         self.bench_dir = os.path.join(ARTIFACTS_PATH, "SCTBench")
         super().__init__(
@@ -16,7 +16,7 @@ class SCTBenchBenchmark(UnitTestBenchmark):
             [
                 os.path.join(self.bench_dir, "build/libs/*.jar"),
             ],
-            load_test_cases(os.path.join(ASSETS_PATH, "lucene.txt")),
+            load_test_cases(os.path.join(ASSETS_PATH, "sctbench.txt")),
             {}
             )
 
