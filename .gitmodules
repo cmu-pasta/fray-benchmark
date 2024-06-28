@@ -5,3 +5,6 @@
 	path = bms/lucene
 	url = https://github.com/apache/lucene
   ignore = dirty
+[submodule "bms/commons-lang"]
+	path = bms/commons-lang
+	url = https://github.com/apache/commons-lang
