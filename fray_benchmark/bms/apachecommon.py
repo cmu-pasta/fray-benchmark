@@ -16,7 +16,8 @@ class ApacheCommonBenchmark(UnitTestBenchmark):
                 os.path.join(self.bench_dir, "target/dependency/*.jar"),
             ], load_test_cases(os.path.join(ASSETS_PATH, "apachecommon.txt")),
             {
-            })
+            },
+            False)
 
     def build(self) -> None:
         subprocess.call([
