@@ -5,7 +5,7 @@ import os
 import json
 from typing import List, Iterator, Tuple, Dict
 
-from fray_benchmark.configs import FRAY_PATH
+from fray_benchmark.configs import FRAY_PATH, RR_PATH
 from ..utils import resolve_classpaths
 
 class BenchmarkBase(object):
@@ -16,20 +16,21 @@ class BenchmarkBase(object):
     def build(self) -> None:
         pass
 
-    def generate_rr_test_commands(self, out_dir: str) -> Iterator[Tuple[List[str], str]]:
+    def generate_rr_test_commands(self, out_dir: str) -> Iterator[Tuple[List[str], str, str]]:
         test_index = 0
         for config_data in self.get_test_cases():
             log_path = f"{out_dir}/{test_index}"
+            test_index += 1
             os.makedirs(log_path)
             json.dump(config_data, open(f"{log_path}/config.json", "w"), indent=4)
-            command = ["java"]
+            command = ["java", "-ea"]
             for classpath in config_data["executor"]["classpaths"]:
                 command.extend(["-cp", classpath])
             for property_key, property_value in config_data["executor"]["properties"].items():
                 command.extend(["-D", f"{property_key}={property_value}"])
             command.append(config_data["executor"]["clazz"])
             command.extend(config_data["executor"]["args"])
-            yield command, log_path
+            yield command, log_path, RR_PATH
 
     def generate_fray_test_commands(self, config: List[str], out_dir: str, debug_jvm:  bool) -> Iterator[Tuple[List[str], str, str]]:
         test_index = 0
@@ -85,11 +86,12 @@ class MainMethodBenchmark(BenchmarkBase):
 
 
 class UnitTestBenchmark(BenchmarkBase):
-    def __init__(self, name: str, classpath: List[str], test_cases: List[str], properties: Dict[str, str]) -> None:
+    def __init__(self, name: str, classpath: List[str], test_cases: List[str], properties: Dict[str, str], is_junit4: bool) -> None:
         super().__init__(name)
         self.test_cases = test_cases
         self.classpath = resolve_classpaths(classpath)
         self.properties = properties
+        self.is_junit4 = is_junit4
 
 
     def get_test_cases(self) -> Iterator[Dict[str, str]]:
@@ -99,6 +101,7 @@ class UnitTestBenchmark(BenchmarkBase):
                     "clazz": "cmu.pasta.fray.examples.JUnitRunnerKt",
                     "method": "main",
                     "args": [
+                        "junit4" if self.is_junit4 else "junit5",
                         f"{test_case}",
                     ],
                     "classpaths": self.classpath,
