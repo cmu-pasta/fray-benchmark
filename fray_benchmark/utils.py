@@ -1,6 +1,7 @@
 import os
 import re
 import time
+import shutil
 from typing import List
 import subprocess
 
@@ -11,29 +12,41 @@ def run_fray(command: List[str], log_path: str, cwd: str, timeout: int):
     with open(os.path.join(log_path, "command.txt"), "w") as f:
         f.write(" ".join(command))
     try:
-        subprocess.call(command, cwd=cwd, stdout=open(os.path.join(log_path, "stdout.txt"), "w"), stderr=open(os.path.join(log_path, "stderr.txt"), "w"), timeout=timeout)
+        start_time = time.time()
+        proc = subprocess.run(command, cwd=cwd, stdout=open(os.path.join(log_path, "stdout.txt"), "w"), stderr=open(os.path.join(log_path, "stderr.txt"), "w"), timeout=timeout)
+        with open(os.path.join(log_path, "report.txt"), "w") as report:
+            if proc.returncode != 0:
+                report.write(f"Error Found: {time.time() - start_time}\n")
+            else:
+                report.write(f"No Error: {time.time() - start_time}\n")
+
     except subprocess.TimeoutExpired:
         pass
 
 
-def run_rr(command: List[str], log_path: str, timeout: int):
+def run_rr(command: List[str], log_path: str, cwd: str, timeout: int):
     print(f"Running {log_path}")
-    start_time = time.time()
-    command = ["rr", "record", "--chaos"] + command
+    trace_dir = os.path.join(log_path, "trace")
+    command = ["./rr", "record", "--chaos", "-o", trace_dir] + command
     with open(os.path.join(log_path, "command.txt"), "w") as f:
         f.write(" ".join(command))
-    with open(os.path.join(log_path, "stdout.txt"), "w") as stdout:
+    with open(os.path.join(log_path, "report.txt"), "w") as stdout:
+        start_time = time.time()
         iter = 0
+        error_found = False
         while (time.time() - start_time) < timeout:
-            stdout.write(f"Iteration: {iter}")
-            proc = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            stdout.write(f"Iteration: {iter}\n")
+            if os.path.exists(trace_dir):
+                shutil.rmtree(trace_dir)
+            proc = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=cwd)
             if proc.returncode != 0:
-                stdout.write(f"Error: {proc.returncode}")
-                stdout.write(proc.stdout.decode("utf-8"))
-                stdout.write(proc.stderr.decode("utf-8"))
+                error_found = True
                 break
             iter += 1
-
+        if error_found:
+            stdout.write(f"Error Found: {time.time() - start_time}\n")
+        else:
+            stdout.write(f"No Error: {time.time() - start_time}\n")
 
 def load_test_cases(file_path: str) -> List[str]:
     with open(file_path) as f:

@@ -12,6 +12,7 @@ SCHEDULERS = {
 }
 
 FRAY_PATH = os.environ["FRAY_PATH"]
+RR_PATH = os.environ["RR_PATH"]
 SCRIPT_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)))
 PROJECT_PATH = os.path.join(SCRIPT_PATH, "..")
 ARTIFACTS_PATH = os.path.join(PROJECT_PATH, "bms")

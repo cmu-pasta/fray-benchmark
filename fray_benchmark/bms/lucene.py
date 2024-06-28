@@ -17,7 +17,8 @@ class LuceneBenchmark(UnitTestBenchmark):
             {
                 "tests.seed": "deadbeef",
                 "tests.jvmForkArgsFile": os.path.join(self.lucene_dir, "lucene/core/build/tmp/test/jvm-forking.properties"),
-            })
+            },
+            True)
 
     def build(self) -> None:
         subprocess.call([
