@@ -1,6 +1,7 @@
 import os
 import shutil
 import re
+import pandas as pd
 
 
 class BenchResult():
@@ -9,10 +10,9 @@ class BenchResult():
         components = path.split("/")
         self.tech = components[-1]
         self.benchmark = components[-2]
-        self.no_error_pattern = re.compile(r"No Error: (\d+\.\d+)")
-        self.error_found_pattern = re.compile(r"Error Found: (\d+\.\d+)")
+        self.error_pattern = re.compile(r"(No Error|Error Found): (\d+\.\d+)")
 
-    def load(self):
+    def to_csv(self):
         result_folder = os.path.join(self.path, "results")
         if os.path.exists(result_folder):
             shutil.rmtree(result_folder)
@@ -23,7 +23,17 @@ class BenchResult():
                 continue
             run_folder = os.path.join(self.path, folder)
             with open(os.path.join(run_folder, "report.txt")) as f:
+                text = f.read()
+                match = self.error_pattern.search(text)
+                error_type, value = match.groups()
+                if error_type == "No Error":
+                    summary_file.write(f"{folder},0,{value}\n")
+                elif error_type == "Error Found":
+                    summary_file.write(f"{folder},1,{value}\n")
 
-                # summary_file.write(f"{folder},{f.read()}")
-                pass
+    def load_csv(self) -> pd.DataFrame:
+        result_folder = os.path.join(self.path, "results")
+        if not os.path.exists(result_folder):
+            raise Exception("No results folder found")
+        return pd.read_csv(os.path.join(result_folder, "summary.csv"), columns=["run", "error", "time"])
 
