@@ -8,6 +8,7 @@ from typing import List, Iterator, Tuple, Dict
 from fray_benchmark.configs import FRAY_PATH, RR_PATH
 from ..utils import resolve_classpaths
 
+
 class BenchmarkBase(object):
 
     def __init__(self, name: str) -> None:
@@ -22,7 +23,8 @@ class BenchmarkBase(object):
             log_path = f"{out_dir}/{test_index}"
             test_index += 1
             os.makedirs(log_path)
-            json.dump(config_data, open(f"{log_path}/config.json", "w"), indent=4)
+            json.dump(config_data, open(
+                f"{log_path}/config.json", "w"), indent=4)
             command = ["java", "-ea"]
             for classpath in config_data["executor"]["classpaths"]:
                 command.extend(["-cp", classpath])
@@ -37,12 +39,13 @@ class BenchmarkBase(object):
         for config_data in self.get_test_cases():
             log_path = f"{out_dir}/{test_index}"
             os.makedirs(log_path)
-            json.dump(config_data, open(f"{log_path}/config.json", "w"), indent=4)
+            json.dump(config_data, open(
+                f"{log_path}/config.json", "w"), indent=4)
             args = [
                 "-o", f"{log_path}/report",
                 "--logger", "json",
                 "--iter", "-1",
-                ]
+            ]
             args.extend(config)
             test_index += 1
             command = [
@@ -60,6 +63,7 @@ class BenchmarkBase(object):
 
     def get_extra_args(self) -> List[str]:
         return []
+
 
 class MainMethodBenchmark(BenchmarkBase):
     def __init__(self, name: str, classpath: List[str], test_cases: List[str], properties: Dict[str, str]) -> None:
@@ -92,7 +96,6 @@ class UnitTestBenchmark(BenchmarkBase):
         self.classpath = resolve_classpaths(classpath)
         self.properties = properties
         self.is_junit4 = is_junit4
-
 
     def get_test_cases(self) -> Iterator[Dict[str, str]]:
         for test_case in self.test_cases:

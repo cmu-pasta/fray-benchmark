@@ -9,8 +9,7 @@ packages = [{include = "fray_benchmark"}]
 [tool.poetry.dependencies]
 python = "^3.10"
 click = "^8.1.7"
-
-
+seaborn = "^0.13.2"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

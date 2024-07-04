@@ -8,6 +8,7 @@ from .benchmark_base import MainMethodBenchmark
 from ..configs import ARTIFACTS_PATH, ASSETS_PATH
 from ..utils import load_test_cases
 
+
 class SCTBenchBenchmark(MainMethodBenchmark):
     def __init__(self) -> None:
         self.bench_dir = os.path.join(ARTIFACTS_PATH, "SCTBench")
@@ -18,7 +19,7 @@ class SCTBenchBenchmark(MainMethodBenchmark):
             ],
             load_test_cases(os.path.join(ASSETS_PATH, "sctbench.txt")),
             {}
-            )
+        )
 
     def build(self) -> None:
         subprocess.call([

@@ -5,6 +5,7 @@ from .benchmark_base import UnitTestBenchmark
 from ..configs import ARTIFACTS_PATH, ASSETS_PATH
 from ..utils import load_test_cases
 
+
 class LuceneBenchmark(UnitTestBenchmark):
     def __init__(self) -> None:
         self.lucene_dir = os.path.join(ARTIFACTS_PATH, "lucene")
@@ -12,7 +13,8 @@ class LuceneBenchmark(UnitTestBenchmark):
             "lucene",
             [
                 os.path.join(self.lucene_dir, "lucene/core/build/libs/*.jar"),
-                os.path.join(self.lucene_dir, "lucene/core/build/dependency/*.jar"),
+                os.path.join(self.lucene_dir,
+                             "lucene/core/build/dependency/*.jar"),
             ], load_test_cases(os.path.join(ASSETS_PATH, "lucene.txt")),
             {
                 "tests.seed": "deadbeef",
