@@ -2,16 +2,21 @@ package cmu.pasta.fray.benchmark.sctbench.cs.origin;
 
 // Translated from: https://github.com/mc-imperial/sctbench/blob/d59ab26ddaedcd575ffb6a1f5e9711f7d6d2d9f2/benchmarks/concurrent-software-benchmarks/phase01_bad.c
 
+import java.util.concurrent.locks.AbstractQueuedSynchronizer;
+import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class Phase01Bad {
   
-  static ReentrantLock x = new ReentrantLock(); 
+  static ReentrantLock x = new ReentrantLock();
   static ReentrantLock y = new ReentrantLock();
 
   static void thread1() {
     x.lock(); // BAD: deadlock
-    x.unlock();  
+    x.unlock();
+    if (x.isLocked()) {
+      throw new RuntimeException("Deadlock detected");
+    }
     x.lock();
     // x.unlock();
 
