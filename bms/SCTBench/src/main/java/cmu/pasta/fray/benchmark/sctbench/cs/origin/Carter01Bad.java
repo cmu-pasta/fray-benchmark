@@ -9,28 +9,58 @@ public class Carter01Bad {
     static Lock m = new ReentrantLock();
     static Lock l = new ReentrantLock(); 
     static int A = 0, B = 0;
+    static boolean mLockedBy1 = false;
+    static boolean mLockedBy2 = false;
+    static boolean lLockedBy1 = false;
+    static boolean lLockedBy2 = false;
 
     static void t1() {
         m.lock();
+        mLockedBy1 = true;
         A++;
-        if (A == 1) l.lock();
+        if (A == 1) {
+            l.lock();
+            lLockedBy1 = true;
+        }
         m.unlock();
+        mLockedBy1 = false;
+
+        if (mLockedBy2 && lLockedBy1) {
+            System.out.println("Deadlock detected");
+            System.exit(-1);
+        }
         // perform class A operation
         m.lock();
         A--;
-        if (A == 0) l.unlock();
+        if (A == 0) {
+            l.unlock();
+            lLockedBy1 = false;
+        }
         m.unlock();
     }
 
     static void t2() {
         m.lock();
+        mLockedBy2 = true;
         B++;
-        if (B == 1) l.lock();
+        if (B == 1) {
+            l.lock();
+            lLockedBy2 = true;
+        }
         m.unlock();
+        mLockedBy2 = false;
+
+        if (mLockedBy1 && lLockedBy2) {
+            System.out.println("Deadlock detected");
+            System.exit(-1);
+        }
         // perform class B operation
         m.lock();
         B--;
-        if (B == 0) l.unlock();
+        if (B == 0) {
+            l.unlock();
+            lLockedBy2 = false;
+        }
         m.unlock();
     }
 
@@ -41,6 +71,12 @@ public class Carter01Bad {
     }
 
     public static void main(String[] args) {
+        A = 0;
+        B = 0;
+        mLockedBy1 = false;
+        mLockedBy2 = false;
+        lLockedBy1 = false;
+        lLockedBy2 = false;
         Thread a1 = new Thread(() -> t1());
         Thread b1 = new Thread(() -> t2());
         Thread a2 = new Thread(() -> t3());
