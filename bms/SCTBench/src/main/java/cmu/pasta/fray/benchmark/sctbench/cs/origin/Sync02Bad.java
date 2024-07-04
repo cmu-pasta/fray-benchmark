@@ -18,8 +18,12 @@ public class Sync02Bad {
     while (i < N) {
       m.lock();
       try {
-        while (num > 0)
+        while (num > 0) {
+          if (Thread.activeCount() == 2) {
+            throw new RuntimeException("Deadlock detected");
+          }
           empty.await();
+        }
         num++; // produce
         full.signal();
       } catch (InterruptedException e) {
@@ -37,6 +41,9 @@ public class Sync02Bad {
       m.lock();
       try {
         while (num == 0)
+          if (Thread.activeCount() == 2) {
+            throw new RuntimeException("Deadlock detected");
+          }
           full.await();
         num--; // consume
         empty.signal();
