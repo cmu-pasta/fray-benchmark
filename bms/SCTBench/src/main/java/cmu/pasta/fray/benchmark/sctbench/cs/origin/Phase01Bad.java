@@ -10,14 +10,19 @@ public class Phase01Bad {
   
   static ReentrantLock x = new ReentrantLock();
   static ReentrantLock y = new ReentrantLock();
+  static int lockStatus = 0;
 
   static void thread1() {
+    if (lockStatus == 1) {
+      throw new RuntimeException("Deadlock detected");
+    }
     x.lock(); // BAD: deadlock
     x.unlock();
-    if (x.isLocked()) {
+    if (lockStatus == 1) {
       throw new RuntimeException("Deadlock detected");
     }
     x.lock();
+    lockStatus = 1;
     // x.unlock();
 
     y.lock();
