@@ -32,17 +32,17 @@ def run_rr(command: List[str], log_path: str, cwd: str, timeout: int):
         f.write(" ".join(command))
     with open(os.path.join(log_path, "report.txt"), "w") as stdout:
         start_time = time.time()
-        iter = 0
+        iter_num = 0
         error_found = False
         while (time.time() - start_time) < timeout:
-            stdout.write(f"Iteration: {iter}\n")
+            stdout.write(f"Iteration: {iter_num}\n")
             if os.path.exists(trace_dir):
                 shutil.rmtree(trace_dir)
             proc = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=cwd)
             if proc.returncode != 0:
                 error_found = True
                 break
-            iter += 1
+            iter_num += 1
         if error_found:
             stdout.write(f"Error Found: {time.time() - start_time}\n")
         else:

@@ -2,13 +2,16 @@
 # -*- coding: utf-8 -*-
 
 import os
-import click
 import shutil
 import subprocess
 from datetime import datetime
 from multiprocessing import Pool
-from .configs import BENCHMARKS, SCHEDULERS, FRAY_PATH, OUTPUT_PATH
-from .bms.benchmark_base import BenchmarkBase
+from .configs import RR_PATH
+
+import click
+
+from .bms.benchmark_base import BenchmarkBase, SavedBenchmark
+from .configs import BENCHMARKS, FRAY_PATH, OUTPUT_PATH, SCHEDULERS
 from .utils import run_fray, run_rr
 
 
@@ -29,7 +32,7 @@ def build(app: BenchmarkBase):
 @click.option("--name", type=str, default=datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
 @click.option("--timeout", "-t", type=int, default=10 * 60)
 @click.option("--cpu", type=int, default = os.cpu_count())
-def run(app: BenchmarkBase, name: str, timeout: int, cpu: int):
+def run_rr_command(app: BenchmarkBase, name: str, timeout: int, cpu: int):
     out_dir = os.path.join(OUTPUT_PATH, name, app.name, "rr")
     if os.path.exists(out_dir):
         shutil.rmtree(out_dir)
@@ -52,11 +55,23 @@ def run(app: BenchmarkBase, scheduler: str, name: str, debug_jvm: bool, timeout:
     with Pool(processes=cpu) as pool:
         pool.starmap(run_fray, map(lambda it: (*it, timeout), app.generate_fray_test_commands(SCHEDULERS[scheduler], out_dir, debug_jvm)))
 
+@main.command(name="runOne")
+@click.argument("path", type=str)
+@click.option("--timeout", "-t", type=int, default=10 * 60)
+def run_one(path: str, timeout: int):
+    saved = SavedBenchmark(path)
+    tech = path.split("/")[-2]
+    if tech == "rr":
+        run_rr(*saved.replay_rr_command(), timeout)
+    else:
+        run_fray(*saved.replay_fray_command(), timeout)
+
+
 @main.command(name="runSingle")
 @click.argument("path", type=str)
 @click.option("--debug-jvm", type=bool, is_flag=True, show_default=True, default=False)
 @click.option("--no-fray", type=bool, is_flag=True, show_default=True, default=False)
-def run(path: str, debug_jvm: bool, no_fray: bool):
+def run_single(path: str, debug_jvm: bool, no_fray: bool):
     out_dir = os.path.join("/tmp/replay")
     if os.path.exists(out_dir):
         shutil.rmtree(out_dir)
@@ -83,7 +98,7 @@ def run(path: str, debug_jvm: bool, no_fray: bool):
 @click.argument("path", type=str)
 @click.argument("replay", type=str)
 @click.option("--debug-jvm", type=bool, is_flag=True, show_default=True, default=False)
-def run(path: str, replay: str, debug_jvm: bool):
+def replay(path: str, replay: str, debug_jvm: bool):
     out_dir = os.path.join("/tmp/replay")
     if os.path.exists(out_dir):
         shutil.rmtree(out_dir)

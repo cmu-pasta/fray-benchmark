@@ -22,7 +22,7 @@ class BenchmarkBase(object):
         for config_data in self.get_test_cases():
             log_path = f"{out_dir}/{test_index}"
             test_index += 1
-            os.makedirs(log_path)
+            os.makedirs(log_path, exist_ok=True)
             json.dump(config_data, open(
                 f"{log_path}/config.json", "w"), indent=4)
             command = ["java", "-ea"]
@@ -38,7 +38,7 @@ class BenchmarkBase(object):
         test_index = 0
         for config_data in self.get_test_cases():
             log_path = f"{out_dir}/{test_index}"
-            os.makedirs(log_path)
+            os.makedirs(log_path, exist_ok=True)
             json.dump(config_data, open(
                 f"{log_path}/config.json", "w"), indent=4)
             args = [
@@ -58,11 +58,34 @@ class BenchmarkBase(object):
                 command.append("--debug-jvm")
             yield command, log_path, FRAY_PATH
 
-    def get_test_cases(self, output_base: str) -> Iterator[Dict[str, str]]:
+    def get_test_cases(self) -> Iterator[Dict[str, str]]:
         return iter([])
 
     def get_extra_args(self) -> List[str]:
         return []
+
+
+class SavedBenchmark:
+    def __init__(self, path: str) -> None:
+        self.path = os.path.abspath(path)
+
+    def replay_rr_command(self):
+        log_path = self.path
+        config_data = json.load(open(f"{log_path}/config.json"))
+        command = ["java", "-ea"]
+        for classpath in config_data["executor"]["classpaths"]:
+            command.extend(["-cp", classpath])
+        for property_key, property_value in config_data["executor"]["properties"].items():
+            command.extend(["-D", f"{property_key}={property_value}"])
+        command.append(config_data["executor"]["clazz"])
+        command.extend(config_data["executor"]["args"])
+        return command, log_path, RR_PATH
+
+
+    def replay_fray_command(self):
+        log_path = self.path
+        command = open(os.path.join(log_path, "command.txt")).read().strip().split(" ")
+        return command, log_path, FRAY_PATH
 
 
 class MainMethodBenchmark(BenchmarkBase):

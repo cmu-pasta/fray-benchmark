@@ -22,7 +22,7 @@ OUTPUT_PATH = os.path.join(PROJECT_PATH, "output")
 import glob
 import inspect
 import importlib.util
-from .bms.benchmark_base import BenchmarkBase, UnitTestBenchmark, MainMethodBenchmark
+from .bms.benchmark_base import BenchmarkBase, UnitTestBenchmark, MainMethodBenchmark, SavedBenchmark
 
 BENCHMARKS: Dict[str, BenchmarkBase] = {}
 for file in glob.glob(os.path.join(SCRIPT_PATH, "bms/*.py")):
@@ -32,7 +32,7 @@ for file in glob.glob(os.path.join(SCRIPT_PATH, "bms/*.py")):
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
         for n, obj in inspect.getmembers(module):
-            if isinstance(obj, type) and issubclass(obj, BenchmarkBase) and obj != BenchmarkBase and obj != UnitTestBenchmark and obj != MainMethodBenchmark:
+            if isinstance(obj, type) and issubclass(obj, BenchmarkBase) and obj != BenchmarkBase and obj != UnitTestBenchmark and obj != MainMethodBenchmark and obj != SavedBenchmark:
                 app = obj() # type: ignore
                 BENCHMARKS[app.name] = app
                 print(f"Loaded benchmark {app.name}")
