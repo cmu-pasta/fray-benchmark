@@ -8,26 +8,45 @@ import subprocess
 
 def run_fray(command: List[str], log_path: str, cwd: str, timeout: int):
     print(f"Running {log_path}")
-    print(f"Running {cwd}")
     with open(os.path.join(log_path, "command.txt"), "w") as f:
         f.write(" ".join(command))
+    error_found = False
     try:
         start_time = time.time()
         proc = subprocess.run(command, cwd=cwd, stdout=open(os.path.join(log_path, "stdout.txt"), "w"), stderr=open(os.path.join(log_path, "stderr.txt"), "w"), timeout=timeout)
-        with open(os.path.join(log_path, "report.txt"), "w") as report:
-            if proc.returncode != 0:
-                report.write(f"Error Found: {time.time() - start_time}\n")
-            else:
-                report.write(f"No Error: {time.time() - start_time}\n")
-
+        error_found = proc.returncode != 0
     except subprocess.TimeoutExpired:
         pass
+    with open(os.path.join(log_path, "report.txt"), "w") as report:
+        if error_found != 0:
+            report.write(f"Error Found: {time.time() - start_time}\n")
+        else:
+            report.write(f"No Error: {time.time() - start_time}\n")
 
+
+
+def run_jpf(command: List[str], log_path: str, cwd: str, timeout: int):
+    print(f"Running {log_path}")
+    with open(os.path.join(log_path, "command.txt"), "w") as f:
+        f.write(" ".join(command))
+    try:
+        stdout_path = os.path.join(log_path, "stdout.txt")
+        start_time = time.time()
+        subprocess.run(command, cwd=cwd, stdout=open(stdout_path, "w"), stderr=open(os.path.join(log_path, "stderr.txt"), "w"), timeout=timeout)
+    except subprocess.TimeoutExpired:
+        pass
+    with open(os.path.join(log_path, "report.txt"), "w") as report:
+        end_time = time.time()
+        with open(stdout_path, "r") as f:
+            data = f.read()
+            if "==== error 1" in data:
+                report.write(f"Error Found: {end_time - start_time}\n")
+            else:
+                report.write(f"No Error: {end_time - start_time}\n")
 
 def run_rr(command: List[str], log_path: str, cwd: str, timeout: int):
     print(f"Running {log_path}")
     trace_dir = os.path.join(log_path, "trace")
-    command = ["./rr", "record", "--chaos", "-o", trace_dir] + command
     with open(os.path.join(log_path, "command.txt"), "w") as f:
         f.write(" ".join(command))
     with open(os.path.join(log_path, "report.txt"), "w") as stdout:

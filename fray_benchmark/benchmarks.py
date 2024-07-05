@@ -1,30 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
-import os
 from typing import Dict
 
-SCHEDULERS = {
-    "pct3": ['--scheduler=pct', '--num-switch-points=3'],
-    "pct15": ['--scheduler=pct', '--num-switch-points=15'],
-    "pos": ['--scheduler=pos'],
-    "random": ['--scheduler=random'],
-}
-
-FRAY_PATH = os.environ["FRAY_PATH"]
-RR_PATH = os.environ["RR_PATH"]
-SCRIPT_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)))
-PROJECT_PATH = os.path.join(SCRIPT_PATH, "..")
-ARTIFACTS_PATH = os.path.join(PROJECT_PATH, "bms")
-ASSETS_PATH = os.path.join(SCRIPT_PATH, "assets")
-OUTPUT_PATH = os.path.join(PROJECT_PATH, "output")
-
 import glob
+import importlib
+import os
 import inspect
-import importlib.util
+from .commons import SCRIPT_PATH
 from .bms.benchmark_base import BenchmarkBase, UnitTestBenchmark, MainMethodBenchmark, SavedBenchmark
-
 BENCHMARKS: Dict[str, BenchmarkBase] = {}
+
 for file in glob.glob(os.path.join(SCRIPT_PATH, "bms/*.py")):
     name = os.path.splitext(os.path.basename(file))[0]
     try:
@@ -33,7 +18,7 @@ for file in glob.glob(os.path.join(SCRIPT_PATH, "bms/*.py")):
         spec.loader.exec_module(module)
         for n, obj in inspect.getmembers(module):
             if isinstance(obj, type) and issubclass(obj, BenchmarkBase) and obj != BenchmarkBase and obj != UnitTestBenchmark and obj != MainMethodBenchmark and obj != SavedBenchmark:
-                app = obj() # type: ignore
+                app = obj()  # type: ignore
                 BENCHMARKS[app.name] = app
                 print(f"Loaded benchmark {app.name}")
     except ImportError as e:

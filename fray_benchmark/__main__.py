@@ -6,13 +6,13 @@ import shutil
 import subprocess
 from datetime import datetime
 from multiprocessing import Pool
-from .configs import RR_PATH
 
 import click
 
+from .benchmarks import BENCHMARKS
 from .bms.benchmark_base import BenchmarkBase, SavedBenchmark
-from .configs import BENCHMARKS, FRAY_PATH, OUTPUT_PATH, SCHEDULERS
-from .utils import run_fray, run_rr
+from .commons import FRAY_PATH, OUTPUT_PATH, SCHEDULERS, RR_PATH
+from .utils import run_fray, run_rr, run_jpf
 
 
 @click.group(name="mode")
@@ -27,18 +27,35 @@ def main(ctx, application: str):
 def build(app: BenchmarkBase):
     app.build()
 
+
 @main.command(name="runRR")
 @click.pass_obj
 @click.option("--name", type=str, default=datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
 @click.option("--timeout", "-t", type=int, default=10 * 60)
-@click.option("--cpu", type=int, default = os.cpu_count())
+@click.option("--cpu", type=int, default=os.cpu_count())
 def run_rr_command(app: BenchmarkBase, name: str, timeout: int, cpu: int):
     out_dir = os.path.join(OUTPUT_PATH, name, app.name, "rr")
     if os.path.exists(out_dir):
         shutil.rmtree(out_dir)
     os.makedirs(out_dir)
     with Pool(processes=cpu) as pool:
-        pool.starmap(run_rr, map(lambda it: (*it, timeout), app.generate_rr_test_commands(out_dir)))
+        pool.starmap(run_rr, map(lambda it: (*it, timeout),
+                     app.generate_rr_test_commands(out_dir)))
+
+@main.command(name="runJPF")
+@click.pass_obj
+@click.option("--name", type=str, default=datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
+@click.option("--timeout", "-t", type=int, default=10 * 60)
+@click.option("--cpu", type=int, default=os.cpu_count())
+def run_jpf_command(app: BenchmarkBase, name: str, timeout: int, cpu: int):
+    out_dir = os.path.join(OUTPUT_PATH, name, app.name, "jpf")
+    if os.path.exists(out_dir):
+        shutil.rmtree(out_dir)
+    os.makedirs(out_dir)
+    with Pool(processes=cpu) as pool:
+        pool.starmap(run_jpf, map(lambda it: (*it, timeout),
+                     app.generate_jpf_test_commands(out_dir)))
+
 
 @main.command(name="run")
 @click.pass_obj
@@ -46,14 +63,16 @@ def run_rr_command(app: BenchmarkBase, name: str, timeout: int, cpu: int):
 @click.option("--name", type=str, default=datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
 @click.option("--debug-jvm", type=bool, is_flag=True, show_default=True, default=False)
 @click.option("--timeout", "-t", type=int, default=10 * 60)
-@click.option("--cpu", type=int, default = os.cpu_count())
+@click.option("--cpu", type=int, default=os.cpu_count())
 def run(app: BenchmarkBase, scheduler: str, name: str, debug_jvm: bool, timeout: int, cpu: int):
     out_dir = os.path.join(OUTPUT_PATH, name, app.name, scheduler)
     if os.path.exists(out_dir):
         shutil.rmtree(out_dir)
     os.makedirs(out_dir)
     with Pool(processes=cpu) as pool:
-        pool.starmap(run_fray, map(lambda it: (*it, timeout), app.generate_fray_test_commands(SCHEDULERS[scheduler], out_dir, debug_jvm)))
+        pool.starmap(run_fray, map(lambda it: (
+            *it, timeout), app.generate_fray_test_commands(SCHEDULERS[scheduler], out_dir, debug_jvm)))
+
 
 @main.command(name="runOne")
 @click.argument("path", type=str)
@@ -62,9 +81,9 @@ def run_one(path: str, timeout: int):
     saved = SavedBenchmark(path)
     tech = path.split("/")[-2]
     if tech == "rr":
-        run_rr(*saved.replay_rr_command(), timeout)
+        run_rr(saved.load_command(), path, RR_PATH, timeout)
     else:
-        run_fray(*saved.replay_fray_command(), timeout)
+        run_rr(saved.load_command(), path, FRAY_PATH, timeout)
 
 
 @main.command(name="runSingle")
@@ -77,11 +96,11 @@ def run_single(path: str, debug_jvm: bool, no_fray: bool):
         shutil.rmtree(out_dir)
     os.makedirs(out_dir)
     fray_args = [
-            "--scheduler=pct",
-            "--logger=csv",
-            "--iter",
-            "-100",
-        ]
+        "--scheduler=pct",
+        "--logger=csv",
+        "--iter",
+        "-100",
+    ]
     if no_fray:
         fray_args.append("--no-fray")
     command = [
@@ -93,6 +112,7 @@ def run_single(path: str, debug_jvm: bool, no_fray: bool):
     if debug_jvm:
         command.append("--debug-jvm")
     subprocess.call(command, cwd=FRAY_PATH)
+
 
 @main.command(name="replay")
 @click.argument("path", type=str)
@@ -115,6 +135,6 @@ def replay(path: str, replay: str, debug_jvm: bool):
         "--debug-jvm"
     ], cwd=FRAY_PATH)
 
+
 if __name__ == '__main__':
     main(None, None)
-

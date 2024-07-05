@@ -2,7 +2,7 @@ import os
 import subprocess
 
 from .benchmark_base import UnitTestBenchmark
-from ..configs import ARTIFACTS_PATH, ASSETS_PATH
+from ..commons import ARTIFACTS_PATH, ASSETS_PATH
 from ..utils import load_test_cases
 
 
