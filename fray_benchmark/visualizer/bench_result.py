@@ -4,6 +4,7 @@ import re
 import pandas as pd
 import seaborn as sns
 import matplotlib
+from typing import List
 
 
 class BenchResult:
@@ -48,14 +49,16 @@ class BenchResult:
 
 class BenchmarkSuite:
     def __init__(self, path: str):
-        self.benchmarks = []
+        self.benchmarks: List[BenchResult] = []
         self.path = os.path.abspath(path)
         for folder in os.listdir(self.path):
-            self.benchmarks.append(BenchResult(os.path.join(self.path, folder)))
+            self.benchmarks.append(BenchResult(
+                os.path.join(self.path, folder)))
 
     def to_aggregated_dataframe(self) -> pd.DataFrame:
         data = []
         for bench in self.benchmarks:
+            bench.to_csv()
             df = bench.load_csv()
             df["tech"] = bench.tech
             data.append(df)
