@@ -14,7 +14,3 @@ ipykernel = "^6.29.5"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
-
-[tool.poetry.scripts]
-runner = "fray_benchmark:runner:main"
-

@@ -5,7 +5,8 @@ import pandas as pd
 import seaborn as sns
 import matplotlib
 
-class BenchResult():
+
+class BenchResult:
     def __init__(self, path: str):
         self.path = os.path.abspath(path)
         components = path.split("/")
@@ -40,10 +41,12 @@ class BenchResult():
         result_folder = os.path.join(self.path, "results")
         if not os.path.exists(result_folder):
             raise Exception("No results folder found")
-        return pd.read_csv(os.path.join(result_folder, "summary.csv"), names=["run", "error", "time"])
+        return pd.read_csv(
+            os.path.join(result_folder, "summary.csv"), names=["run", "error", "time"]
+        )
 
 
-class BenchmarkSuite():
+class BenchmarkSuite:
     def __init__(self, path: str):
         self.benchmarks = []
         self.path = os.path.abspath(path)
@@ -61,4 +64,3 @@ class BenchmarkSuite():
     def to_aggregated_fig(self) -> matplotlib.axes.Axes:
         df = self.to_aggregated_dataframe()
         return sns.ecdfplot(df, x="time", hue="tech")
-

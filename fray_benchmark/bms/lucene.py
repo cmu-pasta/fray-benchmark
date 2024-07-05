@@ -25,6 +25,11 @@ class LuceneBenchmark(UnitTestBenchmark):
     def build(self) -> None:
         subprocess.call([
             "git",
+            "checkout",
+            "."
+        ], cwd=self.lucene_dir)
+        subprocess.call([
+            "git",
             "apply",
             os.path.join(ASSETS_PATH, "lucene.patch")
         ], cwd=self.lucene_dir)
