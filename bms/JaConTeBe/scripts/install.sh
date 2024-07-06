@@ -1,13 +1,6 @@
 #!/bin/bash
 
 echo $(javac -version)
-if [ ! ${experiment_root} ]
-then
-    echo "experiment_root is unset in the shell"
-    echo "please set experiment_root to point to your experiment directory"
-    echo "see README for more information:"
-    exit 2
-fi
 
 if test $# -ne 2
     then \
@@ -18,22 +11,25 @@ if test $# -ne 2
         exit 0
 fi
 
-subject_dir=${experiment_root}/JaConTeBe
+subject_dir=$(realpath $(dirname $0))/..
+target=$2
 echo removing old files
-rm -f -r ${subject_dir}/source/*
+rm -f -r ${subject_dir}/build/*
 rm -f ${subject_dir}/outputs/*
 
 if test $1 = "orig"
 then
      echo copying files for orig version
-     cp -a ${subject_dir}/versions.alt/$2/orig/* ${subject_dir}/source 
+     mkdir -p ${subject_dir}/build/$target
+     cp -a ${subject_dir}/versions.alt/$target/orig/* ${subject_dir}/build/$target
 else
     echo orig is the only option currently available
     exit 0
 fi
-cd ${subject_dir}/source
+cd ${subject_dir}/build/$target
 
 echo compiling application
+echo ${subject_dir}
 
-find . -name "*.java" | xargs javac -cp ${subject_dir}/versions.alt/lib/$2.jar
+find . -name "*.java" | xargs javac -cp ${subject_dir}/versions.alt/lib/$target.jar
 

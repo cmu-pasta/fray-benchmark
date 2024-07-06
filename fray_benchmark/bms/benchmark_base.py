@@ -45,8 +45,7 @@ class BenchmarkBase(object):
             with open(f"{log_path}/config.json", "w") as f:
                 f.write(config_data.to_json())
             command = ["./bin/jpf"]
-            for classpath in config_data.executor.classpaths:
-                command.append(f"+classpath={classpath}")
+            command.append(f"+classpath={':'.join(config_data.executor.classpaths)}")
             command.append(config_data.executor.clazz)
             command.extend(config_data.executor.args)
             yield command, log_path, JPF_PATH
@@ -77,10 +76,6 @@ class BenchmarkBase(object):
 
     def get_test_cases(self) -> Iterator[RunConfig]:
         return iter([])
-
-    def get_extra_args(self) -> List[str]:
-        return []
-
 
 class SavedBenchmark:
     def __init__(self, path: str) -> None:
