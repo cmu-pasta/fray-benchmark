@@ -27,8 +27,7 @@ class BenchmarkBase(object):
             with open(f"{log_path}/config.json", "w") as f:
                 f.write(config_data.to_json())
             command = ["java", "-ea", f"-javaagent:{HELPER_PATH}/assertion-handler-agent/AssertionHandlerAgent.jar"]
-            for classpath in config_data.executor.classpaths:
-                command.extend(["-cp", classpath])
+            command.extend([f"-cp", ':'.join(config_data.executor.classpaths)])
             for property_key, property_value in config_data.executor.properties.items():
                 command.extend(["-D", f"{property_key}={property_value}"])
             command.append(config_data.executor.clazz)
