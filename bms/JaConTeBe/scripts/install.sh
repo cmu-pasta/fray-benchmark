@@ -14,7 +14,6 @@ fi
 subject_dir=$(realpath $(dirname $0))/..
 target=$2
 echo removing old files
-rm -f -r ${subject_dir}/build/*
 rm -f ${subject_dir}/outputs/*
 
 if test $1 = "orig"
