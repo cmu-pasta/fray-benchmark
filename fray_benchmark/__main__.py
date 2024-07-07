@@ -97,7 +97,8 @@ def run_single(path: str, debug_jvm: bool, no_fray: bool):
     os.makedirs(out_dir)
     fray_args = [
         "--scheduler=pct",
-        "--logger=csv",
+        "--num-switch-points=15",
+        "--logger=json",
         "--iter",
         "-100",
     ]
@@ -132,7 +133,7 @@ def replay(path: str, replay: str, debug_jvm: bool):
             f'--path={os.path.join(path, "report", f"schedule_{replay}.json")}',
             "--logger=json",
         ],),
-        # "--debug-jvm"
+        "--debug-jvm"
     ], cwd=FRAY_PATH)
 
 
