@@ -31,7 +31,7 @@ public class Derby4129 {
         if (!OptionHelper.optionParse(args)) {
             return;
         }
-        // Helpers.startDeadlockMonitor();
+        Helpers.startDeadlockMonitor();
 
         Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
         final Connection c = DriverManager.getConnection(URL + ";create=true");

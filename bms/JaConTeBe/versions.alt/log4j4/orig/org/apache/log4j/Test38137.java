@@ -64,7 +64,7 @@ public class Test38137 {
         if (!OptionHelper.optionParse(args)) {
             return;
         }
-        // Helpers.startWaitingMonitor();
+        Helpers.startWaitingMonitor();
 
         Test38137 test = new Test38137();
         test.callAppender();

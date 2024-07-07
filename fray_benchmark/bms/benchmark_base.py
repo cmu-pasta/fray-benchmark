@@ -20,7 +20,7 @@ class BenchmarkBase(object):
 
     def generate_rr_test_commands(self, out_dir: str) -> Iterator[Tuple[List[str], str, str]]:
         test_index = 0
-        for config_data in self.get_test_cases():
+        for config_data in self.get_test_cases("rr"):
             log_path = f"{out_dir}/{test_index}"
             test_index += 1
             os.makedirs(log_path, exist_ok=True)
@@ -41,7 +41,7 @@ class BenchmarkBase(object):
 
     def generate_jpf_test_commands(self, out_dir: str) -> Iterator[Tuple[List[str], str, str]]:
         test_index = 0
-        for config_data in self.get_test_cases():
+        for config_data in self.get_test_cases("jpf"):
             log_path = f"{out_dir}/{test_index}"
             test_index += 1
             os.makedirs(log_path, exist_ok=True)
@@ -55,7 +55,7 @@ class BenchmarkBase(object):
 
     def generate_fray_test_commands(self, config: List[str], out_dir: str, debug_jvm:  bool) -> Iterator[Tuple[List[str], str, str]]:
         test_index = 0
-        for config_data in self.get_test_cases():
+        for config_data in self.get_test_cases("fray"):
             log_path = f"{out_dir}/{test_index}"
             os.makedirs(log_path, exist_ok=True)
             with open(f"{log_path}/config.json", "w") as f:
@@ -77,7 +77,7 @@ class BenchmarkBase(object):
                 command.append("--debug-jvm")
             yield command, log_path, FRAY_PATH
 
-    def get_test_cases(self) -> Iterator[RunConfig]:
+    def get_test_cases(self, type: str) -> Iterator[RunConfig]:
         return iter([])
 
 class SavedBenchmark:

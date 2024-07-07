@@ -10,6 +10,7 @@ import org.apache.lucene.util.LuceneTestCase240;
 import org.apache.lucene.util._TestUtil293;
 
 import edu.illinois.jacontebe.Helpers;
+import edu.illinois.jacontebe.OptionHelper;
 import edu.illinois.jacontebe.framework.Reporter;
 
 /**
@@ -64,7 +65,7 @@ public class Test1544 extends LuceneTestCase240 {
 
         int timeout = 30;
         Reporter.reportStart("lucene1544", timeout, "deadlock");
-        // Helpers.startWaitingMonitor(timeout);
+        Helpers.startWaitingMonitor(timeout);
         createIndex(coldIndexPath, 100000, coldDocCount);
         createIndex(hotIndexPath, 200000, hotDocCount);
 
@@ -92,6 +93,9 @@ public class Test1544 extends LuceneTestCase240 {
     }
 
     public static void main(String[] args) throws Exception {
+        if (!OptionHelper.optionParse(args)) {
+            return;
+        }
         Test1544 test = new Test1544();
         test.setUp();
         test.testAddIndexesByIndexReader();

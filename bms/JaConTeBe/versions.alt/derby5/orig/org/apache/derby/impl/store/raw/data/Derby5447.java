@@ -67,14 +67,14 @@ public class Derby5447 {
 
     public static void main(String[] args) throws StandardException,
             InterruptedException {
-        // Reporter.reportStart("derby5447", 0, "deadlock");
+        Reporter.reportStart("derby5447", 0, "deadlock");
         if (!OptionHelper.optionParse(args)) {
             return;
         }
-        // Helpers.startDeadlockMonitor();
+        Helpers.startDeadlockMonitor();
         Derby5447 test = new Derby5447();
         test.runThreads();
-        // Reporter.reportEnd(false);
+        Reporter.reportEnd(false);
     }
 
     private StoredPage storedPage;

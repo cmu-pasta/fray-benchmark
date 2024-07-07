@@ -257,7 +257,7 @@ public class Test162 {
         if (!OptionHelper.optionParse(args)) {
             return;
         }
-        // Helpers.startWaitingMonitor(timeOut);
+        Helpers.startWaitingMonitor(timeOut);
         Test162 t = new Test162();
         t.testWhenExhaustedBlockInterupt();
         Reporter.reportEnd(false);

@@ -57,7 +57,10 @@ def run_rr(command: List[str], log_path: str, cwd: str, timeout: int):
             stdout.write(f"Iteration: {iter_num}\n")
             if os.path.exists(trace_dir):
                 shutil.rmtree(trace_dir)
-            proc = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=cwd)
+            try:
+                proc = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=cwd, timeout=timeout - (time.time() - start_time))
+            except subprocess.TimeoutExpired:
+                break
             if proc.returncode != 0:
                 error_found = True
                 break

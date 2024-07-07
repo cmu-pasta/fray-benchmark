@@ -121,7 +121,7 @@ public class Groovy4736 {
         if (!OptionHelper.optionParse(args)) {
             return;
         }
-        // Helpers.startDeadlockMonitor();
+        Helpers.startDeadlockMonitor();
         int threadNumber = OptionHelper.getThreadNumValue(DEFAULT_THREAD_NUM);
 
         final Groovy4736 test = new Groovy4736();

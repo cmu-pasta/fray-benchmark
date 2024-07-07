@@ -66,4 +66,5 @@ class BenchmarkSuite:
 
     def to_aggregated_fig(self) -> matplotlib.axes.Axes:
         df = self.to_aggregated_dataframe()
-        return sns.ecdfplot(df, x="time", hue="tech")
+        df = df[df["error"] == 1]
+        return sns.ecdfplot(df, x="time", hue="tech", stat='count')

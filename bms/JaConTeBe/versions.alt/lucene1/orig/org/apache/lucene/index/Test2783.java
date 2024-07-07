@@ -32,6 +32,7 @@ import org.apache.lucene.util.LuceneTestCase293;
 import org.apache.lucene.util._TestUtil293;
 
 import edu.illinois.jacontebe.Helpers;
+import edu.illinois.jacontebe.OptionHelper;
 import edu.illinois.jacontebe.framework.Reporter;
 
 /**
@@ -200,7 +201,7 @@ public class Test2783 extends LuceneTestCase293 {
     public void testAtomicUpdates() throws Exception {
         int timeout = 30;
         Reporter.reportStart("lucene2783", timeout, "notify-wait deadlock");
-        // Helpers.startWaitingMonitor();
+        Helpers.startWaitingMonitor();
         RANDOM = newRandom();
         Directory directory;
 
@@ -220,6 +221,9 @@ public class Test2783 extends LuceneTestCase293 {
     }
 
     public static void main(String[] args) throws Exception {
+        if (!OptionHelper.optionParse(args)) {
+            return;
+        }
         Test2783 test = new Test2783();
         test.testAtomicUpdates();
     }

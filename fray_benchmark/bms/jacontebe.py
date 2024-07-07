@@ -16,7 +16,7 @@ class JaConTeBe(BenchmarkBase):
             os.path.join(ASSETS_PATH, "jacontebe.txt"))
         super().__init__("jacontebe")
 
-    def get_test_cases(self) -> Iterator[RunConfig]:
+    def get_test_cases(self, tool_type: str) -> Iterator[RunConfig]:
         target_pattern = re.compile(r"target = ([a-zA-Z0-9_.-]*)")
         cp_pattern = re.compile(r"classpath = ([a-zA-Z0-9_.-:-]*)")
         for test_case in self.test_cases:
@@ -33,7 +33,7 @@ class JaConTeBe(BenchmarkBase):
                         Executor(
                             class_to_run,
                             "main",
-                            [],
+                            ["-mo"] if tool_type == "fray" else [],
                             [
                                 os.path.join(self.bench_dir,
                                              "build", test_case) + "/",

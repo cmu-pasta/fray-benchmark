@@ -54,7 +54,7 @@ public class Test149 {
         if (!OptionHelper.optionParse(args)) {
             return;
         }
-        // Helpers.startWaitingMonitor(timeOut);
+        Helpers.startWaitingMonitor(timeOut);
         Test149 test = new Test149();
         test.run();
         Reporter.reportEnd(false);

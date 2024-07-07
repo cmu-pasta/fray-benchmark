@@ -57,12 +57,12 @@ public class Test50463 {
         if (!OptionHelper.optionParse(args)) {
             return;
         }
-        // Helpers.startWaitingMonitor(timeout);
-        // Reporter.reportStart("log4j50463", timeout, "deadlock");
+        Helpers.startWaitingMonitor(timeout);
+        Reporter.reportStart("log4j50463", timeout, "deadlock");
 
         Test50463 test = new Test50463();
         test.logToFillBuffer();
-        // Reporter.reportEnd(false);
+        Reporter.reportEnd(false);
     }
 
     private void logToFillBuffer() {

@@ -31,7 +31,7 @@ public class Test41214 {
         if (!OptionHelper.optionParse(args)) {
             return;
         }
-        // Helpers.startDeadlockMonitor();
+        Helpers.startDeadlockMonitor();
         configLog();
         RootLoggerThread rootLoggerThread = new RootLoggerThread(
                 "RootLoggerThread");
@@ -40,14 +40,14 @@ public class Test41214 {
                 "AnExceptionThread");
         anExceptionThread.start();
         anObjectThread.start();
-        // try {
-        // // To reproduce the bug, com.a.AnObject.toString() and
-        // // com.b.AnException.getMessage()
-        // // methods must be called before rootLogger
-        // Thread.sleep(2000);
-        // } catch (InterruptedException ex) {
-        // ex.printStackTrace();
-        // }
+        try {
+        // To reproduce the bug, com.a.AnObject.toString() and
+        // com.b.AnException.getMessage()
+        // methods must be called before rootLogger
+        Thread.sleep(2000);
+        } catch (InterruptedException ex) {
+        ex.printStackTrace();
+        }
         rootLoggerThread.start();
         try {
             rootLoggerThread.join();
