@@ -39,7 +39,8 @@ def run_jpf(command: List[str], log_path: str, cwd: str, timeout: int):
         end_time = time.time()
         with open(stdout_path, "r") as f:
             data = f.read()
-            if "==== error 1" in data and "UnsupportedOperationException" not in data:
+            if "==== error 1" in data and "UnsupportedOperationException" not in data and \
+                    "NoSuchMethodException" not in data and "FileNotFoundException" not in data:
                 report.write(f"Error Found: {end_time - start_time}\n")
             else:
                 report.write(f"No Error: {end_time - start_time}\n")

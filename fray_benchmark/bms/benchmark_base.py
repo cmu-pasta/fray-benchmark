@@ -77,7 +77,7 @@ class BenchmarkBase(object):
                 command.append("--debug-jvm")
             yield command, log_path, FRAY_PATH
 
-    def get_test_cases(self, type: str) -> Iterator[RunConfig]:
+    def get_test_cases(self, _tool_name: str) -> Iterator[RunConfig]:
         return iter([])
 
 class SavedBenchmark:
@@ -94,7 +94,7 @@ class MainMethodBenchmark(BenchmarkBase):
         self.classpath = resolve_classpaths(classpath)
         self.properties = properties
 
-    def get_test_cases(self) -> Iterator[RunConfig]:
+    def get_test_cases(self, _tool_name: str) -> Iterator[RunConfig]:
         for test_case in self.test_cases:
             yield RunConfig(
                 Executor(
@@ -119,7 +119,7 @@ class UnitTestBenchmark(BenchmarkBase):
         self.properties = properties
         self.is_junit4 = is_junit4
 
-    def get_test_cases(self) -> Iterator[RunConfig]:
+    def get_test_cases(self, _tool_name: str) -> Iterator[RunConfig]:
         for test_case in self.test_cases:
             yield RunConfig(
                 Executor(

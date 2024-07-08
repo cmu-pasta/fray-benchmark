@@ -33,7 +33,7 @@ class JaConTeBe(BenchmarkBase):
                         Executor(
                             class_to_run,
                             "main",
-                            ["-mo"] if tool_type == "fray" else [],
+                            [] if tool_type == "rr" else ["-mo"],
                             [
                                 os.path.join(self.bench_dir,
                                              "build", test_case) + "/",

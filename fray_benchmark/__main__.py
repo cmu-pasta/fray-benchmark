@@ -11,7 +11,7 @@ import click
 
 from .benchmarks import BENCHMARKS
 from .bms.benchmark_base import BenchmarkBase, SavedBenchmark
-from .commons import FRAY_PATH, OUTPUT_PATH, SCHEDULERS, RR_PATH
+from .commons import FRAY_PATH, OUTPUT_PATH, SCHEDULERS, RR_PATH, JPF_PATH
 from .utils import run_fray, run_rr, run_jpf
 
 
@@ -82,6 +82,8 @@ def run_one(path: str, timeout: int):
     tech = path.split("/")[-2]
     if tech == "rr":
         run_rr(saved.load_command(), path, RR_PATH, timeout)
+    elif tech == "jpf":
+        run_jpf(saved.load_command(), path, JPF_PATH, timeout)
     else:
         run_rr(saved.load_command(), path, FRAY_PATH, timeout)
 
