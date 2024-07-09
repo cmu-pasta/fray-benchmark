@@ -88,5 +88,8 @@ def resolve_classpaths(classpaths: List[str]) -> List[str]:
                     if regex.match(entry):
                         resolved_paths.append(os.path.join(dir_path, entry))
         else:
-            resolved_paths.append(os.path.abspath(path))
+            new_path = os.path.abspath(path)
+            if path.endswith('/'):
+                new_path += '/'
+            resolved_paths.append(new_path)
     return resolved_paths

@@ -14,3 +14,6 @@
 [submodule "tools/jpf-core"]
 	path = tools/jpf-core
 	url = https://github.com/javapathfinder/jpf-core.git
+[submodule "bms/solr"]
+	path = bms/solr
+	url = https://github.com/apache/solr
