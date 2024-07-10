@@ -17,3 +17,6 @@
 [submodule "bms/solr"]
 	path = bms/solr
 	url = https://github.com/apache/solr
+[submodule "bms/kafka"]
+	path = bms/kafka
+	url = https://github.com/apache/kafka

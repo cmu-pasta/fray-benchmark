@@ -115,7 +115,10 @@ class UnitTestBenchmark(BenchmarkBase):
     def __init__(self, name: str, classpath: List[str], test_cases: List[str], properties: Dict[str, str], is_junit4: bool) -> None:
         super().__init__(name)
         self.test_cases = test_cases
-        self.classpath = resolve_classpaths(classpath)
+        self.classpath = resolve_classpaths(classpath + [
+            f"{FRAY_PATH}/examples/build/libs/*.jar",
+            f"{FRAY_PATH}/examples/build/dependency/*.jar",
+        ])
         self.properties = properties
         self.is_junit4 = is_junit4
 
@@ -123,7 +126,7 @@ class UnitTestBenchmark(BenchmarkBase):
         for test_case in self.test_cases:
             yield RunConfig(
                 Executor(
-                    "cmu.pasta.fray.examples.JUnitRunnerKt",
+                    "cmu.pasta.fray.examples.JUnitRunner",
                     "main",
                     [
                         "junit4" if self.is_junit4 else "junit5",
