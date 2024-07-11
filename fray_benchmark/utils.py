@@ -63,6 +63,8 @@ def run_rr(command: List[str], log_path: str, cwd: str, timeout: int):
             except subprocess.TimeoutExpired:
                 break
             if proc.returncode != 0:
+                with open(f"{log_path}/stdout.txt", "w") as f:
+                    f.write(proc.stdout.decode("utf-8"))
                 error_found = True
                 break
             iter_num += 1

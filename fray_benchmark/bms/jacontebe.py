@@ -44,7 +44,7 @@ class JaConTeBe(BenchmarkBase):
                         False,
                         False,
                         False,
-                        1000000
+                        -1,
                     )
 
     def build(self) -> None:

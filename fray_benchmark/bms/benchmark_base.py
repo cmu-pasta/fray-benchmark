@@ -2,8 +2,9 @@
 # -*- coding: utf-8 -*-
 
 import os
-import json
 from typing import List, Iterator, Tuple, Dict
+from sys import platform
+
 
 from ..commons import FRAY_PATH, RR_PATH, JPF_PATH, HELPER_PATH
 from ..utils import resolve_classpaths
@@ -67,11 +68,32 @@ class BenchmarkBase(object):
             ]
             args.extend(config)
             test_index += 1
+            # command = [
+            #     "./gradlew",
+            #     "runFray",
+            #     f"-PconfigPath={log_path}/config.json",
+            #     f"-PextraArgs={' '.join(args)}",
+            # ]
+
             command = [
-                "./gradlew",
-                "runFray",
-                f"-PconfigPath={log_path}/config.json",
-                f"-PextraArgs={' '.join(args)}",
+                f"{FRAY_PATH}/jdk/build/java-inst/bin/java",
+                "-ea",
+                f"-agentpath:{FRAY_PATH}/jvmti/build//cmake/native_release/" + ("mac-aarch64/cpp/libjvmti.dylib" if platform == "darwin" else "linux-amd64/cpp/libjvmti.so"),
+                f"-javaagent:{FRAY_PATH}/instrumentation/build/libs/instrumentation-1.0-SNAPSHOT.jar",
+                "--add-opens", "java.base/java.lang=ALL-UNNAMED",
+                "--add-opens", "java.base/java.util=ALL-UNNAMED",
+                "--add-opens", "java.base/java.io=ALL-UNNAMED",
+                "--add-opens", "java.base/java.util.concurrent=ALL-UNNAMED",
+                "--add-opens", "java.base/sun.nio.ch=ALL-UNNAMED",
+                "-cp", ":".join(resolve_classpaths([
+                    f"{FRAY_PATH}/examples/build/dependency/*.jar",
+                ])),
+                "cmu.pasta.fray.core.MainKt",
+                "--run-config",
+                "json",
+                "--config-path",
+                f"{log_path}/config.json",
+                *args
             ]
             if debug_jvm:
                 command.append("--debug-jvm")
@@ -107,7 +129,7 @@ class MainMethodBenchmark(BenchmarkBase):
                 False,
                 False,
                 False,
-                1000000
+                -1
             )
 
 
@@ -138,5 +160,5 @@ class UnitTestBenchmark(BenchmarkBase):
                 False,
                 False,
                 False,
-                1000000
+                -1,
             )
