@@ -79,11 +79,11 @@ class BenchmarkBase(object):
                 f"{FRAY_PATH}/jdk/build/java-inst/bin/java",
                 "-ea",
                 f"-agentpath:{FRAY_PATH}/jvmti/build//cmake/native_release/" + ("mac-aarch64/cpp/libjvmti.dylib" if platform == "darwin" else "linux-amd64/cpp/libjvmti.so"),
-                f"-javaagent:{FRAY_PATH}/instrumentation/build/libs/instrumentation-1.0-SNAPSHOT.jar",
+                f"-javaagent:{FRAY_PATH}/instrumentation/build/libs/instrumentation-1.0-SNAPSHOT-all.jar",
                 "--add-opens", "java.base/java.lang=ALL-UNNAMED",
                 "--add-opens", "java.base/java.util=ALL-UNNAMED",
                 "--add-opens", "java.base/java.io=ALL-UNNAMED",
-                "--add-opens", "java.base/java.util.concurrent=ALL-UNNAMED",
+                "--add-opens", "java.base/java.util.concurrent.atomic=ALL-UNNAMED",
                 "--add-opens", "java.base/sun.nio.ch=ALL-UNNAMED",
                 "-cp", ":".join(resolve_classpaths([
                     f"{FRAY_PATH}/examples/build/dependency/*.jar",
@@ -95,8 +95,10 @@ class BenchmarkBase(object):
                 f"{log_path}/config.json",
                 *args
             ]
+
             if debug_jvm:
-                command.append("--debug-jvm")
+                command.insert(1, "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005")
+            #     command.append("--debug-jvm")
             yield command, log_path, FRAY_PATH
 
     def get_test_cases(self, _tool_name: str) -> Iterator[RunConfig]:
