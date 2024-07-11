@@ -49,6 +49,10 @@ class BenchmarkBase(object):
             with open(f"{log_path}/config.json", "w") as f:
                 f.write(config_data.to_json())
             command = ["./bin/jpf"]
+            # command.append("+search.multiple_errors=true")
+            command.append("+search.class=gov.nasa.jpf.search.RandomSearch")
+            command.append("+search.RandomSearch.path_limit=10000000")
+            command.append("+cg.randomize_choices=FIXED_SEED")
             command.append(f"+classpath={':'.join(config_data.executor.classpaths)}")
             command.append(config_data.executor.clazz)
             command.extend(config_data.executor.args)
