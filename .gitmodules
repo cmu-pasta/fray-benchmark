@@ -8,15 +8,20 @@
 [submodule "bms/commons-lang"]
 	path = bms/commons-lang
 	url = https://github.com/apache/commons-lang
+  ignore = dirty
 [submodule "tools/rr"]
 	path = tools/rr
 	url = https://github.com/rr-debugger/rr.git
+  ignore = dirty
 [submodule "tools/jpf-core"]
 	path = tools/jpf-core
 	url = https://github.com/javapathfinder/jpf-core.git
+  ignore = dirty
 [submodule "bms/solr"]
 	path = bms/solr
 	url = https://github.com/apache/solr
+  ignore = dirty
 [submodule "bms/kafka"]
 	path = bms/kafka
 	url = https://github.com/apache/kafka
+  ignore = dirty

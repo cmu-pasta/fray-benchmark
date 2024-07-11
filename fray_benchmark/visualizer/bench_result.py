@@ -1,10 +1,13 @@
 import os
-import shutil
 import re
+import shutil
+from typing import List
+
+import matplotlib
+import matplotlib.axes
 import pandas as pd
 import seaborn as sns
-import matplotlib
-from typing import List
+import sns_config
 
 
 class BenchResult:
@@ -16,8 +19,6 @@ class BenchResult:
         self.error_pattern = re.compile(r"(No Error|Error Found): (\d+\.\d+)")
 
     def to_csv(self):
-        print("to_csv")
-        print(self.path)
         result_folder = os.path.join(self.path, "results")
         if os.path.exists(result_folder):
             shutil.rmtree(result_folder)
@@ -60,11 +61,25 @@ class BenchmarkSuite:
         for bench in self.benchmarks:
             bench.to_csv()
             df = bench.load_csv()
-            df["tech"] = bench.tech
+            df["tech"] = self.name_remap(bench.tech)
             data.append(df)
         return pd.concat(data)
+
+    def name_remap(self, name: str) -> str:
+        if name == "random":
+            return "$\\textsc{Fray}$"
+        return name.upper()
 
     def to_aggregated_fig(self) -> matplotlib.axes.Axes:
         df = self.to_aggregated_dataframe()
         df = df[df["error"] == 1]
-        return sns.ecdfplot(df, x="time", hue="tech", stat='count')
+        df_grouped = df.groupby(['time', 'tech']).size().reset_index(name='count')
+        # Pivot the dataframe to have 'time' as the index and 'tech' as columns
+        df_pivot = df_grouped.pivot(index='time', columns='tech', values='count').fillna(0)
+        zero_row = pd.DataFrame(0, index=[0], columns=df_pivot.columns)
+        df_pivot = pd.concat([zero_row, df_pivot]).sort_index()
+        df_cumsum = df_pivot.cumsum()
+        ax = sns.lineplot(data=df_cumsum, linewidth=2, markers=True)
+        ax.set_xlabel('Time (Second)')
+        ax.set_ylabel('Accumulated \# of Bugs')
+        return ax

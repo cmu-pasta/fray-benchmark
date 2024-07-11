@@ -33,7 +33,7 @@ class BenchmarkBase(object):
             command.extend(["--add-opens", "java.base/java.util.concurrent=ALL-UNNAMED"])
             command.extend([f"-cp", ':'.join(config_data.executor.classpaths)])
             for property_key, property_value in config_data.executor.properties.items():
-                command.extend(["-D", f"{property_key}={property_value}"])
+                command.append(f"-D{property_key}={property_value}")
             command.append(config_data.executor.clazz)
             command.extend(config_data.executor.args)
             command = ["./build/bin/rr", "record", "--chaos", "-o", f"{log_path}/trace"] + command
