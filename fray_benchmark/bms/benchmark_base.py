@@ -6,7 +6,7 @@ from typing import List, Iterator, Tuple, Dict
 from sys import platform
 
 
-from ..commons import FRAY_PATH, RR_PATH, JPF_PATH, HELPER_PATH
+from ..commons import FRAY_PATH, RR_PATH, JPF_PATH, HELPER_PATH, PERF_ITER
 from ..utils import resolve_classpaths
 from ..objects.execution_config import RunConfig, Executor
 
@@ -40,7 +40,7 @@ class BenchmarkBase(object):
             command = ["./build/bin/rr", "record", "--chaos", "-o", f"{log_path}/trace"] + command
             yield command, perf_mode, log_path, RR_PATH
 
-    def generate_jpf_test_commands(self, out_dir: str, perf_mode: str) -> Iterator[Tuple[List[str], str, str]]:
+    def generate_jpf_test_commands(self, out_dir: str, perf_mode: bool) -> Iterator[Tuple[List[str], str, str]]:
         test_index = 0
         for config_data in self.get_test_cases("jpf"):
             log_path = f"{out_dir}/{test_index}"
@@ -49,17 +49,17 @@ class BenchmarkBase(object):
             with open(f"{log_path}/config.json", "w") as f:
                 f.write(config_data.to_json())
             command = ["./bin/jpf"]
-            # command.append("+search.multiple_errors=true")
             command.append("+search.class=gov.nasa.jpf.search.RandomSearch")
             if perf_mode:
-                command.append("+search.RandomSearch.path_limit=10000000")
+                command.append("+search.multiple_errors=true")
+                command.append(f"+search.RandomSearch.path_limit={PERF_ITER}")
             else:
-                command.append("+search.RandomSearch.path_limit=1")
+                command.append("+search.RandomSearch.path_limit=10000000")
             command.append("+cg.randomize_choices=FIXED_SEED")
             command.append(f"+classpath={':'.join(config_data.executor.classpaths)}")
             command.append(config_data.executor.clazz)
             command.extend(config_data.executor.args)
-            yield command, log_path, JPF_PATH
+            yield command, perf_mode, log_path, JPF_PATH
 
     def generate_fray_test_commands(self, config: List[str], out_dir: str, perf_mode: bool) -> Iterator[Tuple[List[str], str, str]]:
         test_index = 0
@@ -68,20 +68,7 @@ class BenchmarkBase(object):
             os.makedirs(log_path, exist_ok=True)
             with open(f"{log_path}/config.json", "w") as f:
                 f.write(config_data.to_json())
-            args = [
-                "-o", f"{log_path}/report",
-                "--logger", "json",
-                "--iter", "-1",
-            ]
-            args.extend(config)
             test_index += 1
-            # command = [
-            #     "./gradlew",
-            #     "runFray",
-            #     f"-PconfigPath={log_path}/config.json",
-            #     f"-PextraArgs={' '.join(args)}",
-            # ]
-
             command = [
                 f"{FRAY_PATH}/jdk/build/java-inst/bin/java",
                 "-ea",
@@ -100,12 +87,17 @@ class BenchmarkBase(object):
                 "json",
                 "--config-path",
                 f"{log_path}/config.json",
-                *args
+                "-o", f"{log_path}/report",
+                "--logger", "json",
+                "--iter", "-1",
+                *config
             ]
-
-            # if debug_jvm:
-            #     command.insert(1, "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005")
-            yield command, log_path, FRAY_PATH
+            if perf_mode:
+                command.append("--explore")
+                command.extend(["--iter", f"{PERF_ITER}"])
+            else:
+                command.extend(["--iter", "-1"])
+            yield command, perf_mode, log_path, FRAY_PATH
 
     def get_test_cases(self, _tool_name: str) -> Iterator[RunConfig]:
         return iter([])

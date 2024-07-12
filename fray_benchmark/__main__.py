@@ -44,13 +44,13 @@ def run(tool: str, application: str, scheduler: str, name: str, timeout: int, cp
     with Pool(processes=cpu) as pool:
         if tool == "rr":
             pool.starmap(run_rr, map(lambda it: (*it, timeout),
-                        app.generate_rr_test_commands(out_dir)))
+                        app.generate_rr_test_commands(out_dir, perf_mode)))
         elif tool == "jpf":
             pool.starmap(run_jpf, map(lambda it: (*it, timeout),
-                        app.generate_jpf_test_commands(out_dir)))
+                        app.generate_jpf_test_commands(out_dir, perf_mode)))
         else:
             pool.starmap(run_fray, map(lambda it: (
-                *it, timeout), app.generate_fray_test_commands(SCHEDULERS[scheduler], out_dir)))
+                *it, timeout), app.generate_fray_test_commands(SCHEDULERS[scheduler], out_dir, perf_mode)))
 
 
 @main.command(name="runOne")
