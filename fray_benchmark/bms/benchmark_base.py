@@ -19,7 +19,7 @@ class BenchmarkBase(object):
     def build(self) -> None:
         pass
 
-    def generate_rr_test_commands(self, out_dir: str) -> Iterator[Tuple[List[str], str, str]]:
+    def generate_rr_test_commands(self, out_dir: str, perf_mode: bool) -> Iterator[Tuple[List[str], str, str]]:
         test_index = 0
         for config_data in self.get_test_cases("rr"):
             log_path = f"{out_dir}/{test_index}"
@@ -38,9 +38,9 @@ class BenchmarkBase(object):
             command.append(config_data.executor.clazz)
             command.extend(config_data.executor.args)
             command = ["./build/bin/rr", "record", "--chaos", "-o", f"{log_path}/trace"] + command
-            yield command, log_path, RR_PATH
+            yield command, perf_mode, log_path, RR_PATH
 
-    def generate_jpf_test_commands(self, out_dir: str) -> Iterator[Tuple[List[str], str, str]]:
+    def generate_jpf_test_commands(self, out_dir: str, perf_mode: str) -> Iterator[Tuple[List[str], str, str]]:
         test_index = 0
         for config_data in self.get_test_cases("jpf"):
             log_path = f"{out_dir}/{test_index}"
@@ -51,14 +51,17 @@ class BenchmarkBase(object):
             command = ["./bin/jpf"]
             # command.append("+search.multiple_errors=true")
             command.append("+search.class=gov.nasa.jpf.search.RandomSearch")
-            command.append("+search.RandomSearch.path_limit=10000000")
+            if perf_mode:
+                command.append("+search.RandomSearch.path_limit=10000000")
+            else:
+                command.append("+search.RandomSearch.path_limit=1")
             command.append("+cg.randomize_choices=FIXED_SEED")
             command.append(f"+classpath={':'.join(config_data.executor.classpaths)}")
             command.append(config_data.executor.clazz)
             command.extend(config_data.executor.args)
             yield command, log_path, JPF_PATH
 
-    def generate_fray_test_commands(self, config: List[str], out_dir: str, debug_jvm:  bool) -> Iterator[Tuple[List[str], str, str]]:
+    def generate_fray_test_commands(self, config: List[str], out_dir: str, perf_mode: bool) -> Iterator[Tuple[List[str], str, str]]:
         test_index = 0
         for config_data in self.get_test_cases("fray"):
             log_path = f"{out_dir}/{test_index}"
@@ -100,9 +103,8 @@ class BenchmarkBase(object):
                 *args
             ]
 
-            if debug_jvm:
-                command.insert(1, "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005")
-            #     command.append("--debug-jvm")
+            # if debug_jvm:
+            #     command.insert(1, "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005")
             yield command, log_path, FRAY_PATH
 
     def get_test_cases(self, _tool_name: str) -> Iterator[RunConfig]:
