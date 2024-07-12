@@ -17,3 +17,5 @@ TOOL_PATH = os.path.join(PROJECT_PATH, "tools")
 HELPER_PATH = os.path.join(PROJECT_PATH, "helpers")
 RR_PATH = os.path.join(TOOL_PATH, "rr")
 JPF_PATH = os.path.join(TOOL_PATH, "jpf-core")
+PERF_ITER = 10000
+PERF_TRIALS = 10

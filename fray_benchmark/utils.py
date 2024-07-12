@@ -4,78 +4,118 @@ import time
 import shutil
 from typing import List
 import subprocess
+from .commons import PERF_TRIALS, PERF_ITER
 
 
-def run_fray(command: List[str], log_path: str, cwd: str, timeout: int):
-    print(f"Running {log_path}")
+def run_fray(command: List[str], perf_mode: bool, log_path: str, cwd: str, timeout: int):
     with open(os.path.join(log_path, "command.txt"), "w") as f:
         f.write(" ".join(command))
-    error_found = False
-    try:
-        start_time = time.time()
-        proc = subprocess.run(command, cwd=cwd, stdout=open(os.path.join(log_path, "stdout.txt"), "w"), stderr=open(os.path.join(log_path, "stderr.txt"), "w"), timeout=timeout)
-        error_found = proc.returncode != 0
-    except subprocess.TimeoutExpired:
-        pass
-    with open(os.path.join(log_path, "report.txt"), "w") as report:
-        if error_found != 0:
-            report.write(f"Error Found: {time.time() - start_time}\n")
-        else:
-            report.write(f"No Error: {time.time() - start_time}\n")
-
-
-
-def run_jpf(command: List[str], log_path: str, cwd: str, timeout: int):
-    print(f"Running {log_path}")
-    with open(os.path.join(log_path, "command.txt"), "w") as f:
-        f.write(" ".join(command))
-    try:
-        stdout_path = os.path.join(log_path, "stdout.txt")
-        start_time = time.time()
-        subprocess.run(command, cwd=cwd, stdout=open(stdout_path, "w"), stderr=open(os.path.join(log_path, "stderr.txt"), "w"), timeout=timeout)
-    except subprocess.TimeoutExpired:
-        pass
-    with open(os.path.join(log_path, "report.txt"), "w") as report:
-        end_time = time.time()
-        with open(stdout_path, "r") as f:
-            data = f.read()
-            if "==== error 1" in data and "UnsupportedOperationException" not in data and \
-                    "NoSuchMethodException" not in data and "FileNotFoundException" not in data:
-                report.write(f"Error Found: {end_time - start_time}\n")
+    if perf_mode:
+        stdout = open(os.path.join(log_path, "stdout.txt"), "w")
+        with open(os.path.join(log_path, "perf_report.txt"), "w") as f:
+            for _ in range(PERF_TRIALS):
+                start_time = time.time()
+                subprocess.run(command, cwd=cwd, stdout=stdout,
+                               stderr=subprocess.STDOUT)
+                end_time = time.time()
+                f.write(f"{end_time - start_time}\n")
+    else:
+        error_found = False
+        try:
+            start_time = time.time()
+            proc = subprocess.run(command, cwd=cwd, stdout=open(os.path.join(
+                log_path, "stdout.txt"), "w"), stderr=open(os.path.join(log_path, "stderr.txt"), "w"), timeout=timeout)
+            error_found = proc.returncode != 0
+        except subprocess.TimeoutExpired:
+            pass
+        with open(os.path.join(log_path, "report.txt"), "w") as report:
+            if error_found != 0:
+                report.write(f"Error Found: {time.time() - start_time}\n")
             else:
-                report.write(f"No Error: {end_time - start_time}\n")
+                report.write(f"No Error: {time.time() - start_time}\n")
 
-def run_rr(command: List[str], log_path: str, cwd: str, timeout: int):
+
+def run_jpf(command: List[str], perf_mode: bool, log_path: str, cwd: str, timeout: int):
+    print(f"Running {log_path}")
+    with open(os.path.join(log_path, "command.txt"), "w") as f:
+        f.write(" ".join(command))
+    if perf_mode:
+        stdout = open(os.path.join(log_path, "stdout.txt"), "w")
+        with open(os.path.join(log_path, "perf_report.txt"), "w") as f:
+            for _ in range(PERF_TRIALS):
+                start_time = time.time()
+                subprocess.run(command, cwd=cwd, stdout=stdout,
+                               stderr=subprocess.STDOUT)
+                end_time = time.time()
+                f.write(f"{end_time - start_time}\n")
+    else:
+        try:
+            stdout_path = os.path.join(log_path, "stdout.txt")
+            start_time = time.time()
+            subprocess.run(command, cwd=cwd, stdout=open(stdout_path, "w"), stderr=open(
+                os.path.join(log_path, "stderr.txt"), "w"), timeout=timeout)
+        except subprocess.TimeoutExpired:
+            pass
+        with open(os.path.join(log_path, "report.txt"), "w") as report:
+            end_time = time.time()
+            with open(stdout_path, "r") as f:
+                data = f.read()
+                if "==== error 1" in data:
+                    if "UnsupportedOperationException" in data or \
+                        "NoSuchMethodException" in data or "FileNotFoundException" in data or\
+                            "Null charset name" in data or "NoSuchMethodError" in data:
+                        report.write(f"Run failed: {end_time - start_time}\n")
+                    else:
+                        report.write(f"Error Found: {end_time - start_time}\n")
+                else:
+                    report.write(f"No Error: {end_time - start_time}\n")
+
+
+def run_rr(command: List[str], perf_mode: bool, log_path: str, cwd: str, timeout: int):
     print(f"Running {log_path}")
     trace_dir = os.path.join(log_path, "trace")
     with open(os.path.join(log_path, "command.txt"), "w") as f:
         f.write(" ".join(command))
-    with open(os.path.join(log_path, "report.txt"), "w") as stdout:
-        start_time = time.time()
-        iter_num = 0
-        error_found = False
-        while (time.time() - start_time) < timeout:
-            stdout.write(f"Iteration: {iter_num}\n")
-            if os.path.exists(trace_dir):
-                shutil.rmtree(trace_dir)
-            try:
-                proc = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=cwd, timeout=timeout - (time.time() - start_time))
-            except subprocess.TimeoutExpired:
-                break
-            if proc.returncode != 0:
-                with open(f"{log_path}/stdout.txt", "w") as f:
-                    f.write(proc.stdout.decode("utf-8"))
-                error_found = True
-                break
-            iter_num += 1
-        if error_found:
-            stdout.write(f"Error Found: {time.time() - start_time}\n")
-        else:
-            stdout.write(f"No Error: {time.time() - start_time}\n")
+    if perf_mode:
+        with open(os.path.join(log_path, "perf_report.txt"), "w") as f:
+            for _ in range(PERF_TRIALS):
+                start_time = time.time()
+                for _ in range(PERF_ITER):
+                    if os.path.exists(trace_dir):
+                        shutil.rmtree(trace_dir)
+                    subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                                   cwd=cwd)
+                f.write(f"{time.time() - start_time}\n")
+    else:
+        with open(os.path.join(log_path, "report.txt"), "w") as stdout:
+            start_time = time.time()
+            iter_num = 0
+            error_found = False
+            while (time.time() - start_time) < timeout:
+                stdout.write(f"Iteration: {iter_num}\n")
+                if os.path.exists(trace_dir):
+                    shutil.rmtree(trace_dir)
+                try:
+                    proc = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                                        cwd=cwd, timeout=timeout - (time.time() - start_time))
+                except subprocess.TimeoutExpired:
+                    break
+                if proc.returncode != 0:
+                    with open(f"{log_path}/stdout.txt", "w") as f:
+                        f.write(proc.stdout.decode("utf-8"))
+                    error_found = True
+                    break
+                iter_num += 1
+            if error_found:
+                stdout.write(f"Error Found: {time.time() - start_time}\n")
+            else:
+                stdout.write(f"No Error: {time.time() - start_time}\n")
+
 
 def load_test_cases(file_path: str) -> List[str]:
     with open(file_path) as f:
         return list(filter(str.__len__, map(str.strip, f.readlines())))
+
 
 def resolve_classpaths(classpaths: List[str]) -> List[str]:
     resolved_paths = []

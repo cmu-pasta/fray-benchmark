@@ -16,62 +16,41 @@ from .utils import run_fray, run_rr, run_jpf
 
 
 @click.group(name="mode")
-@click.argument("application", type=click.Choice(list(BENCHMARKS.keys())))
-@click.pass_context
-def main(ctx, application: str):
-    ctx.obj = BENCHMARKS[application]
+def main():
+    pass
 
 
 @main.command(name="build")
-@click.pass_obj
-def build(app: BenchmarkBase):
+@click.argument("application", type=click.Choice(list(BENCHMARKS.keys())))
+def build(application: str):
+    app = BENCHMARKS[application]
     app.build()
 
 
-@main.command(name="runRR")
-@click.pass_obj
-@click.option("--name", type=str, default=datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
-@click.option("--timeout", "-t", type=int, default=10 * 60)
-@click.option("--cpu", type=int, default=os.cpu_count())
-def run_rr_command(app: BenchmarkBase, name: str, timeout: int, cpu: int):
-    out_dir = os.path.join(OUTPUT_PATH, name, app.name, "rr")
-    if os.path.exists(out_dir):
-        shutil.rmtree(out_dir)
-    os.makedirs(out_dir)
-    with Pool(processes=cpu) as pool:
-        pool.starmap(run_rr, map(lambda it: (*it, timeout),
-                     app.generate_rr_test_commands(out_dir)))
-
-@main.command(name="runJPF")
-@click.pass_obj
-@click.option("--name", type=str, default=datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
-@click.option("--timeout", "-t", type=int, default=10 * 60)
-@click.option("--cpu", type=int, default=os.cpu_count())
-def run_jpf_command(app: BenchmarkBase, name: str, timeout: int, cpu: int):
-    out_dir = os.path.join(OUTPUT_PATH, name, app.name, "jpf")
-    if os.path.exists(out_dir):
-        shutil.rmtree(out_dir)
-    os.makedirs(out_dir)
-    with Pool(processes=cpu) as pool:
-        pool.starmap(run_jpf, map(lambda it: (*it, timeout),
-                     app.generate_jpf_test_commands(out_dir)))
-
-
 @main.command(name="run")
-@click.pass_obj
-@click.option("--scheduler", type=click.Choice(list(SCHEDULERS.keys())), default="pct3")
+@click.argument("tool", type=click.Choice(["jpf", "rr", "fray"]))
+@click.argument("application", type=click.Choice(list(BENCHMARKS.keys())))
+@click.option("--scheduler", type=click.Choice(list(SCHEDULERS.keys())))
 @click.option("--name", type=str, default=datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
-@click.option("--debug-jvm", type=bool, is_flag=True, show_default=True, default=False)
 @click.option("--timeout", "-t", type=int, default=10 * 60)
 @click.option("--cpu", type=int, default=os.cpu_count())
-def run(app: BenchmarkBase, scheduler: str, name: str, debug_jvm: bool, timeout: int, cpu: int):
-    out_dir = os.path.join(OUTPUT_PATH, name, app.name, scheduler)
+@click.option("--perf-mode", type=bool, is_flag=True, show_default=True, default=False)
+def run(tool: str, application: str, scheduler: str, name: str, timeout: int, cpu: int, perf_mode: bool):
+    app = BENCHMARKS[application]
+    out_dir = os.path.join(OUTPUT_PATH, name, app.name, scheduler if tool == "fray" else tool)
     if os.path.exists(out_dir):
         shutil.rmtree(out_dir)
     os.makedirs(out_dir)
     with Pool(processes=cpu) as pool:
-        pool.starmap(run_fray, map(lambda it: (
-            *it, timeout), app.generate_fray_test_commands(SCHEDULERS[scheduler], out_dir, debug_jvm)))
+        if tool == "rr":
+            pool.starmap(run_rr, map(lambda it: (*it, timeout),
+                        app.generate_rr_test_commands(out_dir, perf_mode)))
+        elif tool == "jpf":
+            pool.starmap(run_jpf, map(lambda it: (*it, timeout),
+                        app.generate_jpf_test_commands(out_dir, perf_mode)))
+        else:
+            pool.starmap(run_fray, map(lambda it: (
+                *it, timeout), app.generate_fray_test_commands(SCHEDULERS[scheduler], out_dir, perf_mode)))
 
 
 @main.command(name="runOne")
@@ -139,4 +118,4 @@ def replay(path: str, replay: str, debug_jvm: bool):
 
 
 if __name__ == '__main__':
-    main(None, None)
+    main()
