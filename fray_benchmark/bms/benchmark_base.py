@@ -32,6 +32,7 @@ class BenchmarkBase(object):
             command.extend(["--add-opens", "java.base/java.util=ALL-UNNAMED"])
             command.extend(["--add-opens", "java.base/java.io=ALL-UNNAMED"])
             command.extend(["--add-opens", "java.base/java.util.concurrent=ALL-UNNAMED"])
+            command.extend(["--add-opens", "java.base/java.lang.reflect=ALL-UNNAMED"])
             command.extend([f"-cp", ':'.join(config_data.executor.classpaths)])
             for property_key, property_value in config_data.executor.properties.items():
                 command.append(f"-D{property_key}={property_value}")
@@ -79,6 +80,7 @@ class BenchmarkBase(object):
                 "--add-opens", "java.base/java.io=ALL-UNNAMED",
                 "--add-opens", "java.base/java.util.concurrent.atomic=ALL-UNNAMED",
                 "--add-opens", "java.base/sun.nio.ch=ALL-UNNAMED",
+                "--add-opens", "java.base/java.lang.reflect=ALL-UNNAMED",
                 "-cp", ":".join(resolve_classpaths([
                     f"{FRAY_PATH}/examples/build/dependency/*.jar",
                 ])),

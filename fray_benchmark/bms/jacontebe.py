@@ -27,8 +27,6 @@ class JaConTeBe(BenchmarkBase):
                 if target_match and cp_match:
                     class_to_run = target_match.group(1)
                     classpaths = cp_match.group(1).split(":")[1:]
-                    print(cp_match.group(1))
-                    print(classpaths)
                     yield RunConfig(
                         Executor(
                             class_to_run,
