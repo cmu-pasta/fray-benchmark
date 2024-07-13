@@ -16,7 +16,7 @@ class BenchResult:
         components = path.split("/")
         self.tech = components[-1]
         self.benchmark = components[-2]
-        self.error_pattern = re.compile(r"(No Error|Error Found): (\d+\.\d+)")
+        self.error_pattern = re.compile(r"(No Error|Error Found|Run Failed): (\d+\.\d+)")
 
     def to_csv(self):
         result_folder = os.path.join(self.path, "results")
@@ -57,6 +57,8 @@ class BenchResult:
                 summary_file.write(f"{folder},0,{value},{total_iteration}\n")
             elif error_type == "Error Found":
                 summary_file.write(f"{folder},1,{value},{total_iteration}\n")
+            elif error_type == "Run Failed":
+                summary_file.write(f"{folder},-1,{value},{total_iteration}\n")
 
     def load_csv(self) -> pd.DataFrame:
         result_folder = os.path.join(self.path, "results")
@@ -86,8 +88,16 @@ class BenchmarkSuite:
 
     def name_remap(self, name: str) -> str:
         if name == "random":
-            return "$\\textsc{Fray}$"
-        return name.upper()
+            return "$\\textsc{Fray}$-Random"
+        if name.startswith("pct"):
+            return "$\\textsc{Fray}$-PCT"
+        if name.startswith("pos"):
+            return "$\\textsc{Fray}$-POS"
+        if name == "rr":
+            return "RR-Chaos"
+        if name == "jpf":
+            return "JPF-Random"
+        # return name.upper()
 
     def to_aggregated_fig(self, measurement: str) -> matplotlib.axes.Axes:
         df = self.to_aggregated_dataframe()
