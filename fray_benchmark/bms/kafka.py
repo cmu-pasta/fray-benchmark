@@ -12,8 +12,8 @@ class LuceneBenchmark(UnitTestBenchmark):
         super().__init__(
             "kafka",
             [
-                os.path.join(self.bench_dir, "streams/build/libs/kafka-streams-3.9.0-SNAPSHOT-test.jar"),
-                os.path.join(self.bench_dir, "streams/build/libs/kafka-streams-3.9.0-SNAPSHOT.jar"),
+                os.path.join(self.bench_dir, "streams/build/classes/java/main/"),
+                os.path.join(self.bench_dir, "streams/build/classes/java/test/"),
                 os.path.join(self.bench_dir,
                              "streams/build/dependency/*.jar"),
             ], load_test_cases(os.path.join(ASSETS_PATH, f"kafka.txt")),
