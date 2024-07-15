@@ -35,22 +35,24 @@ def build(application: str):
 @click.option("--timeout", "-t", type=int, default=10 * 60)
 @click.option("--cpu", type=int, default=os.cpu_count())
 @click.option("--perf-mode", type=bool, is_flag=True, show_default=True, default=False)
-def run(tool: str, application: str, scheduler: str, name: str, timeout: int, cpu: int, perf_mode: bool):
+@click.option("--iterations", type=int, default=20)
+def run(tool: str, application: str, scheduler: str, name: str, timeout: int, cpu: int, perf_mode: bool, iterations: int):
     app = BENCHMARKS[application]
-    out_dir = os.path.join(OUTPUT_PATH, name, app.name, scheduler if tool == "fray" else tool)
-    if os.path.exists(out_dir):
-        shutil.rmtree(out_dir)
-    os.makedirs(out_dir)
-    with Pool(processes=cpu) as pool:
-        if tool == "rr":
-            pool.starmap(run_rr, map(lambda it: (*it, timeout),
-                        app.generate_rr_test_commands(out_dir, perf_mode)))
-        elif tool == "jpf":
-            pool.starmap(run_jpf, map(lambda it: (*it, timeout),
-                        app.generate_jpf_test_commands(out_dir, perf_mode)))
-        else:
-            pool.starmap(run_fray, map(lambda it: (
-                *it, timeout), app.generate_fray_test_commands(SCHEDULERS[scheduler], out_dir, perf_mode)))
+    for i in range(iterations):
+        out_dir = os.path.join(OUTPUT_PATH, name, app.name, scheduler if tool == "fray" else tool, f"iter-{i}")
+        if os.path.exists(out_dir):
+            shutil.rmtree(out_dir)
+        os.makedirs(out_dir)
+        with Pool(processes=cpu) as pool:
+            if tool == "rr":
+                pool.starmap(run_rr, map(lambda it: (*it, timeout),
+                            app.generate_rr_test_commands(out_dir, perf_mode)))
+            elif tool == "jpf":
+                pool.starmap(run_jpf, map(lambda it: (*it, timeout),
+                            app.generate_jpf_test_commands(out_dir, perf_mode)))
+            else:
+                pool.starmap(run_fray, map(lambda it: (
+                    *it, timeout), app.generate_fray_test_commands(SCHEDULERS[scheduler], out_dir, perf_mode)))
 
 
 @main.command(name="runOne")

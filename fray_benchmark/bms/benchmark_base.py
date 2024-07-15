@@ -38,7 +38,14 @@ class BenchmarkBase(object):
                 command.append(f"-D{property_key}={property_value}")
             command.append(config_data.executor.clazz)
             command.extend(config_data.executor.args)
-            command = ["./build/bin/rr", "record", "--chaos", "-o", f"{log_path}/trace"] + command
+            command = [
+                "/usr/bin/time",
+                "-p",
+                "-o",
+                f"{log_path}/time.txt",
+                f"{HELPER_PATH}/rr_runner.sh",
+                f"{log_path}/trace",
+                "./build/bin/rr", "record", "--chaos", "-o", f"{log_path}/trace"] + command
             yield command, perf_mode, log_path, RR_PATH
 
     def generate_jpf_test_commands(self, out_dir: str, perf_mode: bool) -> Iterator[Tuple[List[str], str, str]]:
@@ -49,7 +56,12 @@ class BenchmarkBase(object):
             os.makedirs(log_path, exist_ok=True)
             with open(f"{log_path}/config.json", "w") as f:
                 f.write(config_data.to_json())
-            command = ["./bin/jpf"]
+            command = [
+                "/usr/bin/time",
+                "-p",
+                "-o",
+                f"{log_path}/time.txt",
+                "./bin/jpf"]
             command.append("+search.class=gov.nasa.jpf.search.RandomSearch")
             if perf_mode:
                 command.append("+search.multiple_errors=true")
@@ -71,6 +83,10 @@ class BenchmarkBase(object):
                 f.write(config_data.to_json())
             test_index += 1
             command = [
+                "/usr/bin/time",
+                "-p",
+                "-o",
+                f"{log_path}/time.txt",
                 f"{FRAY_PATH}/jdk/build/java-inst/bin/java",
                 "-ea",
                 f"-agentpath:{FRAY_PATH}/jvmti/build//cmake/native_release/" + ("mac-aarch64/cpp/libjvmti.dylib" if platform == "darwin" else "linux-amd64/cpp/libjvmti.so"),

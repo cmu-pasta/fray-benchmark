@@ -8,6 +8,7 @@ from .commons import PERF_TRIALS, PERF_ITER
 
 
 def run_fray(command: List[str], perf_mode: bool, log_path: str, cwd: str, timeout: int):
+    print(f"Running {log_path}")
     with open(os.path.join(log_path, "command.txt"), "w") as f:
         f.write(" ".join(command))
     if perf_mode:
@@ -89,23 +90,9 @@ def run_rr(command: List[str], perf_mode: bool, log_path: str, cwd: str, timeout
     else:
         with open(os.path.join(log_path, "report.txt"), "w") as stdout:
             start_time = time.time()
-            iter_num = 0
-            error_found = False
-            while (time.time() - start_time) < timeout:
-                stdout.write(f"Iteration: {iter_num}\n")
-                if os.path.exists(trace_dir):
-                    shutil.rmtree(trace_dir)
-                try:
-                    proc = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                                        cwd=cwd, timeout=timeout - (time.time() - start_time))
-                except subprocess.TimeoutExpired:
-                    break
-                if proc.returncode != 0:
-                    with open(f"{log_path}/stdout.txt", "w") as f:
-                        f.write(proc.stdout.decode("utf-8"))
-                    error_found = True
-                    break
-                iter_num += 1
+            proc = subprocess.run(command, cwd=cwd, stdout=open(os.path.join(
+                log_path, "stdout.txt"), "w"), stderr=open(os.path.join(log_path, "stderr.txt"), "w"), timeout=timeout)
+            error_found = proc.returncode != 0
             if error_found:
                 stdout.write(f"Error Found: {time.time() - start_time}\n")
             else:

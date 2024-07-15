@@ -2,6 +2,7 @@ import os
 import re
 import shutil
 from typing import List
+import numpy as np
 
 import matplotlib
 import matplotlib.axes
@@ -14,9 +15,12 @@ class BenchResult:
     def __init__(self, path: str):
         self.path = os.path.abspath(path)
         components = path.split("/")
-        self.tech = components[-1]
-        self.benchmark = components[-2]
-        self.error_pattern = re.compile(r"(No Error|Error Found|Run failed): (\d+\.\d+)")
+        self.trial = components[-1]
+        self.tech = components[-2]
+        self.benchmark = components[-3]
+        self.error_pattern = re.compile(
+            r"(No Error|Error Found|Run failed): (\d+\.\d+)")
+        self.time_pattern = re.compile(r"user (\d+\.\d+)")
 
     def lucene_bug_classify(self, stdout: str):
         if "DeadlockException" in stdout:
@@ -129,13 +133,14 @@ class BenchResult:
         if self.benchmark == "lucene":
             return self.lucene_bug_classify(stdout)
         if self.benchmark == "kafka":
-            out = self.kafka_bug_classify(stdout)
-            if not out:
-                print(run_folder)
-                print(stdout)
-                exit(0)
-                return "TP"
-            return out
+            return self.kafka_bug_classify(stdout)
+        return "N/A"
+
+    def read_time(self, path: str) -> float:
+        with open(os.path.join(path, "time.txt")) as f:
+            match = self.time_pattern.search(f.read())
+            result = match.group(1)
+            return float(result)
 
     def to_csv(self):
         result_folder = os.path.join(self.path, "results")
@@ -154,9 +159,11 @@ class BenchResult:
                 continue
             error_type, value = match.groups()
             if self.tech == "rr":
-                total_iteration = int(text.strip().split("\n")[-2].split(":")[1]) + 1
+                total_iteration = int(
+                    text.strip().split("\n")[-2].split(":")[1]) + 1
             elif self.tech == "jpf":
-                stdout = open(os.path.join(run_folder, "stdout.txt")).readlines()
+                stdout = open(os.path.join(
+                    run_folder, "stdout.txt")).readlines()
                 total_iteration = -1
                 for line in reversed(stdout):
                     if line.startswith("paths ="):
@@ -165,29 +172,33 @@ class BenchResult:
                 if error_type == "Error Found" and total_iteration == -1:
                     total_iteration = 1
             else:
-                stdout = open(os.path.join(run_folder, "stdout.txt")).readlines()
+                stdout = open(os.path.join(
+                    run_folder, "stdout.txt")).readlines()
                 total_iteration = -1
                 for line in reversed(stdout):
                     if line.startswith("Starting iteration"):
                         total_iteration = int(line.split(" ")[-1].strip()) + 1
                         break
+
             if error_type == "No Error" and float(value) >= 600:
-                summary_file.write(f"{folder},NoError,{value},{total_iteration},N/A\n")
+                error_result = "NoError"
             elif error_type == "Error Found":
+                error_result = "Error"
                 bug_type = self.bug_classify(run_folder)
-                if bug_type != "Run failure":
-                    summary_file.write(f"{folder},{bug_type[:2]},{value},{total_iteration},{bug_type}\n")
-                else:
-                    summary_file.write(f"{folder},Failure,{value},{total_iteration},N/A\n")
+                if bug_type == "Run failure":
+                    bug_type = "N/A"
+                    error_result = "Failure"
             else:
-                summary_file.write(f"{folder},Failure,{value},{total_iteration},N/A\n")
+                error_result = "Failure"
+            summary_file.write(
+                f"{self.trial},{self.read_time(run_folder)},{folder},{error_result},{total_iteration},{bug_type}\n")
 
     def load_csv(self) -> pd.DataFrame:
         result_folder = os.path.join(self.path, "results")
         if not os.path.exists(result_folder):
             raise Exception("No results folder found")
         return pd.read_csv(
-            os.path.join(result_folder, "summary.csv"), names=["run", "error", "time", "iter", "type"]
+            os.path.join(result_folder, "summary.csv"), names=["trial", "time", "id", "error", "iter", "type"]
         )
 
 
@@ -195,9 +206,13 @@ class BenchmarkSuite:
     def __init__(self, path: str):
         self.benchmarks: List[BenchResult] = []
         self.path = os.path.abspath(path)
-        for folder in os.listdir(self.path):
-            self.benchmarks.append(BenchResult(
-                os.path.join(self.path, folder)))
+        for tech in os.listdir(self.path):
+            if tech != "random":
+                continue
+            tech_folder = os.path.join(self.path, tech)
+            for trial in os.listdir(tech_folder):
+                trial_folder = os.path.join(tech_folder, trial)
+                self.benchmarks.append(BenchResult(trial_folder))
 
     def to_aggregated_dataframe(self) -> pd.DataFrame:
         data = []
@@ -206,7 +221,7 @@ class BenchmarkSuite:
             df = bench.load_csv()
             df["Technique"] = self.name_remap(bench.tech)
             data.append(df)
-        return pd.concat(data)
+        return pd.concat(data, ignore_index=True)
 
     def name_remap(self, name: str) -> str:
         if name == "random":
@@ -224,16 +239,40 @@ class BenchmarkSuite:
     def to_aggregated_fig(self, measurement: str) -> matplotlib.axes.Axes:
         df = self.to_aggregated_dataframe()
         df = df[df["error"] == "Error"]
-        df_grouped = df.groupby([measurement, 'Technique']).size().reset_index(name='count')
-        # Pivot the dataframe to have 'time' as the index and 'tech' as columns
-        df_pivot = df_grouped.pivot(index=measurement, columns='Technique', values='count').fillna(0)
-        zero_row = pd.DataFrame(0, index=[0], columns=df_pivot.columns)
-        df_pivot = pd.concat([zero_row, df_pivot]).sort_index()
-        df_cumsum = df_pivot.cumsum()
-        ax = sns.lineplot(data=df_cumsum, linewidth=2, markers=True)
-        if measurement == "time":
-            ax.set_xlabel('Seconds')
-        else:
-            ax.set_xlabel('Iterations')
+        df['time'] = df['time'].astype(float)
+        df_grouped = df.groupby(
+            [measurement, 'Technique', "trial"]).reset_index()
+        df_grouped['sum'] = df_grouped.groupby(['Technique', 'trial'])[
+            'time'].rank(method='max')
+        display(df_grouped[df_grouped['trial'] == "iter-9"])
+        df_grouped['sum'] = df_grouped['sum'].astype(float)
+        df_grouped = df_grouped.drop(["count"], axis=1)
+        display(df_grouped[df_grouped['trial'] == "iter-9"])
+        df_grouped = df_grouped.groupby(
+            ['time', 'trial', 'Technique'], as_index=False)['sum'].max()
+        unique_combinations = df_grouped[['Technique', 'trial']].drop_duplicates()
+        new_rows = pd.DataFrame(
+            {'time': 0, 'trial': unique_combinations['trial'], 'Technique': unique_combinations['Technique'], 'sum': 0})
+        # Append new rows to the original dataframe
+        # df_grouped = pd.concat([new_rows, df_grouped], ignore_index=True)
+
+        # # Function to interpolate 'sum' within each group efficiently
+        def interpolate_sum(group):
+            time_index = np.arange(df_grouped['time'].min(), df_grouped['time'].max(), 0.01)
+            group = group.set_index('time').reindex(time_index)
+            group['sum'] = group['sum'].ffill()
+            group['Technique'] = group['Technique'].ffill()
+            group['trial'] = group['trial'].ffill()
+            time_index = np.arange(df_grouped['time'].min(), df_grouped['time'].max(), 1)
+            group = group.reset_index().rename(columns={'index': 'time'})
+            # Reindex the group to include all time points
+            group = group.set_index('time').reindex(time_index)
+            group = group.reset_index().rename(columns={'index': 'time'})
+            return group
+        df_grouped = df_grouped.groupby(['trial', 'Technique']).apply(interpolate_sum).reset_index(drop=True)
+        display(df_grouped)
+        ax = sns.lineplot(data=df_grouped, x="time", y="sum", hue="Technique",
+                          linewidth=2, markers=True, errorbar='sd', estimator='mean', err_style='band')
+        ax.set_xlabel('Seconds')
         ax.set_ylabel('Cumulative \# of Bugs')
         return ax
