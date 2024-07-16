@@ -240,21 +240,17 @@ class BenchmarkSuite:
         df = self.to_aggregated_dataframe()
         df = df[df["error"] == "Error"]
         df['time'] = df['time'].astype(float)
-        df_grouped = df.groupby(
-            [measurement, 'Technique', "trial"]).reset_index()
+        df_grouped = df
         df_grouped['sum'] = df_grouped.groupby(['Technique', 'trial'])[
             'time'].rank(method='max')
-        display(df_grouped[df_grouped['trial'] == "iter-9"])
         df_grouped['sum'] = df_grouped['sum'].astype(float)
-        df_grouped = df_grouped.drop(["count"], axis=1)
-        display(df_grouped[df_grouped['trial'] == "iter-9"])
+        df_grouped = df_grouped.drop(["type", "iter", "error", "id"], axis=1)
         df_grouped = df_grouped.groupby(
             ['time', 'trial', 'Technique'], as_index=False)['sum'].max()
         unique_combinations = df_grouped[['Technique', 'trial']].drop_duplicates()
         new_rows = pd.DataFrame(
             {'time': 0, 'trial': unique_combinations['trial'], 'Technique': unique_combinations['Technique'], 'sum': 0})
-        # Append new rows to the original dataframe
-        # df_grouped = pd.concat([new_rows, df_grouped], ignore_index=True)
+        df_grouped = pd.concat([new_rows, df_grouped], ignore_index=True)
 
         # # Function to interpolate 'sum' within each group efficiently
         def interpolate_sum(group):
@@ -270,7 +266,6 @@ class BenchmarkSuite:
             group = group.reset_index().rename(columns={'index': 'time'})
             return group
         df_grouped = df_grouped.groupby(['trial', 'Technique']).apply(interpolate_sum).reset_index(drop=True)
-        display(df_grouped)
         ax = sns.lineplot(data=df_grouped, x="time", y="sum", hue="Technique",
                           linewidth=2, markers=True, errorbar='sd', estimator='mean', err_style='band')
         ax.set_xlabel('Seconds')
