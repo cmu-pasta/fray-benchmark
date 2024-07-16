@@ -25,12 +25,12 @@ def run_fray(command: List[str], perf_mode: bool, log_path: str, cwd: str, timeo
         try:
             start_time = time.time()
             proc = subprocess.run(command, cwd=cwd, stdout=open(os.path.join(
-                log_path, "stdout.txt"), "w"), stderr=open(os.path.join(log_path, "stderr.txt"), "w"), timeout=timeout)
-            error_found = proc.returncode != 0
+                log_path, "stdout.txt"), "w"), stderr=open(os.path.join(log_path, "stderr.txt"), "w"))
+            error_found = proc.returncode != 0 and proc.returncode != 124
         except subprocess.TimeoutExpired:
             pass
         with open(os.path.join(log_path, "report.txt"), "w") as report:
-            if error_found != 0:
+            if error_found:
                 report.write(f"Error Found: {time.time() - start_time}\n")
             else:
                 report.write(f"No Error: {time.time() - start_time}\n")
@@ -54,7 +54,7 @@ def run_jpf(command: List[str], perf_mode: bool, log_path: str, cwd: str, timeou
             stdout_path = os.path.join(log_path, "stdout.txt")
             start_time = time.time()
             subprocess.run(command, cwd=cwd, stdout=open(stdout_path, "w"), stderr=open(
-                os.path.join(log_path, "stderr.txt"), "w"), timeout=timeout)
+                os.path.join(log_path, "stderr.txt"), "w"))
         except subprocess.TimeoutExpired:
             pass
         with open(os.path.join(log_path, "report.txt"), "w") as report:
@@ -90,9 +90,13 @@ def run_rr(command: List[str], perf_mode: bool, log_path: str, cwd: str, timeout
     else:
         with open(os.path.join(log_path, "report.txt"), "w") as stdout:
             start_time = time.time()
-            proc = subprocess.run(command, cwd=cwd, stdout=open(os.path.join(
-                log_path, "stdout.txt"), "w"), stderr=open(os.path.join(log_path, "stderr.txt"), "w"), timeout=timeout)
-            error_found = proc.returncode != 0
+            error_found = False
+            try:
+                proc = subprocess.run(command, cwd=cwd, stdout=open(os.path.join(
+                    log_path, "stdout.txt"), "w"), stderr=open(os.path.join(log_path, "stderr.txt"), "w"), env={"RR_TIMEOUT": timeout})
+                error_found = proc.returncode != 0 and proc.returncode != 124
+            except subprocess.TimeoutExpired:
+                pass
             if error_found:
                 stdout.write(f"Error Found: {time.time() - start_time}\n")
             else:

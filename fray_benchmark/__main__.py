@@ -34,9 +34,8 @@ def build(application: str):
 @click.option("--name", type=str, default=datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
 @click.option("--timeout", "-t", type=int, default=10 * 60)
 @click.option("--cpu", type=int, default=os.cpu_count())
-@click.option("--perf-mode", type=bool, is_flag=True, show_default=True, default=False)
 @click.option("--iterations", type=int, default=20)
-def run(tool: str, application: str, scheduler: str, name: str, timeout: int, cpu: int, perf_mode: bool, iterations: int):
+def run(tool: str, application: str, scheduler: str, name: str, timeout: int, cpu: int, iterations: int):
     app = BENCHMARKS[application]
     for i in range(iterations):
         out_dir = os.path.join(OUTPUT_PATH, name, app.name, scheduler if tool == "fray" else tool, f"iter-{i}")
@@ -46,13 +45,13 @@ def run(tool: str, application: str, scheduler: str, name: str, timeout: int, cp
         with Pool(processes=cpu) as pool:
             if tool == "rr":
                 pool.starmap(run_rr, map(lambda it: (*it, timeout),
-                            app.generate_rr_test_commands(out_dir, perf_mode)))
+                            app.generate_rr_test_commands(out_dir, timeout)))
             elif tool == "jpf":
                 pool.starmap(run_jpf, map(lambda it: (*it, timeout),
-                            app.generate_jpf_test_commands(out_dir, perf_mode)))
+                            app.generate_jpf_test_commands(out_dir, timeout)))
             else:
                 pool.starmap(run_fray, map(lambda it: (
-                    *it, timeout), app.generate_fray_test_commands(SCHEDULERS[scheduler], out_dir, perf_mode)))
+                    *it, timeout), app.generate_fray_test_commands(SCHEDULERS[scheduler], out_dir, timeout)))
 
 
 @main.command(name="runOne")

@@ -20,7 +20,8 @@ class BenchResult:
         self.benchmark = components[-3]
         self.error_pattern = re.compile(
             r"(No Error|Error Found|Run failed): (\d+\.\d+)")
-        self.time_pattern = re.compile(r"user (\d+\.\d+)")
+        self.user_time_pattern = re.compile(r"user (\d+\.\d+)")
+        self.sys_time_pattern = re.compile(r"sys (\d+\.\d+)")
 
     def lucene_bug_classify(self, stdout: str):
         if "DeadlockException" in stdout:
@@ -138,9 +139,13 @@ class BenchResult:
 
     def read_time(self, path: str) -> float:
         with open(os.path.join(path, "time.txt")) as f:
-            match = self.time_pattern.search(f.read())
-            result = match.group(1)
-            return float(result)
+            text = f.read()
+            print(path)
+            match = self.user_time_pattern.search(text)
+            user_time = float(match.group(1))
+            match = self.sys_time_pattern.search(text)
+            sys_time = float(match.group(1))
+            return user_time + sys_time
 
     def to_csv(self):
         result_folder = os.path.join(self.path, "results")
@@ -207,7 +212,7 @@ class BenchmarkSuite:
         self.benchmarks: List[BenchResult] = []
         self.path = os.path.abspath(path)
         for tech in os.listdir(self.path):
-            if tech != "random":
+            if tech == "rr":
                 continue
             tech_folder = os.path.join(self.path, tech)
             for trial in os.listdir(tech_folder):
@@ -217,7 +222,7 @@ class BenchmarkSuite:
     def to_aggregated_dataframe(self) -> pd.DataFrame:
         data = []
         for bench in self.benchmarks:
-            # bench.to_csv()
+            bench.to_csv()
             df = bench.load_csv()
             df["Technique"] = self.name_remap(bench.tech)
             data.append(df)
