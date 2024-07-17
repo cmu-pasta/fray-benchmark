@@ -95,6 +95,7 @@ public class Dbcp270 {
         if (!OptionHelper.optionParse(args)) {
             return;
         }
+        Helpers.startDeadlockMonitor();
         Dbcp270 test = new Dbcp270();
         test.run();
     }

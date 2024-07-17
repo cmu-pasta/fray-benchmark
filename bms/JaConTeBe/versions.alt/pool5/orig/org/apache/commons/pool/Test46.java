@@ -71,7 +71,7 @@ public class Test46 {
         if (!OptionHelper.optionParse(args)) {
             return;
         }
-        // Helpers.startEndlessLoopMonitor(timeout, "Reader");
+        Helpers.startEndlessLoopMonitor(timeout, "Reader");
         threads = OptionHelper.getThreadNumValue(DEFAULT_READS);
         startTest(true); // start the test with proper synchronization
         startTest(false); // start the test without synchronization
