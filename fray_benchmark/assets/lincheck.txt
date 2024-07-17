@@ -5,6 +5,5 @@ cmu.pasta.fray.it.lincheck.SnapTreeTest
 cmu.pasta.fray.it.lincheck.ConcurrentLinkedDequeTest
 cmu.pasta.fray.it.lincheck.LogicalOrderingAVLTest
 cmu.pasta.fray.it.lincheck.ConcurrentRadixTreeTest
-cmu.pasta.fray.it.lincheck.ConcurrentSuffixTreeTest
-cmu.pasta.fray.it.lincheck.ConcurrentSuffixTreeTest
+cmu.pasta.fray.it.lincheck.AbstractQueueSynchronizerTest
 MutexTestKt
