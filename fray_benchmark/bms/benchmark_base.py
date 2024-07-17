@@ -19,7 +19,7 @@ class BenchmarkBase(object):
     def build(self) -> None:
         pass
 
-    def generate_rr_test_commands(self, out_dir: str, perf_mode: bool) -> Iterator[Tuple[List[str], str, str]]:
+    def generate_rr_test_commands(self, out_dir: str, timeout: int) -> Iterator[Tuple[List[str], str, str]]:
         test_index = 0
         for config_data in self.get_test_cases("rr"):
             log_path = f"{out_dir}/{test_index}"
@@ -43,12 +43,14 @@ class BenchmarkBase(object):
                 "-p",
                 "-o",
                 f"{log_path}/time.txt",
+                "timeout",
+                str(timeout),
                 f"{HELPER_PATH}/rr_runner.sh",
                 f"{log_path}/trace",
                 "./build/bin/rr", "record", "--chaos", "-o", f"{log_path}/trace"] + command
-            yield command, perf_mode, log_path, RR_PATH
+            yield command, log_path, RR_PATH
 
-    def generate_jpf_test_commands(self, out_dir: str, perf_mode: bool) -> Iterator[Tuple[List[str], str, str]]:
+    def generate_jpf_test_commands(self, out_dir: str, timeout: int) -> Iterator[Tuple[List[str], str, str]]:
         test_index = 0
         for config_data in self.get_test_cases("jpf"):
             log_path = f"{out_dir}/{test_index}"
@@ -61,20 +63,18 @@ class BenchmarkBase(object):
                 "-p",
                 "-o",
                 f"{log_path}/time.txt",
+                "timeout",
+                str(timeout),
                 "./bin/jpf"]
             command.append("+search.class=gov.nasa.jpf.search.RandomSearch")
-            if perf_mode:
-                command.append("+search.multiple_errors=true")
-                command.append(f"+search.RandomSearch.path_limit={PERF_ITER}")
-            else:
-                command.append("+search.RandomSearch.path_limit=10000000")
+            command.append("+search.RandomSearch.path_limit=10000000")
             command.append("+cg.randomize_choices=FIXED_SEED")
             command.append(f"+classpath={':'.join(config_data.executor.classpaths)}")
             command.append(config_data.executor.clazz)
             command.extend(config_data.executor.args)
-            yield command, perf_mode, log_path, JPF_PATH
+            yield command, log_path, JPF_PATH
 
-    def generate_fray_test_commands(self, config: List[str], out_dir: str, perf_mode: bool) -> Iterator[Tuple[List[str], str, str]]:
+    def generate_fray_test_commands(self, config: List[str], out_dir: str, timetout: int) -> Iterator[Tuple[List[str], str, str]]:
         test_index = 0
         for config_data in self.get_test_cases("fray"):
             log_path = f"{out_dir}/{test_index}"
@@ -87,6 +87,8 @@ class BenchmarkBase(object):
                 "-p",
                 "-o",
                 f"{log_path}/time.txt",
+                "timeout",
+                str(timetout),
                 f"{FRAY_PATH}/jdk/build/java-inst/bin/java",
                 "-ea",
                 f"-agentpath:{FRAY_PATH}/jvmti/build//cmake/native_release/" + ("mac-aarch64/cpp/libjvmti.dylib" if platform == "darwin" else "linux-amd64/cpp/libjvmti.so"),
@@ -110,12 +112,8 @@ class BenchmarkBase(object):
                 "--iter", "-1",
                 *config
             ]
-            if perf_mode:
-                command.append("--explore")
-                command.extend(["--iter", f"{PERF_ITER}"])
-            else:
-                command.extend(["--iter", "-1"])
-            yield command, perf_mode, log_path, FRAY_PATH
+            command.extend(["--iter", "-1"])
+            yield command, log_path, FRAY_PATH
 
     def get_test_cases(self, _tool_name: str) -> Iterator[RunConfig]:
         return iter([])

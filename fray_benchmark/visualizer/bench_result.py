@@ -12,15 +12,21 @@ import sns_config
 
 
 class BenchResult:
-    def __init__(self, path: str):
+    def __init__(self, path: str, has_trial: bool):
         self.path = os.path.abspath(path)
         components = path.split("/")
-        self.trial = components[-1]
-        self.tech = components[-2]
-        self.benchmark = components[-3]
+        if has_trial:
+            self.trial = components[-1]
+            self.tech = components[-2]
+            self.benchmark = components[-3]
+        else:
+            self.trial = "iter-1"
+            self.tech = components[-1]
+            self.benchmark = components[-2]
         self.error_pattern = re.compile(
             r"(No Error|Error Found|Run failed): (\d+\.\d+)")
-        self.time_pattern = re.compile(r"user (\d+\.\d+)")
+        self.user_time_pattern = re.compile(r"user (\d+\.\d+)")
+        self.sys_time_pattern = re.compile(r"sys (\d+\.\d+)")
 
     def lucene_bug_classify(self, stdout: str):
         if "DeadlockException" in stdout:
@@ -137,10 +143,17 @@ class BenchResult:
         return "N/A"
 
     def read_time(self, path: str) -> float:
-        with open(os.path.join(path, "time.txt")) as f:
-            match = self.time_pattern.search(f.read())
-            result = match.group(1)
-            return float(result)
+        time_path = os.path.join(path, "time.txt")
+        if not os.path.exists(time_path):
+            return 0
+        with open(time_path) as f:
+            text = f.read()
+            print(path)
+            match = self.user_time_pattern.search(text)
+            user_time = float(match.group(1))
+            match = self.sys_time_pattern.search(text)
+            sys_time = float(match.group(1))
+            return user_time + sys_time
 
     def to_csv(self):
         result_folder = os.path.join(self.path, "results")
@@ -179,6 +192,7 @@ class BenchResult:
                     if line.startswith("Starting iteration"):
                         total_iteration = int(line.split(" ")[-1].strip()) + 1
                         break
+            bug_type = "N/A"
 
             if error_type == "No Error" and float(value) >= 600:
                 error_result = "NoError"
@@ -188,6 +202,14 @@ class BenchResult:
                 if bug_type == "Run failure":
                     bug_type = "N/A"
                     error_result = "Failure"
+                else:
+                    if "Time" in bug_type:
+                        if "FP" in bug_type:
+                            bug_type = "Time (FP)"
+                        else:
+                            bug_type = "Time"
+                    else:
+                        bug_type = "TP"
             else:
                 error_result = "Failure"
             summary_file.write(
@@ -207,12 +229,13 @@ class BenchmarkSuite:
         self.benchmarks: List[BenchResult] = []
         self.path = os.path.abspath(path)
         for tech in os.listdir(self.path):
-            if tech != "random":
-                continue
             tech_folder = os.path.join(self.path, tech)
-            for trial in os.listdir(tech_folder):
-                trial_folder = os.path.join(tech_folder, trial)
-                self.benchmarks.append(BenchResult(trial_folder))
+            if "iter" in tech_folder:
+                for trial in os.listdir(tech_folder):
+                    trial_folder = os.path.join(tech_folder, trial)
+                    self.benchmarks.append(BenchResult(trial_folder, True))
+            else:
+                self.benchmarks.append(BenchResult(tech_folder, False))
 
     def to_aggregated_dataframe(self) -> pd.DataFrame:
         data = []
