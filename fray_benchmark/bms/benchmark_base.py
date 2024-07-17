@@ -44,6 +44,8 @@ class BenchmarkBase(object):
                 "-o",
                 f"{log_path}/time.txt",
                 "timeout",
+                "-s",
+                "INT",
                 str(timeout),
                 f"{HELPER_PATH}/rr_runner.sh",
                 f"{log_path}/trace",
@@ -64,6 +66,8 @@ class BenchmarkBase(object):
                 "-o",
                 f"{log_path}/time.txt",
                 "timeout",
+                "-s",
+                "INT",
                 str(timeout),
                 "./bin/jpf"]
             command.append("+search.class=gov.nasa.jpf.search.RandomSearch")
@@ -89,6 +93,8 @@ class BenchmarkBase(object):
                 "-o",
                 f"{log_path}/time.txt",
                 "timeout",
+                "-s",
+                "INT",
                 str(timetout),
                 f"{FRAY_PATH}/jdk/build/java-inst/bin/java",
                 "-ea",

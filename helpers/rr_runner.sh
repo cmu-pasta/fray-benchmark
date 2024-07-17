@@ -18,8 +18,15 @@ while [ $EXIT_STATUS -eq 0 ]; do
 
     echo "Starting iteration $ITERATION"
     rm -rf $TRACE_DIR
-    $COMMAND
+    OUTPUT=$($COMMAND)
     EXIT_STATUS=$?
+    echo "$OUTPUT"
+    if echo "$OUTPUT" | grep -q "Deadlock detected"; then
+        exit -1
+    fi
+    if echo "$OUTPUT" | grep -q "Program has been forced to exit from deadlock"; then
+        exit -1
+    fi
     ITERATION=$((ITERATION + 1))
 done
 exit $EXIT_STATUS

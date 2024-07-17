@@ -32,7 +32,7 @@ def build(application: str):
 @click.argument("application", type=click.Choice(list(BENCHMARKS.keys())))
 @click.option("--scheduler", type=click.Choice(list(SCHEDULERS.keys())))
 @click.option("--name", type=str, default=datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
-@click.option("--timeout", "-t", type=int, default=10 * 60)
+@click.option("--timeout", "-t", type=int, default=60*10)
 @click.option("--cpu", type=int, default=os.cpu_count())
 @click.option("--iterations", type=int, default=20)
 def run(tool: str, application: str, scheduler: str, name: str, timeout: int, cpu: int, iterations: int):

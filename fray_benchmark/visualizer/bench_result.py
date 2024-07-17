@@ -26,8 +26,8 @@ class BenchResult:
             self.benchmark = components[-2]
         self.error_pattern = re.compile(
             r"(No Error|Error Found|Run failed): (\d+\.\d+)")
-        self.user_time_pattern = re.compile(r"user (\d+\.\d+)")
-        self.sys_time_pattern = re.compile(r"sys (\d+\.\d+)")
+        self.user_time_pattern = re.compile(r"real (\d+\.\d+)")
+        # self.sys_time_pattern = re.compile(r"sys (\d+\.\d+)")
 
     def lucene_bug_classify(self, stdout: str):
         if "DeadlockException" in stdout:
@@ -151,9 +151,10 @@ class BenchResult:
             text = f.read()
             match = self.user_time_pattern.search(text)
             user_time = float(match.group(1))
-            match = self.sys_time_pattern.search(text)
-            sys_time = float(match.group(1))
-            return user_time + sys_time
+            # match = self.sys_time_pattern.search(text)
+            # sys_time = float(match.group(1))
+            return user_time
+            # return user_time + sys_time
 
     def to_csv(self):
         result_folder = os.path.join(self.path, "results")
@@ -172,8 +173,17 @@ class BenchResult:
                 continue
             error_type, value = match.groups()
             if self.tech == "rr":
-                total_iteration = int(
-                    text.strip().split("\n")[-2].split(":")[1]) + 1
+                if not os.path.exists(os.path.join(
+                    run_folder, "stdout.txt")):
+                    total_iteration = 1
+                else:
+                    stdout = open(os.path.join(
+                        run_folder, "stdout.txt")).readlines()
+                    total_iteration = -1
+                    for line in reversed(stdout):
+                        if line.startswith("Starting iteration"):
+                            total_iteration = int(line.split(" ")[-1].strip()) + 1
+                            break
             elif self.tech == "jpf":
                 stdout = open(os.path.join(
                     run_folder, "stdout.txt")).readlines()
@@ -194,7 +204,7 @@ class BenchResult:
                         break
             bug_type = "N/A"
 
-            if error_type == "No Error" and float(value) >= 600:
+            if error_type == "No Error":
                 error_result = "NoError"
             elif error_type == "Error Found":
                 error_result = "Error"
@@ -231,7 +241,7 @@ class BenchmarkSuite:
         for tech in os.listdir(self.path):
             tech_folder = os.path.join(self.path, tech)
             if os.path.exists(os.path.join(tech_folder, "iter-0")):
-                for i in range(4):
+                for i in range(1):
                     trial_folder = os.path.join(tech_folder, f"iter-{i}")
                     self.benchmarks.append(BenchResult(trial_folder, True))
                 # for trial in os.listdir(tech_folder):
@@ -244,7 +254,7 @@ class BenchmarkSuite:
     def to_aggregated_dataframe(self) -> pd.DataFrame:
         data = []
         for bench in self.benchmarks:
-            bench.to_csv()
+            # bench.to_csv()
             df = bench.load_csv()
             df["Technique"] = self.name_remap(bench.tech)
             data.append(df)
@@ -270,13 +280,11 @@ class BenchmarkSuite:
         result = pd.concat([pivot_df, error_data], axis=1).fillna(0).astype(int).reset_index()
         if "Time (FP)" not in result:
             result["Time (FP)"] = 0
+        result["Test Run"] = result["Time (FP)"] + result["Time"] + result["NoError"] + result["TP"]
+        result["Failure"] = result["TP"]
         result['Time (FP)'] = result.apply(lambda row: f"{row['Time'] + row['Time (FP)']} ({row['Time (FP)']})", axis=1)
-        result.drop(columns=["Time"], inplace=True)
-        return result.rename(columns={
-            "NoError": "Success",
-            "Failure": "Failure",
-            "TP": "TP",
-        }).drop(columns=["Error"])
+        result.drop(columns=["Time", "TP", "NoError", "Error"], inplace=True)
+        return result[["Technique", "Test Run", "Failure", "Time (FP)"]]
 
     def generate_search_space_table(self):
         df = self.to_aggregated_dataframe()
