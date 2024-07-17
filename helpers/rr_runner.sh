@@ -1,3 +1,5 @@
+#!/bin/bash
+
 TRACE_DIR="$1"
 shift
 TIMEOUT=${RR_TIMEOUT:-600}
@@ -20,6 +22,4 @@ while [ $EXIT_STATUS -eq 0 ]; do
     EXIT_STATUS=$?
     ITERATION=$((ITERATION + 1))
 done
-EXIT_STATUS=$?
-echo $EXIT_STATUS
 exit $EXIT_STATUS

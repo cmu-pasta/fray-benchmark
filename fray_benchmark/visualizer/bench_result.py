@@ -6,6 +6,7 @@ import numpy as np
 
 import matplotlib
 import matplotlib.axes
+from matplotlib import pyplot as plt
 import pandas as pd
 import seaborn as sns
 import sns_config
@@ -148,7 +149,6 @@ class BenchResult:
             return 0
         with open(time_path) as f:
             text = f.read()
-            print(path)
             match = self.user_time_pattern.search(text)
             user_time = float(match.group(1))
             match = self.sys_time_pattern.search(text)
@@ -230,17 +230,21 @@ class BenchmarkSuite:
         self.path = os.path.abspath(path)
         for tech in os.listdir(self.path):
             tech_folder = os.path.join(self.path, tech)
-            if "iter" in tech_folder:
-                for trial in os.listdir(tech_folder):
-                    trial_folder = os.path.join(tech_folder, trial)
+            if os.path.exists(os.path.join(tech_folder, "iter-0")):
+                for i in range(4):
+                    trial_folder = os.path.join(tech_folder, f"iter-{i}")
                     self.benchmarks.append(BenchResult(trial_folder, True))
+                # for trial in os.listdir(tech_folder):
+                #     trial_folder = os.path.join(tech_folder, trial)
+                #     self.benchmarks.append(BenchResult(trial_folder, True))
             else:
+                print(tech_folder)
                 self.benchmarks.append(BenchResult(tech_folder, False))
 
     def to_aggregated_dataframe(self) -> pd.DataFrame:
         data = []
         for bench in self.benchmarks:
-            # bench.to_csv()
+            bench.to_csv()
             df = bench.load_csv()
             df["Technique"] = self.name_remap(bench.tech)
             data.append(df)
@@ -259,6 +263,52 @@ class BenchmarkSuite:
             return "JPF-Random"
         # return name.upper()
 
+    def generate_bug_table(self):
+        df = self.to_aggregated_dataframe()
+        pivot_df = df.pivot_table(values='id', index='Technique', columns='error', aggfunc='count', fill_value=0).reset_index().set_index("Technique")
+        error_data = df.pivot_table(values="id", index='Technique', columns='type', aggfunc='count', fill_value=0).reset_index().set_index("Technique")
+        result = pd.concat([pivot_df, error_data], axis=1).fillna(0).astype(int).reset_index()
+        if "Time (FP)" not in result:
+            result["Time (FP)"] = 0
+        result['Time (FP)'] = result.apply(lambda row: f"{row['Time'] + row['Time (FP)']} ({row['Time (FP)']})", axis=1)
+        result.drop(columns=["Time"], inplace=True)
+        return result.rename(columns={
+            "NoError": "Success",
+            "Failure": "Failure",
+            "TP": "TP",
+        }).drop(columns=["Error"])
+
+    def generate_search_space_table(self):
+        df = self.to_aggregated_dataframe()
+        df = df[df["error"] == "Error"]
+        df = df.groupby(['Technique', 'id'])['iter'].mean().reset_index()
+        fig, ax = plt.subplots()
+        for key, grp in df.groupby(['id']):
+            ax.plot(grp['id'], grp['iter'], linestyle='-', color='#42f5d7', zorder=1)
+        sns.scatterplot(data=df, x="id", y="iter", hue="Technique", style="Technique", ax=ax, zorder=2, s=50)
+        ax.set_yscale("log")
+        ax.set_xlabel("Bug ID")
+        ax.set_ylabel("Executions to find bug")
+        ax.legend(title="")
+        ax.set_xticklabels([])
+        return ax
+
+    def generate_exec_speed_table(self):
+        df = self.to_aggregated_dataframe()
+        df = df[df["error"] != "Failure"]
+        df["exec"] = df["iter"] / df["time"]
+        df = df.groupby(['Technique', 'id'])['exec'].mean().reset_index()
+        fig, ax = plt.subplots()
+        for key, grp in df.groupby(['id']):
+            ax.plot(grp['id'], grp['exec'], linestyle='-', color='#42f5d7', zorder=1)
+        sns.scatterplot(data=df, x="id", y="exec", hue="Technique", style="Technique", ax=ax, zorder=2, s=50)
+        ax.set_yscale("log")
+        ax.set_xlabel("Bug ID")
+        ax.set_ylabel("\# Execution Per Second")
+        ax.legend(title="")
+        ax.set_xticklabels([])
+        return ax
+
     def to_aggregated_fig(self, measurement: str) -> matplotlib.axes.Axes:
         df = self.to_aggregated_dataframe()
         df = df[df["error"] == "Error"]
@@ -274,6 +324,7 @@ class BenchmarkSuite:
         new_rows = pd.DataFrame(
             {'time': 0, 'trial': unique_combinations['trial'], 'Technique': unique_combinations['Technique'], 'sum': 0})
         df_grouped = pd.concat([new_rows, df_grouped], ignore_index=True)
+        display(df_grouped[df_grouped['time'] == df_grouped['time'].max()])
 
         # # Function to interpolate 'sum' within each group efficiently
         def interpolate_sum(group):
@@ -282,7 +333,7 @@ class BenchmarkSuite:
             group['sum'] = group['sum'].ffill()
             group['Technique'] = group['Technique'].ffill()
             group['trial'] = group['trial'].ffill()
-            time_index = np.arange(df_grouped['time'].min(), df_grouped['time'].max(), 1)
+            time_index = np.arange(df_grouped['time'].min(), df_grouped['time'].max()+1, 1)
             group = group.reset_index().rename(columns={'index': 'time'})
             # Reindex the group to include all time points
             group = group.set_index('time').reindex(time_index)
@@ -293,4 +344,5 @@ class BenchmarkSuite:
                           linewidth=2, markers=True, errorbar='sd', estimator='mean', err_style='band')
         ax.set_xlabel('Seconds')
         ax.set_ylabel('Cumulative \# of Bugs')
+        ax.legend(title="")
         return ax

@@ -62,7 +62,7 @@ def run_rr(command: List[str], log_path: str, cwd: str, timeout: int):
         error_found = False
         try:
             proc = subprocess.run(command, cwd=cwd, stdout=open(os.path.join(
-                log_path, "stdout.txt"), "w"), stderr=open(os.path.join(log_path, "stderr.txt"), "w"), env={"RR_TIMEOUT": timeout})
+                log_path, "stdout.txt"), "w"), stderr=open(os.path.join(log_path, "stderr.txt"), "w"), env={"RR_TIMEOUT": str(timeout)})
             error_found = proc.returncode != 0 and proc.returncode != 124
         except subprocess.TimeoutExpired:
             pass

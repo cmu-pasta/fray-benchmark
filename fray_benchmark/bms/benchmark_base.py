@@ -27,7 +27,7 @@ class BenchmarkBase(object):
             os.makedirs(log_path, exist_ok=True)
             with open(f"{log_path}/config.json", "w") as f:
                 f.write(config_data.to_json())
-            command = ["java", "-ea", f"-javaagent:{HELPER_PATH}/assertion-handler-agent/AssertionHandlerAgent.jar"]
+            command = ["/usr/bin/java", "-ea", f"-javaagent:{HELPER_PATH}/assertion-handler-agent/AssertionHandlerAgent.jar"]
             command.extend(["--add-opens", "java.base/java.lang=ALL-UNNAMED"])
             command.extend(["--add-opens", "java.base/java.util=ALL-UNNAMED"])
             command.extend(["--add-opens", "java.base/java.io=ALL-UNNAMED"])
@@ -69,6 +69,7 @@ class BenchmarkBase(object):
             command.append("+search.class=gov.nasa.jpf.search.RandomSearch")
             command.append("+search.RandomSearch.path_limit=10000000")
             command.append("+cg.randomize_choices=FIXED_SEED")
+            command.append(f"+cg.seed={test_index}")
             command.append(f"+classpath={':'.join(config_data.executor.classpaths)}")
             command.append(config_data.executor.clazz)
             command.extend(config_data.executor.args)
