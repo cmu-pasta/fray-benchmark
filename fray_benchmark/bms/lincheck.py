@@ -5,7 +5,7 @@ import os
 import subprocess
 
 from .benchmark_base import MainMethodBenchmark
-from ..commons import FRAY_PATH
+from ..commons import FRAY_PATH, ASSETS_PATH
 from ..utils import load_test_cases
 
 
