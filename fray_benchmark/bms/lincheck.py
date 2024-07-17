@@ -16,8 +16,8 @@ class LinCheckBenchmark(MainMethodBenchmark):
             "lincheck",
             [
                 os.path.join(self.bench_dir, "build/libs/*.jar"),
-                os.path.join(self.lucene_dir,
-                             "lucene/core/build/dependency/*.jar"),
+                os.path.join(self.bench_dir,
+                             "build/dependency/*.jar"),
             ],
             load_test_cases(os.path.join(ASSETS_PATH, "lincheck.txt")),
             {}
