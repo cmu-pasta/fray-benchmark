@@ -15,7 +15,9 @@ class LinCheckBenchmark(MainMethodBenchmark):
         super().__init__(
             "lincheck",
             [
-                os.path.join(self.bench_dir, "build/libs/*.jar"),
+                os.path.join(self.bench_dir, "build/classes/java/main/"),
+                os.path.join(self.bench_dir, "build/classes/java/test/"),
+                os.path.join(self.bench_dir, "build/classes/kotlin/test/"),
                 os.path.join(self.bench_dir,
                              "build/dependency/*.jar"),
             ],
