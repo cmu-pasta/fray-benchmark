@@ -24,11 +24,16 @@ class GuavaBenchmark(UnitTestBenchmark):
 
     def build(self) -> None:
         subprocess.call([
-            "../mvnw",
-            "dependency:copy-dependencies"
-        ], cwd=self.guava_test_dir)
+            "./mvnw",
+            "-DskipTests",
+            "install"
+        ], cwd=os.path.join(self.guava_test_dir, ".."))
         subprocess.call([
             "../mvnw",
             "-DskipTests",
             "package"
+        ], cwd=self.guava_test_dir)
+        subprocess.call([
+            "../mvnw",
+            "dependency:copy-dependencies"
         ], cwd=self.guava_test_dir)

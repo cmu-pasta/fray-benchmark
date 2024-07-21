@@ -77,6 +77,12 @@ class BenchmarkBase(object):
             command.append(f"+classpath={':'.join(config_data.executor.classpaths)}")
             command.append(config_data.executor.clazz)
             command.extend(config_data.executor.args)
+            command = {
+                "command": command,
+                "env": {
+                    "JVM_FLAGS": "-Xmx1024m -ea --add-opens java.base/jdk.internal.misc=ALL-UNNAMED"
+                }
+            }
             yield command, log_path, JPF_PATH
 
     def generate_fray_test_commands(self, config: List[str], out_dir: str, timetout: int) -> Iterator[Tuple[List[str], str, str]]:
