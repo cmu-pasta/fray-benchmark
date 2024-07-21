@@ -254,7 +254,7 @@ class BenchmarkSuite:
     def to_aggregated_dataframe(self) -> pd.DataFrame:
         data = []
         for bench in self.benchmarks:
-            # bench.to_csv()
+            bench.to_csv()
             df = bench.load_csv()
             df["Technique"] = self.name_remap(bench.tech)
             data.append(df)
@@ -280,6 +280,8 @@ class BenchmarkSuite:
         result = pd.concat([pivot_df, error_data], axis=1).fillna(0).astype(int).reset_index()
         if "Time (FP)" not in result:
             result["Time (FP)"] = 0
+        if "Time" not in result:
+            result["Time"] = 0
         result["Test Run"] = result["Time (FP)"] + result["Time"] + result["NoError"] + result["TP"]
         result["Failure"] = result["TP"]
         result['Time (FP)'] = result.apply(lambda row: f"{row['Time'] + row['Time (FP)']} ({row['Time (FP)']})", axis=1)
