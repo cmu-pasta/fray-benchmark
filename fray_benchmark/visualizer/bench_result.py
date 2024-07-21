@@ -2,6 +2,7 @@ import os
 import re
 import shutil
 from typing import List
+import matplotlib.axis
 import numpy as np
 
 import matplotlib
@@ -9,7 +10,7 @@ import matplotlib.axes
 from matplotlib import pyplot as plt
 import pandas as pd
 import seaborn as sns
-import sns_config
+from . import sns_config
 
 
 class BenchResult:
@@ -134,6 +135,30 @@ class BenchResult:
         return None
         # print(stdout)
         # exit(0)
+    def guava_bug_classify(self, stdout: str, run_folder: str) -> str:
+        if "DeadlockException" in stdout:
+            if "onThreadParkNanos" in stdout or "onLatchAwaitTimeout" in stdout or "onConditionAwaitNanos" in stdout:
+                return "FP(Time)"
+        folder_id = int(run_folder.split("/")[-1])
+        if folder_id <= 1194 and folder_id >= 1190:
+            return "Run failure"
+        if (folder_id <= 1115 and folder_id >= 1084) or \
+              (folder_id == 108) or \
+                (folder_id <= 1194 and folder_id >= 1135) or \
+                (folder_id <= 86 and folder_id >= 74) or \
+                    (folder_id == 94):
+            return "TP(#7319)"
+        if run_folder.endswith("/1123"):
+            return "Run failure"
+        if "timeout" in stdout or folder_id == 1128 or "GeneratedMonitorTest" in stdout:
+            return "TP(Time)"
+        if "/rr/" in run_folder:
+            print(run_folder)
+            return "Run failure"
+        # print(stdout)
+        # exit(0)
+        return "N/A"
+        pass
 
     def bug_classify(self, run_folder: str):
         stdout = open(os.path.join(run_folder, "stdout.txt")).read()
@@ -141,6 +166,8 @@ class BenchResult:
             return self.lucene_bug_classify(stdout)
         if self.benchmark == "kafka":
             return self.kafka_bug_classify(stdout)
+        if self.benchmark == "guava":
+            return self.guava_bug_classify(stdout, run_folder)
         return "N/A"
 
     def read_time(self, path: str) -> float:
@@ -162,7 +189,7 @@ class BenchResult:
             shutil.rmtree(result_folder)
         os.makedirs(result_folder)
         summary_file = open(os.path.join(result_folder, "summary.csv"), "w")
-        for folder in os.listdir(self.path):
+        for folder in sorted(os.listdir(self.path)):
             if folder == "results":
                 continue
             run_folder = os.path.join(self.path, folder)
@@ -204,7 +231,7 @@ class BenchResult:
                         break
             bug_type = "N/A"
 
-            if error_type == "No Error":
+            if error_type == "No Error" and float(value) >= 599:
                 error_result = "NoError"
             elif error_type == "Error Found":
                 error_result = "Error"
@@ -223,33 +250,36 @@ class BenchResult:
             else:
                 error_result = "Failure"
             summary_file.write(
-                f"{self.trial},{self.read_time(run_folder)},{folder},{error_result},{total_iteration},{bug_type}\n")
+                f"{self.benchmark}-{folder},{self.trial},{self.read_time(run_folder)},{error_result},{total_iteration},{bug_type}\n")
 
     def load_csv(self) -> pd.DataFrame:
         result_folder = os.path.join(self.path, "results")
         if not os.path.exists(result_folder):
             raise Exception("No results folder found")
-        return pd.read_csv(
-            os.path.join(result_folder, "summary.csv"), names=["trial", "time", "id", "error", "iter", "type"]
+        df = pd.read_csv(
+            os.path.join(result_folder, "summary.csv"), names=["id", "trial", "time", "error", "iter", "type"]
         )
+        return df
 
 
 class BenchmarkSuite:
-    def __init__(self, path: str):
+    def __init__(self, paths: List[str]):
         self.benchmarks: List[BenchResult] = []
-        self.path = os.path.abspath(path)
-        for tech in os.listdir(self.path):
-            tech_folder = os.path.join(self.path, tech)
-            if os.path.exists(os.path.join(tech_folder, "iter-0")):
-                for i in range(1):
-                    trial_folder = os.path.join(tech_folder, f"iter-{i}")
-                    self.benchmarks.append(BenchResult(trial_folder, True))
-                # for trial in os.listdir(tech_folder):
-                #     trial_folder = os.path.join(tech_folder, trial)
-                #     self.benchmarks.append(BenchResult(trial_folder, True))
-            else:
-                print(tech_folder)
-                self.benchmarks.append(BenchResult(tech_folder, False))
+        for path in paths:
+            self.path = os.path.abspath(path)
+            for tech in os.listdir(self.path):
+                tech_folder = os.path.join(self.path, tech)
+                if os.path.exists(os.path.join(tech_folder, "iter-0")):
+                    # for i in range(20):
+                    #     trial_folder = os.path.join(tech_folder, f"iter-{i}")
+                    #     self.benchmarks.append(BenchResult(trial_folder, True))
+                    #             self.path = os.path.abspath(path)
+                    for trial in os.listdir(tech_folder):
+                        trial_folder = os.path.join(tech_folder, trial)
+                        self.benchmarks.append(BenchResult(trial_folder, True))
+                else:
+                    print(tech_folder)
+                    self.benchmarks.append(BenchResult(tech_folder, False))
 
     def to_aggregated_dataframe(self) -> pd.DataFrame:
         data = []
@@ -258,7 +288,10 @@ class BenchmarkSuite:
             df = bench.load_csv()
             df["Technique"] = self.name_remap(bench.tech)
             data.append(df)
-        return pd.concat(data, ignore_index=True)
+        df = pd.concat(data, ignore_index=True)
+        df = df[df["id"] != "jacontebe-3"]
+        df = df[df["id"] != "jacontebe-26"]
+        return df
 
     def name_remap(self, name: str) -> str:
         if name == "random":
@@ -288,39 +321,63 @@ class BenchmarkSuite:
         result.drop(columns=["Time", "TP", "NoError", "Error"], inplace=True)
         return result[["Technique", "Test Run", "Failure", "Time (FP)"]]
 
-    def generate_search_space_table(self):
+    def generate_search_space_table(self) -> matplotlib.axis.Axis:
         df = self.to_aggregated_dataframe()
         df = df[df["error"] == "Error"]
-        df = df.groupby(['Technique', 'id'])['iter'].mean().reset_index()
+        return self.generate_aggregated_plot(df, "iter")
+
+    def generate_aggregated_plot(self, df: pd.DataFrame, column: str) -> matplotlib.axis.Axis:
+        df = df.groupby(['Technique', 'id'])[column].mean().reset_index()
+        all_bms_sorted = df.sort_values(by=column)["id"].to_list()
+        all_bms_sorted = list(dict.fromkeys(all_bms_sorted))
+        ylim = df[column].max() + 1000
+        sct_list = []
+        jc_list = []
+        for key in all_bms_sorted:
+            if "sctbench" in key:
+                sct_list.append(key)
+            else:
+                jc_list.append(key)
+        all_bms_sorted = sct_list + jc_list
+        xlim = len(all_bms_sorted) + 0.5
+        df['id'] = df['id'].apply(lambda value: all_bms_sorted.index(value))
         fig, ax = plt.subplots()
         for key, grp in df.groupby(['id']):
-            ax.plot(grp['id'], grp['iter'], linestyle='-', color='#42f5d7', zorder=1)
-        sns.scatterplot(data=df, x="id", y="iter", hue="Technique", style="Technique", ax=ax, zorder=2, s=50)
+            ax.plot(grp['id'], grp[column], linestyle='-', color='#42f5d7', zorder=1)
+        sns.scatterplot(data=df, x="id", y=column, hue="Technique", style="Technique", ax=ax, zorder=2, s=80, alpha=0.9, markers=['s', "^", "o"])
+        ax.fill_between([-1, len(sct_list) - 0.5], y1=[ylim, ylim], alpha=0.3, facecolor=sns_config.colors[-1], linewidth=0.0, label="SCTBench")
+        ax.fill_between([len(sct_list) - 0.5, xlim], y1=[ylim, ylim], alpha=0.3, linewidth=0.0, facecolor=sns_config.colors[-2], label="JaConTeBe")
+        # ax.legend([f1, f2], ["SCTBench", "JaConTeBe"])
         ax.set_yscale("log")
-        ax.set_xlabel("Bug ID")
-        ax.set_ylabel("Executions to find bug")
+        ax.set_xlabel("Test Case")
+        if column == "exec":
+            ax.set_ylabel("\# executions per second")
+        else:
+            ax.set_ylabel("\# executions to find bug")
+        ticks = [0.1, 1, 10, 100, 1000]
+        tick_labels = ["0.1", "1", "10", "100", "1000"]
+        if column == "iter":
+            ticks = ticks[1:]
+            tick_labels = tick_labels[1:]
+        ax.set_yticks(ticks)
+        ax.set_yticklabels(tick_labels)
         ax.legend(title="")
+        ax.set(xlim=(-1, xlim))
+        ax.set(ylim=(0, ylim))
+
         ax.set_xticklabels([])
         return ax
+        pass
 
-    def generate_exec_speed_table(self):
+    def generate_exec_speed_table(self) -> matplotlib.axis.Axis:
         df = self.to_aggregated_dataframe()
         df = df[df["error"] != "Failure"]
         df["exec"] = df["iter"] / df["time"]
-        df = df.groupby(['Technique', 'id'])['exec'].mean().reset_index()
-        fig, ax = plt.subplots()
-        for key, grp in df.groupby(['id']):
-            ax.plot(grp['id'], grp['exec'], linestyle='-', color='#42f5d7', zorder=1)
-        sns.scatterplot(data=df, x="id", y="exec", hue="Technique", style="Technique", ax=ax, zorder=2, s=50)
-        ax.set_yscale("log")
-        ax.set_xlabel("Bug ID")
-        ax.set_ylabel("\# Execution Per Second")
-        ax.legend(title="")
-        ax.set_xticklabels([])
-        return ax
+        return self.generate_aggregated_plot(df, "exec")
 
-    def to_aggregated_fig(self, measurement: str) -> matplotlib.axes.Axes:
+    def generate_bug_over_time_fig(self, measurement: str) -> matplotlib.axes.Axes:
         df = self.to_aggregated_dataframe()
+        total_bugs =df["id"].nunique()
         df = df[df["error"] == "Error"]
         df['time'] = df['time'].astype(float)
         df_grouped = df
@@ -334,16 +391,17 @@ class BenchmarkSuite:
         new_rows = pd.DataFrame(
             {'time': 0, 'trial': unique_combinations['trial'], 'Technique': unique_combinations['Technique'], 'sum': 0})
         df_grouped = pd.concat([new_rows, df_grouped], ignore_index=True)
-        display(df_grouped[df_grouped['time'] == df_grouped['time'].max()])
+        min_time = df_grouped['time'].min()
+        max_time = df_grouped['time'].max()
 
         # # Function to interpolate 'sum' within each group efficiently
         def interpolate_sum(group):
-            time_index = np.arange(df_grouped['time'].min(), df_grouped['time'].max(), 0.01)
+            time_index = np.arange(min_time, max_time, 0.01)
             group = group.set_index('time').reindex(time_index)
             group['sum'] = group['sum'].ffill()
             group['Technique'] = group['Technique'].ffill()
             group['trial'] = group['trial'].ffill()
-            time_index = np.arange(df_grouped['time'].min(), df_grouped['time'].max()+1, 1)
+            time_index = np.arange(min_time, max_time+1, 1)
             group = group.reset_index().rename(columns={'index': 'time'})
             # Reindex the group to include all time points
             group = group.set_index('time').reindex(time_index)
@@ -351,7 +409,8 @@ class BenchmarkSuite:
             return group
         df_grouped = df_grouped.groupby(['trial', 'Technique']).apply(interpolate_sum).reset_index(drop=True)
         ax = sns.lineplot(data=df_grouped, x="time", y="sum", hue="Technique",
-                          linewidth=2, markers=True, errorbar='sd', estimator='mean', err_style='band')
+                          linewidth=2, errorbar='sd', estimator='mean', err_style='band', style="Technique")
+        ax.plot([0, df_grouped['time'].max() + 1], [total_bugs, total_bugs], "r-.", label="Total Bugs")
         ax.set_xlabel('Seconds')
         ax.set_ylabel('Cumulative \# of Bugs')
         ax.legend(title="")

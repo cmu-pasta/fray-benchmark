@@ -2,12 +2,13 @@ import os
 import re
 import time
 import shutil
-from typing import List
+import json
+from typing import List, Dict, Any
 import subprocess
 from .commons import PERF_TRIALS, PERF_ITER
 
 
-def run_fray(command: List[str], log_path: str, cwd: str, timeout: int):
+def run_fray(command: Dict[str, Any], log_path: str, cwd: str, timeout: int):
     print(f"Running {log_path}")
     with open(os.path.join(log_path, "command.txt"), "w") as f:
         f.write(" ".join(command))
@@ -28,13 +29,13 @@ def run_fray(command: List[str], log_path: str, cwd: str, timeout: int):
 
 def run_jpf(command: List[str], log_path: str, cwd: str, timeout: int):
     print(f"Running {log_path}")
-    with open(os.path.join(log_path, "command.txt"), "w") as f:
-        f.write(" ".join(command))
+    with open(os.path.join(log_path, "command.json"), "w") as f:
+        json.dump(command, f)
     try:
         stdout_path = os.path.join(log_path, "stdout.txt")
         start_time = time.time()
-        subprocess.run(command, cwd=cwd, stdout=open(stdout_path, "w"), stderr=open(
-            os.path.join(log_path, "stderr.txt"), "w"))
+        subprocess.run(command["command"], cwd=cwd, stdout=open(stdout_path, "w"), stderr=open(
+            os.path.join(log_path, "stderr.txt"), "w"), env=command["env"])
     except subprocess.TimeoutExpired:
         pass
     with open(os.path.join(log_path, "report.txt"), "w") as report:
