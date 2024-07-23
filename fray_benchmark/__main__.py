@@ -34,8 +34,9 @@ def build(application: str):
 @click.option("--name", type=str, default=datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
 @click.option("--timeout", "-t", type=int, default=60*10)
 @click.option("--cpu", type=int, default=os.cpu_count())
+@click.option("--perf-mode", type=bool, is_flag=True, show_default=True, default=False)
 @click.option("--iterations", type=int, default=20)
-def run(tool: str, application: str, scheduler: str, name: str, timeout: int, cpu: int, iterations: int):
+def run(tool: str, application: str, scheduler: str, name: str, timeout: int, cpu: int, iterations: int, perf_mode: bool):
     app = BENCHMARKS[application]
     for i in range(iterations):
         out_dir = os.path.join(OUTPUT_PATH, name, app.name, scheduler if tool == "fray" else tool, f"iter-{i}")
