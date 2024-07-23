@@ -27,7 +27,7 @@ class BenchmarkBase(object):
             os.makedirs(log_path, exist_ok=True)
             with open(f"{log_path}/config.json", "w") as f:
                 f.write(config_data.to_json())
-            command = ["/usr/bin/java", "-ea", f"-javaagent:{HELPER_PATH}/assertion-handler-agent/AssertionHandlerAgent.jar"]
+            command = [f"{os.environ['JAVA_HOME']}/bin/java", "-ea", f"-javaagent:{HELPER_PATH}/assertion-handler-agent/AssertionHandlerAgent.jar"]
             command.extend(["--add-opens", "java.base/java.lang=ALL-UNNAMED"])
             command.extend(["--add-opens", "java.base/java.util=ALL-UNNAMED"])
             command.extend(["--add-opens", "java.base/java.io=ALL-UNNAMED"])

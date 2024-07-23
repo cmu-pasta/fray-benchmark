@@ -3,6 +3,9 @@
 
 import os
 import subprocess
+from typing import Iterator
+
+from fray_benchmark.objects.execution_config import RunConfig
 
 from .benchmark_base import MainMethodBenchmark
 from ..commons import FRAY_PATH, ASSETS_PATH
@@ -38,3 +41,11 @@ class LinCheckBenchmark(MainMethodBenchmark):
             "./gradlew",
             "copyDependencies",
         ], cwd=os.path.join(self.bench_dir, ".."))
+
+    def get_test_cases(self, _tool_name: str) -> Iterator[RunConfig]:
+        for test_case in super().get_test_cases(_tool_name):
+            if "CATreeTest" in test_case.executor.clazz:
+                test_case.max_scheduled_step = 100000
+            if "LogicalOrderingAVL" in test_case.executor.clazz:
+                test_case.max_scheduled_step = 100000
+            yield test_case

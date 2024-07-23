@@ -42,7 +42,7 @@ def run(tool: str, application: str, scheduler: str, name: str, timeout: int, cp
         out_dir = os.path.join(OUTPUT_PATH, name, app.name, scheduler if tool == "fray" else tool, f"iter-{i}")
         if os.path.exists(out_dir):
             shutil.rmtree(out_dir)
-        os.makedirs(out_dir)
+        os.makedirs(out_dir, exist_ok=True)
         with Pool(processes=cpu) as pool:
             if tool == "rr":
                 pool.starmap(run_rr, map(lambda it: (*it, timeout),
@@ -60,13 +60,13 @@ def run(tool: str, application: str, scheduler: str, name: str, timeout: int, cp
 @click.option("--timeout", "-t", type=int, default=10 * 60)
 def run_one(path: str, timeout: int):
     saved = SavedBenchmark(path)
-    tech = path.split("/")[-2]
+    tech = path.split("/")[-3]
     if tech == "rr":
         run_rr(saved.load_command(), path, RR_PATH, timeout)
     elif tech == "jpf":
         run_jpf(saved.load_command(), path, JPF_PATH, timeout)
     else:
-        run_rr(saved.load_command(), path, FRAY_PATH, timeout)
+        run_fray(saved.load_command(), path, FRAY_PATH, timeout)
 
 
 @main.command(name="runSingle")
