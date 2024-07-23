@@ -36,7 +36,7 @@ public class Reorder3Bad {
                 setPool[i].join();
             } catch (InterruptedException e) {
                 System.err.println("pthread join error: " + e);
-                System.exit(-1);
+                throw new RuntimeException();
             }
         }
 
@@ -45,7 +45,7 @@ public class Reorder3Bad {
                 checkPool[i].join();
             } catch (InterruptedException e) {
                 System.err.println("pthread join error: " + e);
-                System.exit(-1);
+                throw new RuntimeException();
             }
         }
     }

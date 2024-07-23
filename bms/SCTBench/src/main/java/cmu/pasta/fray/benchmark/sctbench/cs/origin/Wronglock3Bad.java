@@ -39,7 +39,7 @@ public class Wronglock3Bad {
                 num1Pool[i].join();
             } catch (InterruptedException e) {
                 System.err.println("Thread join interrupted: " + e);
-                System.exit(-1);
+                throw new RuntimeException();
             }
         }
 
@@ -48,7 +48,7 @@ public class Wronglock3Bad {
                 num2Pool[i].join();
             } catch (InterruptedException e) {
                 System.err.println("Thread join interrupted: " + e);
-                System.exit(-1);
+                throw new RuntimeException();
             }
         }
     }

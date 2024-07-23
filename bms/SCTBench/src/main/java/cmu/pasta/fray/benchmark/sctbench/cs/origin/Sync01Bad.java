@@ -22,7 +22,7 @@ public class Sync01Bad {
             while (num > 0) {
                 if (Thread.activeCount() == 2) {
                     System.out.println("Deadlock detected");
-                    System.exit(-1);
+                    throw new RuntimeException();
                 }
                 empty.await();  // BAD: deadlock
             }
@@ -41,7 +41,7 @@ public class Sync01Bad {
             while (num == 0) {
                 if (Thread.activeCount() == 2) {
                     System.out.println("Deadlock detected");
-                    System.exit(-1);
+                    throw new RuntimeException();
                 }
                 full.await();
             }

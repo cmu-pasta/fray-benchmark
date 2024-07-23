@@ -79,6 +79,7 @@ def run_single(path: str, debug_jvm: bool, no_fray: bool):
     os.makedirs(out_dir)
     fray_args = [
         "--scheduler=pos",
+        "--explore",
         # "--num-switch-points=15",
         "--logger=json",
         "--iter",
