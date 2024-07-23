@@ -1,5 +1,9 @@
 #!/bin/bash
-
+EXPLORE_MODE=0
+if [ "$1" == "-e" ]; then
+    EXPLORE_MODE=1
+    shift
+fi
 TRACE_DIR="$1"
 shift
 TIMEOUT=${RR_TIMEOUT:-600}
@@ -7,7 +11,7 @@ COMMAND="$@"
 ITERATION=1
 EXIT_STATUS=0
 START_TIME=$(date +%s)
-while [ $EXIT_STATUS -eq 0 ]; do
+while [ $EXIT_STATUS -eq 0 ] || [ $EXPLORE_MODE -eq 1 ];  do
     CURRENT_TIME=$(date +%s)
     ELAPSED_TIME=$((CURRENT_TIME - START_TIME))
 

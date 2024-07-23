@@ -371,8 +371,9 @@ class BenchmarkSuite:
 
     def generate_exec_speed_table(self) -> matplotlib.axis.Axis:
         df = self.to_aggregated_dataframe()
-        df = df[df["error"] != "Failure"]
+        # df = df[df["error"] != "Failure"]
         df["exec"] = df["iter"] / df["time"]
+        display(df)
         return self.generate_aggregated_plot(df, "exec")
 
     def generate_bug_over_time_fig(self, measurement: str) -> matplotlib.axes.Axes:

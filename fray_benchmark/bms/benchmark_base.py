@@ -27,7 +27,7 @@ class BenchmarkBase(object):
             os.makedirs(log_path, exist_ok=True)
             with open(f"{log_path}/config.json", "w") as f:
                 f.write(config_data.to_json())
-            command = [f"{os.environ['JAVA_HOME']}/bin/java", "-ea", f"-javaagent:{HELPER_PATH}/assertion-handler-agent/AssertionHandlerAgent.jar"]
+            command = ["/usr/bin/java", "-ea", f"-javaagent:{HELPER_PATH}/assertion-handler-agent/AssertionHandlerAgent.jar"]
             command.extend(["--add-opens", "java.base/java.lang=ALL-UNNAMED"])
             command.extend(["--add-opens", "java.base/java.util=ALL-UNNAMED"])
             command.extend(["--add-opens", "java.base/java.io=ALL-UNNAMED"])
@@ -38,7 +38,9 @@ class BenchmarkBase(object):
                 command.append(f"-D{property_key}={property_value}")
             command.append(config_data.executor.clazz)
             command.extend(config_data.executor.args)
-            command = [
+
+
+            prefix = [
                 "/usr/bin/time",
                 "-p",
                 "-o",
@@ -47,7 +49,10 @@ class BenchmarkBase(object):
                 "-s",
                 "INT",
                 str(timeout),
-                f"{HELPER_PATH}/rr_runner.sh",
+                f"{HELPER_PATH}/rr_runner.sh"]
+            if perf_mode:
+                prefix.append("-e")
+            command = prefix + [
                 f"{log_path}/trace",
                 "./build/bin/rr", "record", "--chaos", "-o", f"{log_path}/trace"] + command
             yield command, log_path, RR_PATH
@@ -71,7 +76,7 @@ class BenchmarkBase(object):
                 str(timeout),
                 "./bin/jpf"]
             if perf_mode:
-                command.append("")
+                command.append("+search.multiple_errors=true")
             command.append("+search.class=gov.nasa.jpf.search.RandomSearch")
             command.append("+search.RandomSearch.path_limit=10000000")
             command.append("+cg.randomize_choices=FIXED_SEED")
