@@ -27,7 +27,7 @@ public class Carter01Bad {
 
         if (mLockedBy2 && lLockedBy1) {
             System.out.println("Deadlock detected");
-            System.exit(-1);
+            throw new RuntimeException();
         }
         // perform class A operation
         m.lock();
@@ -52,7 +52,7 @@ public class Carter01Bad {
 
         if (mLockedBy1 && lLockedBy2) {
             System.out.println("Deadlock detected");
-            System.exit(-1);
+            throw new RuntimeException();
         }
         // perform class B operation
         m.lock();

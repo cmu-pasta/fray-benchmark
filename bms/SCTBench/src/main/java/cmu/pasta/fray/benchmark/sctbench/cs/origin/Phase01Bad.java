@@ -15,13 +15,13 @@ public class Phase01Bad {
   static void thread1() {
     if (lockStatus == 1) {
       System.out.println("Deadlock detected");
-      System.exit(-1);
+      throw new RuntimeException();
     }
     x.lock(); // BAD: deadlock
     x.unlock();
     if (lockStatus == 1) {
       System.out.println("Deadlock detected");
-      System.exit(-1);
+      throw new RuntimeException();
     }
     x.lock();
     lockStatus = 1;

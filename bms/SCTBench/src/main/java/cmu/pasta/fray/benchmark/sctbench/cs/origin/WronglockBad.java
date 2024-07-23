@@ -66,7 +66,7 @@ public class WronglockBad {
                 num1Pool[i].join();
             } catch (InterruptedException e) {
                 System.err.println("Thread join error: " + e.getMessage());
-                System.exit(-1);
+                throw new RuntimeException();
             }
         }
 
@@ -75,7 +75,7 @@ public class WronglockBad {
                 num2Pool[i].join();
             } catch (InterruptedException e) {
                 System.err.println("Thread join error: " + e.getMessage());
-                System.exit(-1);
+                throw new RuntimeException();
             }
         }
     }

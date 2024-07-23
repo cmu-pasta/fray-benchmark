@@ -78,7 +78,7 @@ public class Twostage100Bad {
         t.join();
       } catch (InterruptedException e) {
         System.err.println("Thread interrupted");
-        System.exit(-1);
+        throw new RuntimeException();
       }
     }
     
@@ -87,7 +87,7 @@ public class Twostage100Bad {
         t.join();
       } catch (InterruptedException e) {
         System.err.println("Thread interrupted");  
-        System.exit(-1);
+        throw new RuntimeException();
       }
     }
   }

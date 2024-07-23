@@ -81,7 +81,7 @@ public class TwostageBad {
                 tPool[i].join();
             } catch (InterruptedException e) {
                 System.err.println("Thread join interrupted");
-                System.exit(-1);
+                throw new RuntimeException();
             }
         }
         
@@ -90,7 +90,7 @@ public class TwostageBad {
                 rPool[i].join();
             } catch (InterruptedException e) {
                 System.err.println("Thread join interrupted");
-                System.exit(-1);
+                throw new RuntimeException();
             }
         }
     }
