@@ -82,7 +82,7 @@ def run_single(path: str, debug_jvm: bool, no_fray: bool):
         "--scheduler=random",
         "--explore",
         # "--num-switch-points=15",
-        "--logger=csv",
+        "--logger=json",
         "--iter",
         "-100",
     ]
