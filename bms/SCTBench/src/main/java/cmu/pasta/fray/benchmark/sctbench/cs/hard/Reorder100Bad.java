@@ -33,7 +33,6 @@ public class Reorder100Bad {
             try {
                 setPool[i].join();
             } catch (InterruptedException e) {
-                System.err.println("pthread join error: " + e);
                 throw new RuntimeException();
             }
         }
@@ -42,7 +41,6 @@ public class Reorder100Bad {
             try {
                 checkPool[i].join();
             } catch (InterruptedException e) {
-                System.err.println("pthread join error: " + e);
                 throw new RuntimeException();
             }
         }
@@ -55,7 +53,6 @@ public class Reorder100Bad {
 
     private static void checkThread() {
         if (!((a == 0 && b == 0) || (a == 1 && b == -1))) {
-            System.err.println("Bug found!");
             assert false;
         }
     }
