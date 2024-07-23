@@ -216,6 +216,7 @@ class BenchResult:
                     run_folder, "stdout.txt")).readlines()
                 total_iteration = -1
                 for line in reversed(stdout):
+                    line = line.strip()
                     if line.startswith("paths ="):
                         total_iteration = int(line.split("=")[-1].strip())
                         break
@@ -330,7 +331,8 @@ class BenchmarkSuite:
         df = df.groupby(['Technique', 'id'])[column].mean().reset_index()
         all_bms_sorted = df.sort_values(by=column)["id"].to_list()
         all_bms_sorted = list(dict.fromkeys(all_bms_sorted))
-        ylim = df[column].max() + 1000
+
+        ylim = df[column].max() + (1000 if column == "iter" else 10)
         sct_list = []
         jc_list = []
         for key in all_bms_sorted:
@@ -348,12 +350,12 @@ class BenchmarkSuite:
         ax.fill_between([-1, len(sct_list) - 0.5], y1=[ylim, ylim], alpha=0.3, facecolor=sns_config.colors[-1], linewidth=0.0, label="SCTBench")
         ax.fill_between([len(sct_list) - 0.5, xlim], y1=[ylim, ylim], alpha=0.3, linewidth=0.0, facecolor=sns_config.colors[-2], label="JaConTeBe")
         # ax.legend([f1, f2], ["SCTBench", "JaConTeBe"])
-        ax.set_yscale("log")
         ax.set_xlabel("Test Case")
         if column == "exec":
             ax.set_ylabel("\# executions per second")
         else:
             ax.set_ylabel("\# executions to find bug")
+        ax.set_yscale("log")
         ticks = [0.1, 1, 10, 100, 1000]
         tick_labels = ["0.1", "1", "10", "100", "1000"]
         if column == "iter":
@@ -373,7 +375,8 @@ class BenchmarkSuite:
         df = self.to_aggregated_dataframe()
         # df = df[df["error"] != "Failure"]
         df["exec"] = df["iter"] / df["time"]
-        display(df)
+        df = df.sort_values(by="exec")
+        display(df[df["Technique"] == "JPF-Random"])
         return self.generate_aggregated_plot(df, "exec")
 
     def generate_bug_over_time_fig(self, measurement: str) -> matplotlib.axes.Axes:

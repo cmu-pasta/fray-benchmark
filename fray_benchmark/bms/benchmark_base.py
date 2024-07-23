@@ -80,6 +80,7 @@ class BenchmarkBase(object):
             command.append("+search.class=gov.nasa.jpf.search.RandomSearch")
             command.append("+search.RandomSearch.path_limit=10000000")
             command.append("+cg.randomize_choices=FIXED_SEED")
+            command.append("+report.console.property_violation=error,statistics")
             command.append(f"+cg.seed={test_index}")
             command.append(f"+classpath={':'.join(config_data.executor.classpaths)}")
             command.append(config_data.executor.clazz)
@@ -87,7 +88,7 @@ class BenchmarkBase(object):
             command = {
                 "command": command,
                 "env": {
-                    "JVM_FLAGS": "-Xmx1024m -ea --add-opens java.base/jdk.internal.misc=ALL-UNNAMED"
+                    # "JVM_FLAGS": "-Xmx1024m -ea --add-opens java.base/jdk.internal.misc=ALL-UNNAMED"
                 }
             }
             yield command, log_path, JPF_PATH

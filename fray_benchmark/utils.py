@@ -35,7 +35,7 @@ def run_jpf(command: List[str], log_path: str, cwd: str, timeout: int):
         stdout_path = os.path.join(log_path, "stdout.txt")
         start_time = time.time()
         subprocess.run(command["command"], cwd=cwd, stdout=open(stdout_path, "w"), stderr=open(
-            os.path.join(log_path, "stderr.txt"), "w"), env=command["env"])
+            os.path.join(log_path, "stderr.txt"), "w"))
     except subprocess.TimeoutExpired:
         pass
     with open(os.path.join(log_path, "report.txt"), "w") as report:
