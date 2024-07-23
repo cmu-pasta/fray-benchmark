@@ -376,7 +376,7 @@ class BenchmarkSuite:
         # df = df[df["error"] != "Failure"]
         df["exec"] = df["iter"] / df["time"]
         df = df.sort_values(by="exec")
-        display(df[df["Technique"] == "JPF-Random"])
+        display(df)
         return self.generate_aggregated_plot(df, "exec")
 
     def generate_bug_over_time_fig(self, measurement: str) -> matplotlib.axes.Axes:
