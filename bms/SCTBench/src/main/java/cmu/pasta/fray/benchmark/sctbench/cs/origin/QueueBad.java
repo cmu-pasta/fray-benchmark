@@ -73,6 +73,7 @@ public class QueueBad {
   public static void main(String[] args) {
     enqueue_flag = TRUE;
     dequeue_flag = FALSE;
+    mutex = new ReentrantLock();
 
     init(queue);
 

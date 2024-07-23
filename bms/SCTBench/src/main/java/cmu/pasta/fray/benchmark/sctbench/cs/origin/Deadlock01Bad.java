@@ -32,6 +32,8 @@ public class Deadlock01Bad {
     }
 
     public static void main(String[] args) throws InterruptedException {
+        a = new ReentrantLock();
+        b = new ReentrantLock();
         Thread t1 = new Thread(() -> thread1());
         Thread t2 = new Thread(() -> thread2());
 

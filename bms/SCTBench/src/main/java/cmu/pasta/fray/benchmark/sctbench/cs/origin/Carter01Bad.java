@@ -71,6 +71,8 @@ public class Carter01Bad {
     }
 
     public static void main(String[] args) {
+        m = new ReentrantLock();
+        l = new ReentrantLock();
         A = 0;
         B = 0;
         mLockedBy1 = false;
