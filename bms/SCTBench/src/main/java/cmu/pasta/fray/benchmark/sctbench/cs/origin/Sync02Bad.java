@@ -9,6 +9,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class Sync02Bad {
   private static final int N = 2;
   private static int num;
+  private static Boolean producerWaiting = false;
   private static Lock m = new ReentrantLock();
   private static Condition empty = m.newCondition();
   private static Condition full = m.newCondition();
@@ -23,7 +24,10 @@ public class Sync02Bad {
             System.out.println("Deadlock detected");
             throw new RuntimeException();
           }
-          empty.await();
+          synchronized (producerWaiting) {
+            producerWaiting = true;
+            empty.await();
+          }
         }
         num++; // produce
         full.signal();
@@ -46,7 +50,13 @@ public class Sync02Bad {
             System.out.println("Deadlock detected");
             throw new RuntimeException();
           }
+        synchronized (producerWaiting) {
+          if (producerWaiting == true) {
+            System.out.println("Deadlock detected");
+            throw new RuntimeException();
+          }
           full.await();
+        }
         num--; // consume
         empty.signal();
       } catch (InterruptedException e) {
@@ -60,6 +70,7 @@ public class Sync02Bad {
 
   public static void main(String[] args) {
     num = 2;
+    producerWaiting = false;
 
     Thread t1 = new Thread(() -> {
       producer();
