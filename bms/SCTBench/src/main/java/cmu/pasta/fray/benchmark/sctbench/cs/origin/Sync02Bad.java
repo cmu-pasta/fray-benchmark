@@ -29,8 +29,9 @@ public class Sync02Bad {
                 throw new RuntimeException();
             }
             waiting = true;
-            empty.await();
           }
+          empty.await();
+          waiting = false;
         }
         num++; // produce
         full.signal();
@@ -59,8 +60,9 @@ public class Sync02Bad {
             throw new RuntimeException();
           }
           waiting = true;
-          full.await();
         }
+        full.await();
+        waiting = false;
         num--; // consume
         empty.signal();
       } catch (InterruptedException e) {
