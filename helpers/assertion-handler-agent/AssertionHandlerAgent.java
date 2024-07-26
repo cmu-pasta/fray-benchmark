@@ -5,10 +5,8 @@ public class AssertionHandlerAgent {
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
             @Override
             public void uncaughtException(Thread t, Throwable e) {
-                if (e instanceof AssertionError) {
-                    System.err.println("Assertion failed: " + e.getMessage());
-                    System.exit(-1);
-                }
+                System.err.println("Assertion failed: " + e.getMessage());
+                System.exit(-1);
             }
         });
     }

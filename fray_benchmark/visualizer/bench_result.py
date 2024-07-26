@@ -27,6 +27,16 @@ class BenchResult:
             self.benchmark = components[-2]
         self.error_pattern = re.compile(
             r"(No Error|Error Found|Run failed): (\d+\.\d+)")
+        self.fray_error_pattern = re.compile(
+            r"Error found at iter: (\d+), Elapsed time: (\d+)"
+        )
+        self.jpf_time_pattern = re.compile(
+            r"ms time:\s+(\d+)"
+        )
+        self.jpf_iter_pattern = re.compile(
+            r",end=(\d+)"
+        )
+
         self.user_time_pattern = re.compile(r"real (\d+\.\d+)")
         # self.sys_time_pattern = re.compile(r"sys (\d+\.\d+)")
 
@@ -193,72 +203,64 @@ class BenchResult:
             if folder == "results":
                 continue
             run_folder = os.path.join(self.path, folder)
-            report = open(os.path.join(run_folder, "report.txt"))
-            text = report.read()
-            match = self.error_pattern.search(text)
-            if not match:
-                continue
-            error_type, value = match.groups()
-            if self.tech == "rr":
-                if not os.path.exists(os.path.join(
-                    run_folder, "stdout.txt")):
-                    total_iteration = 1
-                else:
-                    stdout = open(os.path.join(
-                        run_folder, "stdout.txt")).readlines()
-                    total_iteration = -1
-                    for line in reversed(stdout):
-                        if line.startswith("Starting iteration"):
-                            total_iteration = int(line.split(" ")[-1].strip()) + 1
-                            break
-            elif self.tech == "jpf":
+            if self.tech == "rr" or self.tech == "jpf":
                 stdout = open(os.path.join(
-                    run_folder, "stdout.txt")).readlines()
-                total_iteration = -1
+                    run_folder, "stdout.txt")).read()
+            else:
+                stdout = open(os.path.join(run_folder, "report", "output.txt")).read()
+            total_iteration = -1
+            first_bug_iter = -1
+            first_bug_time = -1
+            jpf_error = False
+            if self.tech != "jpf":
+                stdout = stdout.split("\n")
+                for line in reversed(stdout):
+                    if line.startswith("Starting iteration"):
+                        total_iteration = int(line.split(" ")[-1].strip()) + 1
+                        break
+                for line in stdout:
+                    match = self.fray_error_pattern.match(line)
+                    if match:
+                        first_bug_iter, first_bug_time = [int(x) for x in match.groups()]
+                        if self.tech != "rr":
+                            first_bug_iter += 1
+                        break
+            elif self.tech == "jpf":
+                if "UnsupportedOperationException" in stdout or \
+                    "NoSuchMethodException" in stdout or "FileNotFoundException" in stdout or\
+                        "Null charset name" in stdout or "NoSuchMethodError" in stdout:
+                        jpf_error = True
+                stdout = stdout.split("\n")
                 for line in reversed(stdout):
                     line = line.strip()
                     if line.startswith("paths ="):
                         total_iteration = int(line.split("=")[-1].strip())
                         break
-                if error_type == "Error Found" and total_iteration == -1:
-                    total_iteration = 1
-            else:
-                stdout = open(os.path.join(
-                    run_folder, "stdout.txt")).readlines()
-                total_iteration = -1
-                for line in reversed(stdout):
-                    if line.startswith("Starting iteration"):
-                        total_iteration = int(line.split(" ")[-1].strip()) + 1
+                for line in stdout:
+                    time_match = self.jpf_time_pattern.search(line)
+                    if time_match:
+                        first_bug_time = time_match.group(1)
+                    iter_match = self.jpf_iter_pattern.search(line)
+                    if iter_match:
+                        first_bug_iter = int(iter_match.group(1)) + 1
                         break
-            bug_type = "N/A"
-
-            if error_type == "No Error" and float(value) >= 599:
-                error_result = "NoError"
-            elif error_type == "Error Found":
-                error_result = "Error"
-                bug_type = self.bug_classify(run_folder)
-                if bug_type == "Run failure":
-                    bug_type = "N/A"
-                    error_result = "Failure"
-                else:
-                    if "Time" in bug_type:
-                        if "FP" in bug_type:
-                            bug_type = "Time (FP)"
-                        else:
-                            bug_type = "Time"
-                    else:
-                        bug_type = "TP"
-            else:
+            if jpf_error:
                 error_result = "Failure"
+            elif first_bug_iter == -1:
+                error_result = "NoError"
+            else:
+                error_result = "Error"
+            bug_type = "N/A"
+            # bug_type = self.bug_classify(run_folder)
             summary_file.write(
-                f"{self.benchmark}-{folder},{self.trial},{self.read_time(run_folder)},{error_result},{total_iteration},{bug_type}\n")
+                f"{self.benchmark}-{folder},{self.trial},{error_result},{bug_type},{first_bug_time},{first_bug_iter},{self.read_time(run_folder)},{total_iteration}\n")
 
     def load_csv(self) -> pd.DataFrame:
         result_folder = os.path.join(self.path, "results")
         if not os.path.exists(result_folder):
             raise Exception("No results folder found")
         df = pd.read_csv(
-            os.path.join(result_folder, "summary.csv"), names=["id", "trial", "time", "error", "iter", "type"]
+            os.path.join(result_folder, "summary.csv"), names=["id", "trial", "error", "type", "bug_time", "bug_iter", "total_time", "total_iter"]
         )
         return df
 
@@ -285,13 +287,11 @@ class BenchmarkSuite:
     def to_aggregated_dataframe(self) -> pd.DataFrame:
         data = []
         for bench in self.benchmarks:
-            bench.to_csv()
+            # bench.to_csv()
             df = bench.load_csv()
             df["Technique"] = self.name_remap(bench.tech)
             data.append(df)
         df = pd.concat(data, ignore_index=True)
-        df = df[df["id"] != "jacontebe-3"]
-        df = df[df["id"] != "jacontebe-26"]
         return df
 
     def name_remap(self, name: str) -> str:
@@ -325,14 +325,14 @@ class BenchmarkSuite:
     def generate_search_space_table(self) -> matplotlib.axis.Axis:
         df = self.to_aggregated_dataframe()
         df = df[df["error"] == "Error"]
-        return self.generate_aggregated_plot(df, "iter")
+        return self.generate_aggregated_plot(df, "bug_iter")
 
     def generate_aggregated_plot(self, df: pd.DataFrame, column: str) -> matplotlib.axis.Axis:
         df = df.groupby(['Technique', 'id'])[column].mean().reset_index()
         all_bms_sorted = df.sort_values(by=column)["id"].to_list()
         all_bms_sorted = list(dict.fromkeys(all_bms_sorted))
 
-        ylim = df[column].max() + (1000 if column == "iter" else 10)
+        ylim = df[column].max() + (1000 if column == "bug_iter" else 10)
         sct_list = []
         jc_list = []
         for key in all_bms_sorted:
@@ -341,6 +341,7 @@ class BenchmarkSuite:
             else:
                 jc_list.append(key)
         all_bms_sorted = sct_list + jc_list
+        print(all_bms_sorted)
         xlim = len(all_bms_sorted) + 0.5
         df['id'] = df['id'].apply(lambda value: all_bms_sorted.index(value))
         fig, ax = plt.subplots()
@@ -350,15 +351,19 @@ class BenchmarkSuite:
         ax.fill_between([-1, len(sct_list) - 0.5], y1=[ylim, ylim], alpha=0.3, facecolor=sns_config.colors[-1], linewidth=0.0, label="SCTBench")
         ax.fill_between([len(sct_list) - 0.5, xlim], y1=[ylim, ylim], alpha=0.3, linewidth=0.0, facecolor=sns_config.colors[-2], label="JaConTeBe")
         # ax.legend([f1, f2], ["SCTBench", "JaConTeBe"])
-        ax.set_xlabel("Test Case")
         if column == "exec":
-            ax.set_ylabel("\# executions per second")
+            ax.set_xlabel("Program")
         else:
-            ax.set_ylabel("\# executions to find bug")
+            ax.set_xlabel("Bug")
+
+        if column == "exec":
+            ax.set_ylabel("Executions per second")
+        else:
+            ax.set_ylabel("Executions to find bug")
         ax.set_yscale("log")
         ticks = [0.1, 1, 10, 100, 1000]
         tick_labels = ["0.1", "1", "10", "100", "1000"]
-        if column == "iter":
+        if column == "bug_iter":
             ticks = ticks[1:]
             tick_labels = tick_labels[1:]
         ax.set_yticks(ticks)
@@ -373,48 +378,49 @@ class BenchmarkSuite:
 
     def generate_exec_speed_table(self) -> matplotlib.axis.Axis:
         df = self.to_aggregated_dataframe()
-        # df = df[df["error"] != "Failure"]
-        df["exec"] = df["iter"] / df["time"]
+        df = df[df["error"] != "Failure"]
+        df["exec"] = df["total_iter"] / df["total_time"]
         df = df.sort_values(by="exec")
-        display(df)
+        # df.to_csv("/tmp/out.csv")
         return self.generate_aggregated_plot(df, "exec")
 
     def generate_bug_over_time_fig(self, measurement: str) -> matplotlib.axes.Axes:
         df = self.to_aggregated_dataframe()
         total_bugs =df["id"].nunique()
         df = df[df["error"] == "Error"]
-        df['time'] = df['time'].astype(float)
         df_grouped = df
         df_grouped['sum'] = df_grouped.groupby(['Technique', 'trial'])[
-            'time'].rank(method='max')
+            'bug_time'].rank(method='max')
         df_grouped['sum'] = df_grouped['sum'].astype(float)
-        df_grouped = df_grouped.drop(["type", "iter", "error", "id"], axis=1)
+        # df_grouped = df_grouped.drop(["type", "bug_iter", "error", "id"], axis=1)
         df_grouped = df_grouped.groupby(
-            ['time', 'trial', 'Technique'], as_index=False)['sum'].max()
+            ['bug_time', 'trial', 'Technique'], as_index=False)['sum'].max()
         unique_combinations = df_grouped[['Technique', 'trial']].drop_duplicates()
         new_rows = pd.DataFrame(
-            {'time': 0, 'trial': unique_combinations['trial'], 'Technique': unique_combinations['Technique'], 'sum': 0})
+            {'bug_time': 0, 'trial': unique_combinations['trial'], 'Technique': unique_combinations['Technique'], 'sum': 0})
         df_grouped = pd.concat([new_rows, df_grouped], ignore_index=True)
-        min_time = df_grouped['time'].min()
-        max_time = df_grouped['time'].max()
+        min_time = df_grouped['bug_time'].min()
+        max_time = df_grouped['bug_time'].max()
 
         # # Function to interpolate 'sum' within each group efficiently
         def interpolate_sum(group):
-            time_index = np.arange(min_time, max_time, 0.01)
-            group = group.set_index('time').reindex(time_index)
+            time_index = np.arange(min_time, max_time, 1)
+            group = group.set_index('bug_time').reindex(time_index)
             group['sum'] = group['sum'].ffill()
             group['Technique'] = group['Technique'].ffill()
             group['trial'] = group['trial'].ffill()
-            time_index = np.arange(min_time, max_time+1, 1)
-            group = group.reset_index().rename(columns={'index': 'time'})
+            time_index = np.arange(min_time, max_time+1, 100)
+            group = group.reset_index().rename(columns={'index': 'bug_time'})
             # Reindex the group to include all time points
-            group = group.set_index('time').reindex(time_index)
-            group = group.reset_index().rename(columns={'index': 'time'})
+            group = group.set_index('bug_time').reindex(time_index)
+            group = group.reset_index().rename(columns={'index': 'bug_time'})
+            group['bug_time'] = group["bug_time"] / 1000
             return group
         df_grouped = df_grouped.groupby(['trial', 'Technique']).apply(interpolate_sum).reset_index(drop=True)
-        ax = sns.lineplot(data=df_grouped, x="time", y="sum", hue="Technique",
+        # display(df_grouped[df_grouped["Technique"] == "$\\textsc{Fray}$-Random"])
+        ax = sns.lineplot(data=df_grouped, x="bug_time", y="sum", hue="Technique",
                           linewidth=2, errorbar='sd', estimator='mean', err_style='band', style="Technique")
-        ax.plot([0, df_grouped['time'].max() + 1], [total_bugs, total_bugs], "r-.", label="Total Bugs")
+        ax.plot([0, df_grouped['bug_time'].max() + 1], [total_bugs, total_bugs], "r-.", label="Total Bugs")
         ax.set_xlabel('Seconds')
         ax.set_ylabel('Cumulative \# of Bugs')
         ax.legend(title="")

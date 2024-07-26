@@ -1,7 +1,6 @@
 dbcp1
 dbcp2
 dbcp3
-dbcp4
 derby1
 derby2
 derby3
@@ -24,4 +23,3 @@ pool1
 pool2
 pool3
 pool4
-pool5
