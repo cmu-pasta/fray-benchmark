@@ -228,7 +228,8 @@ class BenchResult:
             elif self.tech == "jpf":
                 if "UnsupportedOperationException" in stdout or \
                     "NoSuchMethodException" in stdout or "FileNotFoundException" in stdout or\
-                        "Null charset name" in stdout or "NoSuchMethodError" in stdout:
+                        "Null charset name" in stdout or "NoSuchMethodError" in stdout or\
+                            "JPF out of memory" in stdout:
                         jpf_error = True
                 stdout = stdout.split("\n")
                 for line in reversed(stdout):
@@ -271,6 +272,8 @@ class BenchmarkSuite:
         for path in paths:
             self.path = os.path.abspath(path)
             for tech in os.listdir(self.path):
+                # if "jpf" != tech:
+                #     continue
                 tech_folder = os.path.join(self.path, tech)
                 if os.path.exists(os.path.join(tech_folder, "iter-0")):
                     # for i in range(20):
@@ -332,7 +335,7 @@ class BenchmarkSuite:
         all_bms_sorted = df.sort_values(by=column)["id"].to_list()
         all_bms_sorted = list(dict.fromkeys(all_bms_sorted))
 
-        ylim = df[column].max() + (1000 if column == "bug_iter" else 10)
+        ylim = df[column].max() + (1000 if column == "bug_iter" else 3000)
         sct_list = []
         jc_list = []
         for key in all_bms_sorted:
@@ -347,7 +350,7 @@ class BenchmarkSuite:
         fig, ax = plt.subplots()
         for key, grp in df.groupby(['id']):
             ax.plot(grp['id'], grp[column], linestyle='-', color='#42f5d7', zorder=1)
-        sns.scatterplot(data=df, x="id", y=column, hue="Technique", style="Technique", ax=ax, zorder=2, s=80, alpha=0.9, markers=['s', "^", "o"])
+        sns.scatterplot(data=df, x="id", y=column, hue="Technique", style="Technique", ax=ax, zorder=2, s=80, alpha=0.9, markers=['s', "^", "P"])
         ax.fill_between([-1, len(sct_list) - 0.5], y1=[ylim, ylim], alpha=0.3, facecolor=sns_config.colors[-1], linewidth=0.0, label="SCTBench")
         ax.fill_between([len(sct_list) - 0.5, xlim], y1=[ylim, ylim], alpha=0.3, linewidth=0.0, facecolor=sns_config.colors[-2], label="JaConTeBe")
         # ax.legend([f1, f2], ["SCTBench", "JaConTeBe"])
@@ -368,7 +371,8 @@ class BenchmarkSuite:
             tick_labels = tick_labels[1:]
         ax.set_yticks(ticks)
         ax.set_yticklabels(tick_labels)
-        ax.legend(title="")
+        ax.legend(title="", bbox_to_anchor=(0., 1.02, 1., .102), loc='lower left',
+                      ncols=5, mode="expand", borderaxespad=0.)
         ax.set(xlim=(-1, xlim))
         ax.set(ylim=(0, ylim))
 
@@ -381,7 +385,6 @@ class BenchmarkSuite:
         df = df[df["error"] != "Failure"]
         df["exec"] = df["total_iter"] / df["total_time"]
         df = df.sort_values(by="exec")
-        # df.to_csv("/tmp/out.csv")
         return self.generate_aggregated_plot(df, "exec")
 
     def generate_bug_over_time_fig(self, measurement: str) -> matplotlib.axes.Axes:
@@ -400,8 +403,7 @@ class BenchmarkSuite:
             {'bug_time': 0, 'trial': unique_combinations['trial'], 'Technique': unique_combinations['Technique'], 'sum': 0})
         df_grouped = pd.concat([new_rows, df_grouped], ignore_index=True)
         min_time = df_grouped['bug_time'].min()
-        max_time = df_grouped['bug_time'].max()
-
+        max_time = 600 * 1000
         # # Function to interpolate 'sum' within each group efficiently
         def interpolate_sum(group):
             time_index = np.arange(min_time, max_time, 1)
@@ -423,5 +425,6 @@ class BenchmarkSuite:
         ax.plot([0, df_grouped['bug_time'].max() + 1], [total_bugs, total_bugs], "r-.", label="Total Bugs")
         ax.set_xlabel('Seconds')
         ax.set_ylabel('Cumulative \# of Bugs')
-        ax.legend(title="")
+        ax.legend(title="", bbox_to_anchor=(0., 1.02, 1., .102), loc='lower left',
+                      ncols=4, mode="expand", borderaxespad=0.)
         return ax
