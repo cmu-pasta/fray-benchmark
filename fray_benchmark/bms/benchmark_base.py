@@ -121,7 +121,7 @@ class BenchmarkBase(object):
                 "--add-opens", "java.base/sun.nio.ch=ALL-UNNAMED",
                 "--add-opens", "java.base/java.lang.reflect=ALL-UNNAMED",
                 "-cp", ":".join(resolve_classpaths([
-                    f"{FRAY_PATH}/examples/build/dependency/*.jar",
+                    f"{FRAY_PATH}/core/build/libs/core-1.0-SNAPSHOT-all.jar",
                 ])),
                 "cmu.pasta.fray.core.MainKt",
                 "--run-config",
@@ -177,8 +177,7 @@ class UnitTestBenchmark(BenchmarkBase):
         super().__init__(name)
         self.test_cases = test_cases
         self.classpath = resolve_classpaths(classpath + [
-            f"{FRAY_PATH}/examples/build/libs/*.jar",
-            f"{FRAY_PATH}/examples/build/dependency/*.jar",
+            f"{FRAY_PATH}/junit-runner/build/libs/junit-runner-1.0-SNAPSHOT-all.jar",
         ])
         self.properties = properties
         self.is_junit4 = is_junit4
