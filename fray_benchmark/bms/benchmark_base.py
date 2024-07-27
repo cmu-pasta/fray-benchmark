@@ -186,7 +186,7 @@ class UnitTestBenchmark(BenchmarkBase):
         for test_case in self.test_cases:
             yield RunConfig(
                 Executor(
-                    "cmu.pasta.fray.examples.JUnitRunner",
+                    "cmu.pasta.fray.runner.JUnitRunner",
                     "main",
                     [
                         "junit4" if self.is_junit4 else "junit5",
