@@ -4,7 +4,6 @@ import shutil
 from typing import List
 import matplotlib.axis
 import numpy as np
-from scipy.stats import gmean
 
 import matplotlib
 import matplotlib.axes
@@ -371,7 +370,7 @@ class BenchmarkSuite:
                       ncols=5, mode="expand", borderaxespad=0., labelspacing=0.0,
                       handlelength=1.0, facecolor='white', edgecolor='black')
         ax.set(xlim=(-1, xlim))
-        ax.set(ylim=(0, ylim))
+        ax.set(ylim=(0.001, ylim))
 
         ax.set_xticklabels([])
         return ax
