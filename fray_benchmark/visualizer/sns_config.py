@@ -10,7 +10,7 @@ plt.rcParams.update({'axes.edgecolor': 'black', 'axes.linewidth': 2,
    'axes.spines.left': False,
    'axes.grid.axis': 'y', 'grid.linestyle': '--'})
 
-colors = ['#F0A856', '#76A12B', '#284C67', '#E72388', '#EC321D', "#44AA99", "#C0C0C0"]
+colors = ['#F0A856', '#76A12B', '#284C67', '#E72388', '#EC321D', "#44AA99", "#aeaeae"]
 d_colors = [sns.desaturate(c, 0.65) for c in colors]
 sns.palplot(colors)
 sns.set_palette(sns.color_palette(colors), 8, .75)

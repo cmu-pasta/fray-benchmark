@@ -4,6 +4,7 @@ import shutil
 from typing import List
 import matplotlib.axis
 import numpy as np
+from scipy.stats import gmean
 
 import matplotlib
 import matplotlib.axes
@@ -372,7 +373,8 @@ class BenchmarkSuite:
         ax.set_yticks(ticks)
         ax.set_yticklabels(tick_labels)
         ax.legend(title="", bbox_to_anchor=(0., 1.02, 1., .102), loc='lower left',
-                      ncols=5, mode="expand", borderaxespad=0.)
+                      ncols=5, mode="expand", borderaxespad=0., labelspacing=0.0,
+                      handlelength=1.0, facecolor='white', edgecolor='black')
         ax.set(xlim=(-1, xlim))
         ax.set(ylim=(0, ylim))
 
@@ -385,6 +387,14 @@ class BenchmarkSuite:
         df = df[df["error"] != "Failure"]
         df["exec"] = df["total_iter"] / df["total_time"]
         df = df.sort_values(by="exec")
+        df_reduced = df[['id', 'trial', 'Technique', 'exec']]
+        df_pivot = df_reduced.pivot_table(index=['id', 'trial'], columns='Technique', values='exec').reset_index()
+        fray_key = "$\\textsc{Fray}$-Random"
+        candidate_key = "JPF-Random"
+        df_pivot.dropna(subset=[fray_key, candidate_key], inplace=True)
+        print(gmean((df_pivot[fray_key] / df_pivot[candidate_key])))
+        print(max((df_pivot[fray_key] / df_pivot[candidate_key])))
+        # display(df_pivot)
         return self.generate_aggregated_plot(df, "exec")
 
     def generate_bug_over_time_fig(self, measurement: str) -> matplotlib.axes.Axes:
