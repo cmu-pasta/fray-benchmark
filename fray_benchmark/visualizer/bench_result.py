@@ -65,7 +65,6 @@ class BenchResult:
             return "TP(?890)"
         if "FATAL src/Task.cc:1429:compute_trap_reasons" in stdout:
             return "Run failure"
-        print(stdout)
         exit(0)
 
     def kafka_bug_classify(self, stdout: str):
@@ -144,8 +143,6 @@ class BenchResult:
         if "DefaultTaskExecutorTest.shouldProcessTasks" in stdout:
             return "TP(?253)"
         return None
-        # print(stdout)
-        # exit(0)
     def guava_bug_classify(self, stdout: str, run_folder: str) -> str:
         if "DeadlockException" in stdout:
             if "onThreadParkNanos" in stdout or "onLatchAwaitTimeout" in stdout or "onConditionAwaitNanos" in stdout:
@@ -164,7 +161,6 @@ class BenchResult:
         if "timeout" in stdout or folder_id == 1128 or "GeneratedMonitorTest" in stdout:
             return "TP(Time)"
         if "/rr/" in run_folder:
-            print(run_folder)
             return "Run failure"
         # print(stdout)
         # exit(0)
@@ -260,6 +256,7 @@ class BenchResult:
     def load_csv(self) -> pd.DataFrame:
         result_folder = os.path.join(self.path, "results")
         if not os.path.exists(result_folder):
+            print(f"Folder {result_folder} not found")
             raise Exception("No results folder found")
         df = pd.read_csv(
             os.path.join(result_folder, "summary.csv"), names=["id", "trial", "error", "type", "bug_time", "bug_iter", "total_time", "total_iter"]
@@ -285,7 +282,6 @@ class BenchmarkSuite:
                         trial_folder = os.path.join(tech_folder, trial)
                         self.benchmarks.append(BenchResult(trial_folder, True))
                 else:
-                    print(tech_folder)
                     self.benchmarks.append(BenchResult(tech_folder, False))
 
     def to_aggregated_dataframe(self) -> pd.DataFrame:
@@ -345,7 +341,6 @@ class BenchmarkSuite:
             else:
                 jc_list.append(key)
         all_bms_sorted = sct_list + jc_list
-        print(all_bms_sorted)
         xlim = len(all_bms_sorted) + 0.5
         df['id'] = df['id'].apply(lambda value: all_bms_sorted.index(value))
         fig, ax = plt.subplots()
@@ -392,9 +387,6 @@ class BenchmarkSuite:
         fray_key = "$\\textsc{Fray}$-Random"
         candidate_key = "JPF-Random"
         df_pivot.dropna(subset=[fray_key, candidate_key], inplace=True)
-        print(gmean((df_pivot[fray_key] / df_pivot[candidate_key])))
-        print(max((df_pivot[fray_key] / df_pivot[candidate_key])))
-        # display(df_pivot)
         return self.generate_aggregated_plot(df, "exec")
 
     def generate_bug_over_time_fig(self, measurement: str) -> matplotlib.axes.Axes:
@@ -429,7 +421,6 @@ class BenchmarkSuite:
             group['bug_time'] = group["bug_time"] / 1000
             return group
         df_grouped = df_grouped.groupby(['trial', 'Technique']).apply(interpolate_sum).reset_index(drop=True)
-        # display(df_grouped[df_grouped["Technique"] == "$\\textsc{Fray}$-Random"])
         ax = sns.lineplot(data=df_grouped, x="bug_time", y="sum", hue="Technique",
                           linewidth=2, errorbar='sd', estimator='mean', err_style='band', style="Technique")
         ax.plot([0, df_grouped['bug_time'].max() + 1], [total_bugs, total_bugs], "r-.", label="Total Bugs")
