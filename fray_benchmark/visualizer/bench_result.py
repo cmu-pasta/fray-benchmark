@@ -329,7 +329,11 @@ class BenchmarkSuite:
 
     def generate_aggregated_plot(self, df: pd.DataFrame, column: str) -> matplotlib.axis.Axis:
         df = df.groupby(['Technique', 'id'])[column].mean().reset_index()
-        all_bms_sorted = df.sort_values(by=column)["id"].to_list()
+        fray_key = "$\\textsc{Fray}$-Random"
+        all_bms_sorted = df[df["Technique"] == fray_key].sort_values(by=column)["id"].to_list()
+        for id in df["id"].to_list():
+            if id not in all_bms_sorted:
+                all_bms_sorted.append(id)
         all_bms_sorted = list(dict.fromkeys(all_bms_sorted))
 
         ylim = df[column].max() + (1000 if column == "bug_iter" else 3000)
@@ -424,6 +428,12 @@ class BenchmarkSuite:
         ax = sns.lineplot(data=df_grouped, x="bug_time", y="sum", hue="Technique",
                           linewidth=2, errorbar='sd', estimator='mean', err_style='band', style="Technique")
         ax.plot([0, df_grouped['bug_time'].max() + 1], [total_bugs, total_bugs], "r-.", label="Total Bugs")
+        ax.set_xscale("log")
+        ticks = [0.1, 1, 10, 100, 600]
+        tick_labels = ["0.1", "1", "10", "100", "600"]
+        ax.set_xticks(ticks)
+        ax.set_xticklabels(tick_labels)
+
         ax.set_xlabel('Seconds')
         ax.set_ylabel('Cumulative \# of Bugs')
         ax.legend(title="", bbox_to_anchor=(0., 1.02, 1., .102), loc='lower left',
