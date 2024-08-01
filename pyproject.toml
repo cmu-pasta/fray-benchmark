@@ -2,7 +2,6 @@
 name = "fray-benchmark"
 version = "0.1.0"
 description = ""
-authors = ["Vasu Vikram <vvikram@andrew.cmu.edu>"]
 readme = "README.md"
 packages = [{include = "fray_benchmark"}]
 

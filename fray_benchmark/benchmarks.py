@@ -20,6 +20,5 @@ for file in glob.glob(os.path.join(SCRIPT_PATH, "bms/*.py")):
             if isinstance(obj, type) and issubclass(obj, BenchmarkBase) and obj != BenchmarkBase and obj != UnitTestBenchmark and obj != MainMethodBenchmark and obj != SavedBenchmark:
                 app = obj()  # type: ignore
                 BENCHMARKS[app.name] = app
-                print(f"Loaded benchmark {app.name}")
     except ImportError as e:
         continue
