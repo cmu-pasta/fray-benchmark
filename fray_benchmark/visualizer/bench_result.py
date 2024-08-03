@@ -354,9 +354,9 @@ class BenchmarkSuite:
         ax.fill_between([len(sct_list) - 0.5, xlim], y1=[ylim, ylim], alpha=0.3, linewidth=0.0, facecolor=sns_config.colors[-2], label="JaConTeBe")
         # ax.legend([f1, f2], ["SCTBench", "JaConTeBe"])
         if column == "exec":
-            ax.set_xlabel("Program")
+            ax.set_xlabel("Program (Total 53 from SCTBench and JaConTeBe)")
         else:
-            ax.set_xlabel("Bug")
+            ax.set_xlabel("Bug (Total 53 from SCTBench and JaConTeBe)")
 
         if column == "exec":
             ax.set_ylabel("Executions per second")
@@ -374,7 +374,7 @@ class BenchmarkSuite:
                       ncols=5, mode="expand", borderaxespad=0., labelspacing=0.0,
                       handlelength=1.0, facecolor='white', edgecolor='black')
         ax.set(xlim=(-1, xlim))
-        ax.set(ylim=(0.001, ylim))
+        ax.set(ylim=(ticks[0]-0.5, ylim))
 
         ax.set_xticklabels([])
         return ax
