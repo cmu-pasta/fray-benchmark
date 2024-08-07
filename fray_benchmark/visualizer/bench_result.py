@@ -82,7 +82,7 @@ class BenchResult:
         if "Deadlock" in stdout and ("DefaultStateUpdater" in stdout or "DefaultTaskManager" in stdout):
             return "TP(KAFKA-17112)"
         if "KafkaStreamsTest.shouldNotBlockInCloseWithCloseOptionLeaveGroupFalseForZeroDuration" in stdout:
-            return "TP(?186)"
+            return "TP(Time)"
         if "shouldRecoverFromInvalidOffsetExceptionOnRestoreAndFinishRestore" in stdout:
             return "TP(Time)"
         if "KafkaStreamsTest.shouldThrowOnCleanupWhileShuttingDownStreamClosedWithCloseOptionLeaveGroupTrue" in stdout:

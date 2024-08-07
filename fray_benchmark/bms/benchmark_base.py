@@ -112,8 +112,8 @@ class BenchmarkBase(object):
                 str(timetout),
                 f"{FRAY_PATH}/jdk/build/java-inst/bin/java",
                 "-ea",
-                f"-agentpath:{FRAY_PATH}/jvmti/build//cmake/native_release/" + ("mac-aarch64/cpp/libjvmti.dylib" if platform == "darwin" else "linux-amd64/cpp/libjvmti.so"),
-                f"-javaagent:{FRAY_PATH}/instrumentation/build/libs/instrumentation-1.0-SNAPSHOT-all.jar",
+                f"-agentpath:{FRAY_PATH}/jvmti/build/native-libs/libjvmti.so",
+                f"-javaagent:{FRAY_PATH}/instrumentation/build/libs/instrumentation-1.0-SNAPSHOT-shadow.jar",
                 "--add-opens", "java.base/java.lang=ALL-UNNAMED",
                 "--add-opens", "java.base/java.util=ALL-UNNAMED",
                 "--add-opens", "java.base/java.io=ALL-UNNAMED",
@@ -123,13 +123,12 @@ class BenchmarkBase(object):
                 "-cp", ":".join(resolve_classpaths([
                     f"{FRAY_PATH}/core/build/libs/core-1.0-SNAPSHOT-all.jar",
                 ])),
-                "cmu.pasta.fray.core.MainKt",
+                "org.pastalab.fray.core.MainKt",
                 "--run-config",
                 "json",
                 "--config-path",
                 f"{log_path}/config.json",
                 "-o", f"{log_path}/report",
-                "--logger", "json",
                 "--iter", "-1",
                 *config
             ]
@@ -186,7 +185,7 @@ class UnitTestBenchmark(BenchmarkBase):
         for test_case in self.test_cases:
             yield RunConfig(
                 Executor(
-                    "cmu.pasta.fray.runner.JUnitRunner",
+                    "org.pastalab.fray.runner.JUnitRunner",
                     "main",
                     [
                         "junit4" if self.is_junit4 else "junit5",
