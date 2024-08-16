@@ -6,7 +6,7 @@ from typing import List, Iterator, Tuple, Dict
 from sys import platform
 
 
-from ..commons import FRAY_PATH, RR_PATH, JPF_PATH, HELPER_PATH, PERF_ITER
+from ..commons import FRAY_PATH, RR_PATH, JPF_PATH, HELPER_PATH, PERF_ITER, FRAY_VERSION
 from ..utils import resolve_classpaths
 from ..objects.execution_config import RunConfig, Executor
 
@@ -110,10 +110,10 @@ class BenchmarkBase(object):
                 "-s",
                 "INT",
                 str(timetout),
-                f"{FRAY_PATH}/jdk/build/java-inst/bin/java",
+                f"{FRAY_PATH}/instrumentation/jdk/build/java-inst/bin/java",
                 "-ea",
                 f"-agentpath:{FRAY_PATH}/jvmti/build/native-libs/libjvmti.so",
-                f"-javaagent:{FRAY_PATH}/instrumentation/build/libs/instrumentation-1.0-SNAPSHOT-shadow.jar",
+                f"-javaagent:{FRAY_PATH}/instrumentation/agent/build/libs/agent-{FRAY_VERSION}-shadow.jar",
                 "--add-opens", "java.base/java.lang=ALL-UNNAMED",
                 "--add-opens", "java.base/java.util=ALL-UNNAMED",
                 "--add-opens", "java.base/java.io=ALL-UNNAMED",
@@ -121,7 +121,8 @@ class BenchmarkBase(object):
                 "--add-opens", "java.base/sun.nio.ch=ALL-UNNAMED",
                 "--add-opens", "java.base/java.lang.reflect=ALL-UNNAMED",
                 "-cp", ":".join(resolve_classpaths([
-                    f"{FRAY_PATH}/core/build/libs/core-1.0-SNAPSHOT-all.jar",
+                    f"{FRAY_PATH}/core/build/libs/core-{FRAY_VERSION}.jar",
+                    f"{FRAY_PATH}/core/build/dependency/*.jar",
                 ])),
                 "org.pastalab.fray.core.MainKt",
                 "--run-config",
@@ -176,7 +177,8 @@ class UnitTestBenchmark(BenchmarkBase):
         super().__init__(name)
         self.test_cases = test_cases
         self.classpath = resolve_classpaths(classpath + [
-            f"{FRAY_PATH}/junit-runner/build/libs/junit-runner-1.0-SNAPSHOT-all.jar",
+            f"{HELPER_PATH}/junit-runner/build/libs/junit-runner-1.0-SNAPSHOT.jar",
+            f"{HELPER_PATH}/junit-runner/build/dependency/*.jar",
         ])
         self.properties = properties
         self.is_junit4 = is_junit4
@@ -185,7 +187,7 @@ class UnitTestBenchmark(BenchmarkBase):
         for test_case in self.test_cases:
             yield RunConfig(
                 Executor(
-                    "org.pastalab.fray.runner.JUnitRunner",
+                    "org.pastalab.fray.helpers.JUnitRunner",
                     "main",
                     [
                         "junit4" if self.is_junit4 else "junit5",

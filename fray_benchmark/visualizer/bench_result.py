@@ -68,6 +68,7 @@ class BenchResult:
 
     def kafka_bug_classify(self, stdout: str):
         if "DefaultStateUpdaterTest.shouldRecordMetrics" in stdout:
+            # ignore
             return "TP(?90)"
         if "[FATAL src/Task.cc:1429:compute_trap_reasons()]" in stdout:
             return "Run failure"
@@ -86,9 +87,9 @@ class BenchResult:
         if "shouldRecoverFromInvalidOffsetExceptionOnRestoreAndFinishRestore" in stdout:
             return "TP(Time)"
         if "KafkaStreamsTest.shouldThrowOnCleanupWhileShuttingDownStreamClosedWithCloseOptionLeaveGroupTrue" in stdout:
-            return "TP(?207)"
+            return "TP(Time)"
         if "StreamThreadTest$StateListenerStub.onChange" in stdout:
-            return "TP(?63)"
+            return "TP(KAFKA-17354)"
         if "KafkaStreamsTest.shouldNotBlockInCloseWithCloseOptionLeaveGroupTrueForZeroDuration" in stdout:
             return "TP(Time)"
         if "KafkaStreamsTest.shouldReturnFalseOnCloseWithCloseOptionWithLeaveGroupFalseWhenThreadsHaventTerminated" in stdout:

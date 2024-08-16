@@ -7,6 +7,7 @@ SCHEDULERS = {
     "random": ['--scheduler=random'],
 }
 
+FRAY_VERSION = "0.1.3"
 FRAY_PATH = os.environ["FRAY_PATH"]
 SCRIPT_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)))
 PROJECT_PATH = os.path.join(SCRIPT_PATH, "..")

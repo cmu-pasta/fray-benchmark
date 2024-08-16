@@ -112,7 +112,7 @@ def replay(path: str, replay: str, debug_jvm: bool):
         "-PconfigPath=" + os.path.join(path, "config.json"),
         "-PextraArgs=" + " ".join([
             "--scheduler=replay",
-            f'--path={os.path.join(path, "report", f"index_{replay}")}',
+            f'--path={os.path.join(path, "report", f"recording_{replay}")}',
         ],),
         "--debug-jvm"
     ], cwd=FRAY_PATH)
