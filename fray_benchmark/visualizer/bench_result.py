@@ -93,7 +93,7 @@ class BenchResult:
         if "KafkaStreamsTest.shouldNotBlockInCloseWithCloseOptionLeaveGroupTrueForZeroDuration" in stdout:
             return "TP(Time)"
         if "KafkaStreamsTest.shouldReturnFalseOnCloseWithCloseOptionWithLeaveGroupFalseWhenThreadsHaventTerminated" in stdout:
-            return "TP(?216)"
+            return "TP(Time)"
         if "StreamThreadTest.shouldNotEnforceRebalanceWhenCurrentlyRebalancing" in stdout:
             return "TP(Time)"
         if "KafkaStreamsTest.shouldThrowOnCleanupWhileShuttingDownStreamClosedWithCloseOptionLeaveGroupFalse" in stdout:
