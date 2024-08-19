@@ -7,6 +7,9 @@ import java.lang.reflect.Method;
 import org.junit.platform.engine.discovery.DiscoverySelectors;
 import org.junit.platform.launcher.Launcher;
 import org.junit.platform.launcher.LauncherDiscoveryRequest;
+import org.junit.platform.launcher.TestExecutionListener;
+import org.junit.platform.launcher.TestIdentifier;
+import org.junit.platform.launcher.TestPlan;
 import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
 import org.junit.platform.launcher.core.LauncherFactory;
 import org.junit.platform.launcher.listeners.SummaryGeneratingListener;
@@ -16,8 +19,26 @@ import org.junit.runner.Request;
 import org.junit.runner.manipulation.Filter;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.Result;
+import org.pastalab.fray.runtime.Runtime;
 
 public class JUnitRunner {
+    public static class Junit5Listener implements TestExecutionListener {
+        String className;
+        String methodName;
+        public Junit5Listener(String className, String methodName) {
+            this.className = className;
+            this.methodName = methodName;
+        }
+        @Override
+        public void executionStarted(TestIdentifier testIdentifier) {
+            if (testIdentifier.isTest() && testIdentifier.getDisplayName().startsWith(methodName)) {
+//                Runtime.onSkipMethodDone("junit-skip");
+            }
+        }
+
+    }
+
+
     public static void main(String[] args) throws ClassNotFoundException {
         boolean isJunit4 = args[0].equals("junit4");
         String[] classAndMethod = args[1].split("#");
@@ -57,7 +78,6 @@ public class JUnitRunner {
             }
         } else {
             Class[] parameterTypes = new Class[0];
-
             String testClassName = classAndMethod[0];
             Class<?> testClass = Class.forName(testClassName, true, Thread.currentThread().getContextClassLoader());
             for (Method method : testClass.getDeclaredMethods()) {
@@ -71,7 +91,9 @@ public class JUnitRunner {
                     .build();
             Launcher launcher = LauncherFactory.create();
             SummaryGeneratingListener listener = new SummaryGeneratingListener();
+            Junit5Listener frayListener = new Junit5Listener(classAndMethod[0], classAndMethod[1]);
             launcher.registerTestExecutionListeners(listener);
+            launcher.registerTestExecutionListeners(frayListener);
             try {
                 launcher.execute(request);
             } catch (Throwable e) {

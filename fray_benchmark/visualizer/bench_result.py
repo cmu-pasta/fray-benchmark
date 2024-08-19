@@ -97,15 +97,15 @@ class BenchResult:
         if "StreamThreadTest.shouldNotEnforceRebalanceWhenCurrentlyRebalancing" in stdout:
             return "TP(Time)"
         if "KafkaStreamsTest.shouldThrowOnCleanupWhileShuttingDownStreamClosedWithCloseOptionLeaveGroupFalse" in stdout:
-            return "TP(?159)"
+            return "TP(Time)"
         if "DefaultTaskExecutorTest.shouldPunctuateSystemTime" in stdout:
             return "TP(Time)"
         if "GlobalStreamThreadTest.shouldThrowStreamsExceptionOnStartupIfThereIsAStreamsException" in stdout:
-            return "TP(?275)"
+            return "TP(KAFKA-17113)"
         if "KafkaStreamsTest.shouldThrowOnCleanupWhileShuttingDown" in stdout:
-            return "TP(?196)"
+            return "TP(Time)"
         if "DefaultStateUpdaterTest.shouldRestoreActiveStatefulTasksAndUpdateStandbyTasks" in stdout:
-            return "TP(?152)"
+            return "TP(Time)"
         if "DefaultTaskExecutorTest.shouldNotFlushOnException" in stdout:
             return "TP(?261)"
         if "StreamThreadTest.shouldOnlyCompleteShutdownAfterRebalanceNotInProgress" in stdout:
