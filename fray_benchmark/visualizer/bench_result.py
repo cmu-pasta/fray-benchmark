@@ -111,37 +111,38 @@ class BenchResult:
         if "StreamThreadTest.shouldOnlyCompleteShutdownAfterRebalanceNotInProgress" in stdout:
             return "TP(Time)"
         if "StreamThreadTest.shouldReinitializeRevivedTasksInAnyState" in stdout:
-            return "TP(?72)"
+            return "TP(KAFKA-17112)"
         if "DefaultTaskExecutorTest.shouldUnassignTaskWhenRequired" in stdout:
-            return "TP(?251)"
+            return "TP(KAFKA-17371)"
         if "DefaultStateUpdaterTest.shouldRestoreActiveStatefulTaskThenUpdateStandbyTaskAndAgainRestoreActiveStatefulTask" in stdout:
-            return "TP(?134)"
+            return "TP(Time)"
         if "DefaultTaskExecutorTest.shouldRespectPunctuationDisabledByTaskExecutionMetadata" in stdout:
-            return "TP(?257)"
+            return "TP(Time)"
         if "KafkaStreamsTest.shouldNotBlockInCloseForZeroDuration" in stdout:
-            return "TP(?166)"
+            return "TP(Time)"
         if "KafkaStreamsTest.shouldNotAddThreadWhenError" in stdout:
-            return "TP(?218)"
+            return "TP(KAFKA-17379)"
         if "DefaultTaskExecutorTest.shouldSetUncaughtStreamsException" in stdout:
-            return "TP(?249)"
+            return "TP(KAFKA-17394)"
         if "DefaultStateUpdaterTest.shouldAddFailedTasksToQueueWhenUncaughtExceptionIsThrown" in stdout:
-            return "TP(?96)"
+            return "TP(KAFKA-17114)"
         if "DefaultTaskExecutorTest.shouldShutdownTaskExecutor" in stdout:
-            return "TP(?255)"
+            return "TP(Time)"
         if "GlobalStreamThreadTest.shouldThrowStreamsExceptionOnStartupIfExceptionOccurred" in stdout:
-            return "TP(?276)"
+            return "TP(KAFKA-17113)"
         if "DefaultTaskExecutorTest.shouldClearTaskTimeoutOnProcessed" in stdout:
             return "TP(Time)"
         if "DefaultTaskExecutorTest.shouldUnassignTaskWhenNotProgressing" in stdout:
-            return "TP(?260)"
+            return "TP(KAFKA-17394)"
         if "KafkaStreamsTest.shouldReturnFalseOnCloseWhenThreadsHaventTerminated" in stdout:
-            return "TP(?176)"
+            return "TP(Time)"
         if "DefaultStateUpdaterTest.shouldGetTasksFromRestoredActiveTasks" in stdout:
-            return "TP(?92)"
+            return "TP(KAFKA-17402)"
+        # cannot reproduce
         if "shouldNotFailWhenCreatingTaskDirectoryInParallel" in stdout:
             return "TP(?157)"
         if "DefaultTaskExecutorTest.shouldProcessTasks" in stdout:
-            return "TP(?253)"
+            return "TP(Time)"
         return None
     def guava_bug_classify(self, stdout: str, run_folder: str) -> str:
         if "DeadlockException" in stdout:

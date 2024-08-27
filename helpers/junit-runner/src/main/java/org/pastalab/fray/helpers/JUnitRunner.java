@@ -82,7 +82,6 @@ public class JUnitRunner {
             Class<?> testClass = Class.forName(testClassName, true, Thread.currentThread().getContextClassLoader());
             for (Method method : testClass.getDeclaredMethods()) {
                 if (method.getName().equals(classAndMethod[1])) {
-                    System.out.println(method.getName());
                     parameterTypes = method.getParameterTypes();
                 }
             }
