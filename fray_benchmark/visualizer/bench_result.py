@@ -68,6 +68,7 @@ class BenchResult:
 
     def kafka_bug_classify(self, stdout: str):
         if "DefaultStateUpdaterTest.shouldRecordMetrics" in stdout:
+            # ignore
             return "TP(?90)"
         if "[FATAL src/Task.cc:1429:compute_trap_reasons()]" in stdout:
             return "Run failure"
@@ -82,65 +83,66 @@ class BenchResult:
         if "Deadlock" in stdout and ("DefaultStateUpdater" in stdout or "DefaultTaskManager" in stdout):
             return "TP(KAFKA-17112)"
         if "KafkaStreamsTest.shouldNotBlockInCloseWithCloseOptionLeaveGroupFalseForZeroDuration" in stdout:
-            return "TP(?186)"
+            return "TP(Time)"
         if "shouldRecoverFromInvalidOffsetExceptionOnRestoreAndFinishRestore" in stdout:
             return "TP(Time)"
         if "KafkaStreamsTest.shouldThrowOnCleanupWhileShuttingDownStreamClosedWithCloseOptionLeaveGroupTrue" in stdout:
-            return "TP(?207)"
+            return "TP(Time)"
         if "StreamThreadTest$StateListenerStub.onChange" in stdout:
-            return "TP(?63)"
+            return "TP(KAFKA-17354)"
         if "KafkaStreamsTest.shouldNotBlockInCloseWithCloseOptionLeaveGroupTrueForZeroDuration" in stdout:
             return "TP(Time)"
         if "KafkaStreamsTest.shouldReturnFalseOnCloseWithCloseOptionWithLeaveGroupFalseWhenThreadsHaventTerminated" in stdout:
-            return "TP(?216)"
+            return "TP(Time)"
         if "StreamThreadTest.shouldNotEnforceRebalanceWhenCurrentlyRebalancing" in stdout:
             return "TP(Time)"
         if "KafkaStreamsTest.shouldThrowOnCleanupWhileShuttingDownStreamClosedWithCloseOptionLeaveGroupFalse" in stdout:
-            return "TP(?159)"
+            return "TP(Time)"
         if "DefaultTaskExecutorTest.shouldPunctuateSystemTime" in stdout:
             return "TP(Time)"
         if "GlobalStreamThreadTest.shouldThrowStreamsExceptionOnStartupIfThereIsAStreamsException" in stdout:
-            return "TP(?275)"
+            return "TP(KAFKA-17113)"
         if "KafkaStreamsTest.shouldThrowOnCleanupWhileShuttingDown" in stdout:
-            return "TP(?196)"
+            return "TP(Time)"
         if "DefaultStateUpdaterTest.shouldRestoreActiveStatefulTasksAndUpdateStandbyTasks" in stdout:
-            return "TP(?152)"
+            return "TP(Time)"
         if "DefaultTaskExecutorTest.shouldNotFlushOnException" in stdout:
             return "TP(?261)"
         if "StreamThreadTest.shouldOnlyCompleteShutdownAfterRebalanceNotInProgress" in stdout:
             return "TP(Time)"
         if "StreamThreadTest.shouldReinitializeRevivedTasksInAnyState" in stdout:
-            return "TP(?72)"
+            return "TP(KAFKA-17112)"
         if "DefaultTaskExecutorTest.shouldUnassignTaskWhenRequired" in stdout:
-            return "TP(?251)"
+            return "TP(KAFKA-17371)"
         if "DefaultStateUpdaterTest.shouldRestoreActiveStatefulTaskThenUpdateStandbyTaskAndAgainRestoreActiveStatefulTask" in stdout:
-            return "TP(?134)"
+            return "TP(Time)"
         if "DefaultTaskExecutorTest.shouldRespectPunctuationDisabledByTaskExecutionMetadata" in stdout:
-            return "TP(?257)"
+            return "TP(Time)"
         if "KafkaStreamsTest.shouldNotBlockInCloseForZeroDuration" in stdout:
-            return "TP(?166)"
+            return "TP(Time)"
         if "KafkaStreamsTest.shouldNotAddThreadWhenError" in stdout:
-            return "TP(?218)"
+            return "TP(KAFKA-17379)"
         if "DefaultTaskExecutorTest.shouldSetUncaughtStreamsException" in stdout:
-            return "TP(?249)"
+            return "TP(KAFKA-17394)"
         if "DefaultStateUpdaterTest.shouldAddFailedTasksToQueueWhenUncaughtExceptionIsThrown" in stdout:
-            return "TP(?96)"
+            return "TP(KAFKA-17114)"
         if "DefaultTaskExecutorTest.shouldShutdownTaskExecutor" in stdout:
-            return "TP(?255)"
+            return "TP(Time)"
         if "GlobalStreamThreadTest.shouldThrowStreamsExceptionOnStartupIfExceptionOccurred" in stdout:
-            return "TP(?276)"
+            return "TP(KAFKA-17113)"
         if "DefaultTaskExecutorTest.shouldClearTaskTimeoutOnProcessed" in stdout:
             return "TP(Time)"
         if "DefaultTaskExecutorTest.shouldUnassignTaskWhenNotProgressing" in stdout:
-            return "TP(?260)"
+            return "TP(KAFKA-17394)"
         if "KafkaStreamsTest.shouldReturnFalseOnCloseWhenThreadsHaventTerminated" in stdout:
-            return "TP(?176)"
+            return "TP(Time)"
         if "DefaultStateUpdaterTest.shouldGetTasksFromRestoredActiveTasks" in stdout:
-            return "TP(?92)"
+            return "TP(KAFKA-17402)"
+        # cannot reproduce
         if "shouldNotFailWhenCreatingTaskDirectoryInParallel" in stdout:
             return "TP(?157)"
         if "DefaultTaskExecutorTest.shouldProcessTasks" in stdout:
-            return "TP(?253)"
+            return "TP(Time)"
         return None
     def guava_bug_classify(self, stdout: str, run_folder: str) -> str:
         if "DeadlockException" in stdout:
@@ -328,7 +330,11 @@ class BenchmarkSuite:
 
     def generate_aggregated_plot(self, df: pd.DataFrame, column: str) -> matplotlib.axis.Axis:
         df = df.groupby(['Technique', 'id'])[column].mean().reset_index()
-        all_bms_sorted = df.sort_values(by=column)["id"].to_list()
+        fray_key = "$\\textsc{Fray}$-Random"
+        all_bms_sorted = df[df["Technique"] == fray_key].sort_values(by=column)["id"].to_list()
+        for id in df["id"].to_list():
+            if id not in all_bms_sorted:
+                all_bms_sorted.append(id)
         all_bms_sorted = list(dict.fromkeys(all_bms_sorted))
 
         ylim = df[column].max() + (1000 if column == "bug_iter" else 3000)
@@ -350,9 +356,9 @@ class BenchmarkSuite:
         ax.fill_between([len(sct_list) - 0.5, xlim], y1=[ylim, ylim], alpha=0.3, linewidth=0.0, facecolor=sns_config.colors[-2], label="JaConTeBe")
         # ax.legend([f1, f2], ["SCTBench", "JaConTeBe"])
         if column == "exec":
-            ax.set_xlabel("Program")
+            ax.set_xlabel("Program (Total 53 from SCTBench and JaConTeBe)")
         else:
-            ax.set_xlabel("Bug")
+            ax.set_xlabel("Bug (Total 53 from SCTBench and JaConTeBe)")
 
         if column == "exec":
             ax.set_ylabel("Executions per second")
@@ -370,7 +376,7 @@ class BenchmarkSuite:
                       ncols=5, mode="expand", borderaxespad=0., labelspacing=0.0,
                       handlelength=1.0, facecolor='white', edgecolor='black')
         ax.set(xlim=(-1, xlim))
-        ax.set(ylim=(0.001, ylim))
+        ax.set(ylim=(ticks[0]-0.5, ylim))
 
         ax.set_xticklabels([])
         return ax
@@ -423,6 +429,12 @@ class BenchmarkSuite:
         ax = sns.lineplot(data=df_grouped, x="bug_time", y="sum", hue="Technique",
                           linewidth=2, errorbar='sd', estimator='mean', err_style='band', style="Technique")
         ax.plot([0, df_grouped['bug_time'].max() + 1], [total_bugs, total_bugs], "r-.", label="Total Bugs")
+        ax.set_xscale("log")
+        ticks = [0.1, 1, 10, 100, 600]
+        tick_labels = ["0.1", "1", "10", "100", "600"]
+        ax.set_xticks(ticks)
+        ax.set_xticklabels(tick_labels)
+
         ax.set_xlabel('Seconds')
         ax.set_ylabel('Cumulative \# of Bugs')
         ax.legend(title="", bbox_to_anchor=(0., 1.02, 1., .102), loc='lower left',

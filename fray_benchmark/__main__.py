@@ -79,10 +79,8 @@ def run_single(path: str, debug_jvm: bool, no_fray: bool):
         shutil.rmtree(out_dir)
     os.makedirs(out_dir)
     fray_args = [
-        "--scheduler=random",
-        "--explore",
-        # "--num-switch-points=15",
-        "--logger=json",
+        "--scheduler=pct",
+        "--num-switch-points=15",
         "--iter",
         "-100",
     ]
@@ -114,8 +112,7 @@ def replay(path: str, replay: str, debug_jvm: bool):
         "-PconfigPath=" + os.path.join(path, "config.json"),
         "-PextraArgs=" + " ".join([
             "--scheduler=replay",
-            f'--path={os.path.join(path, "report", f"schedule_{replay}.json")}',
-            "--logger=json",
+            f'--path={os.path.join(path, "report", f"recording_{replay}")}',
         ],),
         "--debug-jvm"
     ], cwd=FRAY_PATH)
