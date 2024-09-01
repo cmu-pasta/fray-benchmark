@@ -10,6 +10,7 @@ import matplotlib.axes
 from matplotlib import pyplot as plt
 import pandas as pd
 import seaborn as sns
+import json
 from . import sns_config
 
 
@@ -191,6 +192,45 @@ class BenchResult:
             return user_time
             # return user_time + sys_time
 
+    def gather_time_stats(self):
+        result_folder = os.path.join(self.path, "results")
+        os.makedirs(result_folder, exist_ok=True)
+        timed_op_summary = {}
+        wait_time = []
+        total = 0
+        for folder in sorted(os.listdir(self.path)):
+            if folder == "results":
+                continue
+            total += 1
+            run_folder = os.path.join(self.path, folder)
+            lines = open(os.path.join(run_folder, "timed-operations.txt")).readlines()
+            if len(lines) < 2:
+                continue
+            timed_op_result = lines[0].strip()
+            wait_time_result = lines[1].strip().split(",")
+            for time in wait_time_result:
+                wait_time.append(int(time))
+            op_names = set()
+            for timed_op in timed_op_result.split(","):
+                if not timed_op:
+                    continue
+                op_name = timed_op
+                if "Condition" in timed_op:
+                    op_name = "Condition"
+                if "Park" in timed_op:
+                    op_name = "Park"
+                if "onLock" in timed_op:
+                    op_name = "Lock"
+                op_names.add(op_name)
+            for op_name in op_names:
+                if op_name not in timed_op_summary:
+                    timed_op_summary[op_name] = 0
+                timed_op_summary[op_name] += 1
+        timed_op_summary["total"] = total
+        json.dump(timed_op_summary, open(os.path.join(result_folder, "timed-operations.json"), "w"))
+        return timed_op_summary, wait_time
+
+
     def to_csv(self):
         result_folder = os.path.join(self.path, "results")
         if os.path.exists(result_folder):
@@ -284,6 +324,25 @@ class BenchmarkSuite:
                         self.benchmarks.append(BenchResult(trial_folder, True))
                 else:
                     self.benchmarks.append(BenchResult(tech_folder, False))
+    def to_timed_stats(self):
+        for bench in self.benchmarks:
+            timed_op_result, wait_time_result = bench.gather_time_stats()
+            percentaged = {}
+            for key in timed_op_result:
+                if key == "total":
+                    continue
+                percentaged[key] = timed_op_result[key] / timed_op_result["total"]
+            axis = sns.barplot(x=list(percentaged.keys()), y=list(percentaged.values()))
+            axis.set_title(f"{bench.benchmark}")
+            axis.set_xlabel("Operation")
+            axis.set_ylabel("Percentage")
+            plt.show()
+            axis = sns.histplot(wait_time_result, log_scale=True)
+            axis.set_title(f"{bench.benchmark}")
+            axis.set_xlabel("Timeout (ms)")
+
+
+
 
     def to_aggregated_dataframe(self) -> pd.DataFrame:
         data = []

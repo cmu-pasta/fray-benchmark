@@ -12,7 +12,7 @@ import click
 from .benchmarks import BENCHMARKS
 from .bms.benchmark_base import BenchmarkBase, SavedBenchmark
 from .commons import FRAY_PATH, OUTPUT_PATH, SCHEDULERS, RR_PATH, JPF_PATH
-from .utils import run_fray, run_rr, run_jpf
+from .utils import run_fray, run_rr, run_jpf, run_stats_collector
 
 
 @click.group(name="mode")
@@ -28,7 +28,7 @@ def build(application: str):
 
 
 @main.command(name="run")
-@click.argument("tool", type=click.Choice(["jpf", "rr", "fray"]))
+@click.argument("tool", type=click.Choice(["jpf", "rr", "fray", "stat"]))
 @click.argument("application", type=click.Choice(list(BENCHMARKS.keys())))
 @click.option("--scheduler", type=click.Choice(list(SCHEDULERS.keys())))
 @click.option("--name", type=str, default=datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
@@ -50,6 +50,9 @@ def run(tool: str, application: str, scheduler: str, name: str, timeout: int, cp
             elif tool == "jpf":
                 pool.starmap(run_jpf, map(lambda it: (*it, timeout),
                             app.generate_jpf_test_commands(out_dir, timeout, perf_mode)))
+            elif tool == "stat":
+                pool.starmap(run_stats_collector, map(lambda it: (*it, timeout),
+                            app.generate_fray_stats_collector_commands(out_dir)))
             else:
                 pool.starmap(run_fray, map(lambda it: (
                     *it, timeout), app.generate_fray_test_commands(SCHEDULERS[scheduler], out_dir, timeout, perf_mode)))

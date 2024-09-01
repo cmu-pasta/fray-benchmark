@@ -42,6 +42,10 @@ public class JUnitRunner {
     public static void main(String[] args) throws ClassNotFoundException {
         boolean isJunit4 = args[0].equals("junit4");
         String[] classAndMethod = args[1].split("#");
+        boolean systemExit = false;
+        if (args.length > 2) {
+            systemExit = Boolean.parseBoolean(args[2]);
+        }
 
         if (isJunit4) {
             Request request = Request.method(
@@ -74,7 +78,11 @@ public class JUnitRunner {
                             .append("description: ").append(failure.getDescription()).append("\n");
                 }
                 System.out.println(failureReport.toString());
-                throw new RuntimeException(failureReport.toString());
+                if (systemExit) {
+                    System.exit(1);
+                } else {
+                    throw new RuntimeException(failureReport.toString());
+                }
             }
         } else {
             Class[] parameterTypes = new Class[0];
@@ -109,8 +117,15 @@ public class JUnitRunner {
                             .append("exception: ").append(failure.getException()).append("\n");
                 });
                 System.out.println(failureReport.toString());
-                throw new RuntimeException(failureReport.toString());
+                if (systemExit) {
+                    System.exit(1);
+                } else {
+                    throw new RuntimeException(failureReport.toString());
+                }
             }
+        }
+        if (systemExit) {
+            System.exit(0);
         }
     }
 }
