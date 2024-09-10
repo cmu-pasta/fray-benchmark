@@ -14,11 +14,14 @@ class Observer(val reportPath: String): Delegate() {
     val map = mutableMapOf<String, Boolean>()
     val registeredThread = mutableSetOf<Thread>()
     val milisList = mutableListOf<Long>()
+    val sourceOfTimedOp = mutableListOf<String>()
 
     init {
         Runtime.getRuntime().addShutdownHook(object : Thread() {
             override fun run() {
-                File(reportPath).writeText(map.keys.joinToString(",") + "\n" + milisList.joinToString(","))
+                File(reportPath).writeText(map.keys.joinToString(",")
+                        + "\n" + milisList.joinToString(",")
+                        + "\n" + sourceOfTimedOp.joinToString(","))
             }
         })
     }
@@ -30,14 +33,21 @@ class Observer(val reportPath: String): Delegate() {
         super.onThreadStart(t)
     }
 
+    val prefixes = listOf("org.apache.lucene", "org.apache.kafka", "com.google")
     fun log(milis: Long) {
         if (Thread.currentThread() !in registeredThread) {
             return
         }
-        if (milis > 1000000000000000L) {
-            println("?")
+        val stackTraces = Thread.currentThread().stackTrace
+
+        for (i in stackTraces) {
+            val prefix = prefixes.find { i.className.startsWith(it) }
+            if (prefix != null) {
+                sourceOfTimedOp.add("${i.className}#${i.methodName}")
+                break
+            }
         }
-        val methodName = Thread.currentThread().stackTrace[2].methodName
+        val methodName = stackTraces[2].methodName
         map[methodName] = true
         milisList.add(milis)
     }

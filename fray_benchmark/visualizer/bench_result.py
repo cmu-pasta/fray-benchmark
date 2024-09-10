@@ -197,6 +197,7 @@ class BenchResult:
         os.makedirs(result_folder, exist_ok=True)
         timed_op_summary = {}
         wait_time = []
+        caller_list = []
         total = 0
         for folder in sorted(os.listdir(self.path)):
             if folder == "results":
@@ -204,10 +205,12 @@ class BenchResult:
             total += 1
             run_folder = os.path.join(self.path, folder)
             lines = open(os.path.join(run_folder, "timed-operations.txt")).readlines()
-            if len(lines) < 2:
+            if len(lines) < 3:
                 continue
             timed_op_result = lines[0].strip()
             wait_time_result = lines[1].strip().split(",")
+            callers = lines[2].strip().split(",")
+            caller_list.extend(callers)
             for time in wait_time_result:
                 wait_time.append(int(time))
             op_names = set()
@@ -228,7 +231,7 @@ class BenchResult:
                 timed_op_summary[op_name] += 1
         timed_op_summary["total"] = total
         json.dump(timed_op_summary, open(os.path.join(result_folder, "timed-operations.json"), "w"))
-        return timed_op_summary, wait_time
+        return timed_op_summary, wait_time, caller_list
 
 
     def to_csv(self):
@@ -326,11 +329,13 @@ class BenchmarkSuite:
                     self.benchmarks.append(BenchResult(tech_folder, False))
     def to_timed_stats(self):
         for bench in self.benchmarks:
-            timed_op_result, wait_time_result = bench.gather_time_stats()
+            timed_op_result, wait_time_result, callers = bench.gather_time_stats()
+            print(set(callers))
             percentaged = {}
             for key in timed_op_result:
                 if key == "total":
                     continue
+                print(key, timed_op_result[key])
                 percentaged[key] = timed_op_result[key] / timed_op_result["total"]
             axis = sns.barplot(x=list(percentaged.keys()), y=list(percentaged.values()))
             axis.set_title(f"{bench.benchmark}")
