@@ -144,7 +144,9 @@ class BenchResult:
             return "TP(?157)"
         if "DefaultTaskExecutorTest.shouldProcessTasks" in stdout:
             return "TP(Time)"
+        exit(0)
         return None
+
     def guava_bug_classify(self, stdout: str, run_folder: str) -> str:
         if "DeadlockException" in stdout:
             if "onThreadParkNanos" in stdout or "onLatchAwaitTimeout" in stdout or "onConditionAwaitNanos" in stdout:
@@ -169,8 +171,7 @@ class BenchResult:
         return "N/A"
         pass
 
-    def bug_classify(self, run_folder: str):
-        stdout = open(os.path.join(run_folder, "stdout.txt")).read()
+    def bug_classify(self, run_folder: str, stdout: str):
         if self.benchmark == "lucene":
             return self.lucene_bug_classify(stdout)
         if self.benchmark == "kafka":
@@ -248,7 +249,7 @@ class BenchResult:
                 stdout = open(os.path.join(
                     run_folder, "stdout.txt")).read()
             else:
-                stdout = open(os.path.join(run_folder, "report", "output.txt")).read()
+                stdout = open(os.path.join(run_folder, "report", "fray.log")).read()
             total_iteration = -1
             first_bug_iter = -1
             first_bug_time = -1
@@ -286,14 +287,15 @@ class BenchResult:
                     if iter_match:
                         first_bug_iter = int(iter_match.group(1)) + 1
                         break
+            bug_type = "N/A"
             if jpf_error:
                 error_result = "Failure"
             elif first_bug_iter == -1:
                 error_result = "NoError"
             else:
                 error_result = "Error"
-            bug_type = "N/A"
-            # bug_type = self.bug_classify(run_folder)
+            if "Error found" in stdout:
+                bug_type = self.bug_classify(run_folder, stdout)
             summary_file.write(
                 f"{self.benchmark}-{folder},{self.trial},{error_result},{bug_type},{first_bug_time},{first_bug_iter},{self.read_time(run_folder)},{total_iteration}\n")
 
