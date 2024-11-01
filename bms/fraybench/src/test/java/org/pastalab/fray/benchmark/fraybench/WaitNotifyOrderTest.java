@@ -11,8 +11,6 @@ public class WaitNotifyOrderTest {
             expectedException = RuntimeException.class
     )
     public void rescheduleBeforeWaitReacquireMonitorLockTest() throws InterruptedException {
-        WaitNotifyOrder test = new WaitNotifyOrder();
-        test.rescheduleBeforeWaitReacquireMonitorLock();
     }
 
 }

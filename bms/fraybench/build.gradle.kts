@@ -6,6 +6,12 @@ plugins {
 group = "org.pastalab.fray.benchmark.fraybench"
 version = "1.0-SNAPSHOT"
 
+tasks.compileJava {
+    sourceCompatibility = JavaVersion.VERSION_1_8.toString()
+    targetCompatibility = JavaVersion.VERSION_1_8.toString()
+}
+
+
 repositories {
     mavenCentral()
     maven {

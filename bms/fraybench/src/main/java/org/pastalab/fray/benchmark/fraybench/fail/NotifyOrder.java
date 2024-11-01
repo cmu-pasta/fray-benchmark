@@ -1,11 +1,10 @@
-package org.pastalab.fray.benchmark.fraybench;
+package org.pastalab.fray.benchmark.fraybench.fail;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class WaitNotifyOrder {
-
-    public void notifyOrder() throws InterruptedException {
+public class NotifyOrder {
+    public static void notifyOrder() throws InterruptedException {
         Object o = new Object();
         CountDownLatch latch = new CountDownLatch(2);
         AtomicBoolean flag = new AtomicBoolean(false);
@@ -42,39 +41,7 @@ public class WaitNotifyOrder {
         }
     }
 
-
-    public void rescheduleBeforeWaitReacquireMonitorLock() throws InterruptedException {
-        Object o = new Object();
-        CountDownLatch latch = new CountDownLatch(1);
-        AtomicBoolean flag = new AtomicBoolean(false);
-        Thread t = new Thread(() -> {
-            synchronized (o) {
-                try {
-                    latch.countDown();
-                    o.wait();
-                    flag.set(true);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        t.start();
-        latch.await(); // Wait for the thread to start
-        synchronized (o) {
-            o.notify();
-        }
-        Thread.yield();
-        synchronized (o) {
-            if (!flag.get()) {
-                throw new RuntimeException("flag is false");
-            }
-        }
-    }
-
     public static void main(String[] args) throws InterruptedException {
-        WaitNotifyOrder test = new WaitNotifyOrder();
-//        test.rescheduleBeforeWaitReacquireMonitorLock();
-        test.notifyOrder();
+        notifyOrder();
     }
 }
