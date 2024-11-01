@@ -346,9 +346,6 @@ class BenchmarkSuite:
             axis.set_title(f"{bench.benchmark}")
             axis.set_xlabel("Timeout (ms)")
 
-
-
-
     def to_aggregated_dataframe(self) -> pd.DataFrame:
         data = []
         for bench in self.benchmarks:
