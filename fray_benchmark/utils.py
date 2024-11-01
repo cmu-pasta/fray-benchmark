@@ -25,6 +25,13 @@ def run_fray(command: Dict[str, Any], log_path: str, cwd: str, timeout: int):
         else:
             report.write(f"No Error: {time.time() - start_time}\n")
 
+def run_stats_collector(command: Dict[str, Any], log_path: str, cwd: str, timeout: int):
+    print(f"Running {log_path}")
+    with open(os.path.join(log_path, "command.txt"), "w") as f:
+        f.write(" ".join(command))
+    subprocess.run(command, cwd=cwd, stdout=open(os.path.join(
+        log_path, "stdout.txt"), "w"), stderr=open(os.path.join(log_path, "stderr.txt"), "w"))
+
 
 def run_jpf(command: List[str], log_path: str, cwd: str, timeout: int):
     print(f"Running {log_path}")

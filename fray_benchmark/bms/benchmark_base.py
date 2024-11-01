@@ -93,6 +93,33 @@ class BenchmarkBase(object):
             }
             yield command, log_path, JPF_PATH
 
+    def generate_fray_stats_collector_commands(self, out_dir: str) -> Iterator[Tuple[List[str], str, str]]:
+        test_index = 0
+        for config_data in self.get_test_cases("fray-stat"):
+            log_path = f"{out_dir}/{test_index}"
+            os.makedirs(log_path, exist_ok=True)
+            with open(f"{log_path}/config.json", "w") as f:
+                f.write(config_data.to_json())
+            test_index += 1
+            command = [
+                f"{FRAY_PATH}/instrumentation/jdk/build/java-inst/bin/java",
+                "-ea",
+                f"-javaagent:{HELPER_PATH}/timed-operation-observer/build/libs/timed-operation-observer-1.0-SNAPSHOT.jar={log_path}/timed-operations.txt",
+                "--add-opens", "java.base/java.lang=ALL-UNNAMED",
+                "--add-opens", "java.base/java.util=ALL-UNNAMED",
+                "--add-opens", "java.base/java.io=ALL-UNNAMED",
+                "--add-opens", "java.base/java.util.concurrent.atomic=ALL-UNNAMED",
+                "--add-opens", "java.base/sun.nio.ch=ALL-UNNAMED",
+                "--add-opens", "java.base/java.lang.reflect=ALL-UNNAMED",
+            ]
+            command.extend([f"-cp", ':'.join(config_data.executor.classpaths)])
+            for property_key, property_value in config_data.executor.properties.items():
+                command.append(f"-D{property_key}={property_value}")
+            command.append(config_data.executor.clazz)
+            command.extend(config_data.executor.args)
+            command.append("true")
+            yield command, log_path, FRAY_PATH
+
     def generate_fray_test_commands(self, config: List[str], out_dir: str, timetout: int, perf_mode: bool) -> Iterator[Tuple[List[str], str, str]]:
         test_index = 0
         for config_data in self.get_test_cases("fray"):
