@@ -31,6 +31,10 @@ tasks.compileJava {
     options.compilerArgs.addAll(listOf("--add-exports", "java.base/jdk.internal.misc=ALL-UNNAMED"))
 }
 
+tasks.named("build") {
+  finalizedBy("copyDependencies")
+}
+
 tasks.register<Copy>("copyDependencies") {
     from(configurations.runtimeClasspath)
     into("${layout.buildDirectory.get().asFile}/dependency")
