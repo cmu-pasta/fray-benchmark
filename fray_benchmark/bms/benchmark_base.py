@@ -136,7 +136,7 @@ class BenchmarkBase(object):
                 "timeout",
                 "-s",
                 "INT",
-                str(timetout),
+                str(timetout + 120),
                 f"{FRAY_PATH}/instrumentation/jdk/build/java-inst/bin/java",
                 "-ea",
                 f"-agentpath:{FRAY_PATH}/jvmti/build/native-libs/libjvmti.so",
@@ -158,6 +158,7 @@ class BenchmarkBase(object):
                 f"{log_path}/config.json",
                 "-o", f"{log_path}/report",
                 "--iter", "-1",
+                "--timeout", str(timetout),
                 *config
             ]
             if perf_mode:
