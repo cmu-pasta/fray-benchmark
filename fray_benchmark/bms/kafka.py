@@ -14,6 +14,8 @@ class LuceneBenchmark(UnitTestBenchmark):
             [
                 os.path.join(self.bench_dir, "streams/build/classes/java/main/"),
                 os.path.join(self.bench_dir, "streams/build/classes/java/test/"),
+                os.path.join(self.bench_dir, "streams/build/resources/test/"),
+                os.path.join(self.bench_dir, "streams/build/resources/main/"),
                 os.path.join(self.bench_dir,
                              "streams/build/dependency/*.jar"),
             ], load_test_cases(os.path.join(ASSETS_PATH, f"kafka.txt")),
