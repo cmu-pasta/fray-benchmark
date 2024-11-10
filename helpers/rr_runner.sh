@@ -24,6 +24,9 @@ while [ $EXIT_STATUS -eq 0 ] || [ $EXPLORE_MODE -eq 1 ];  do
     if echo "$OUTPUT" | grep -q "Program has been forced to exit from deadlock"; then
         EXIT_STATUS=-1
     fi
+    if echo "$OUTPUT" | grep -q "Detected suspicious forever waiting bug"; then
+        EXIT_STATUS=-1
+    fi
     CURRENT_TIME=$(date +%s%3N)
     ELAPSED_TIME=$((CURRENT_TIME - START_TIME))
     if [ $EXIT_STATUS -ne 0 ]; then
