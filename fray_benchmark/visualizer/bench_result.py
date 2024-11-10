@@ -65,7 +65,9 @@ class BenchResult:
             return "TP(?890)"
         if "FATAL src/Task.cc:1429:compute_trap_reasons" in stdout:
             return "Run failure"
-        exit(0)
+        print(stdout)
+        return None
+
 
     def kafka_bug_classify(self, stdout: str):
         if "DefaultStateUpdaterTest.shouldRecordMetrics" in stdout:
@@ -144,7 +146,7 @@ class BenchResult:
             return "TP(?157)"
         if "DefaultTaskExecutorTest.shouldProcessTasks" in stdout:
             return "TP(Time)"
-        exit(0)
+        print(stdout)
         return None
 
     def guava_bug_classify(self, stdout: str, run_folder: str) -> str:
@@ -294,6 +296,7 @@ class BenchResult:
                 error_result = "NoError"
             else:
                 error_result = "Error"
+            stdout = "\n".join(stdout)
             if "Error found" in stdout:
                 bug_type = self.bug_classify(run_folder, stdout)
             summary_file.write(
@@ -347,9 +350,6 @@ class BenchmarkSuite:
             axis = sns.histplot(wait_time_result, log_scale=True)
             axis.set_title(f"{bench.benchmark}")
             axis.set_xlabel("Timeout (ms)")
-
-
-
 
     def to_aggregated_dataframe(self) -> pd.DataFrame:
         data = []
