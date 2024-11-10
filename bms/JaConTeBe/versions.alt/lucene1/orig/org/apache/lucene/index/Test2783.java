@@ -118,6 +118,7 @@ public class Test2783 extends LuceneTestCase293 {
                         Field.Index.ANALYZED));
                 writer.updateDocument(new Term("id", Integer.toString(i)), d);
             }
+            writer.commit();
         }
     }
 
