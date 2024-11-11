@@ -15,10 +15,16 @@ while [ $EXIT_STATUS -eq 0 ] || [ $EXPLORE_MODE -eq 1 ];  do
 
     echo "Starting iteration $ITERATION"
     rm -rf $TRACE_DIR
+    EXIT_STATUS=0
     OUTPUT=$($COMMAND)
-    EXIT_STATUS=$?
+    if ! echo "$COMMAND" | grep -q "jacontebe"; then
+        EXIT_STATUS=$?
+    fi
     echo "$OUTPUT"
     if echo "$OUTPUT" | grep -q "Deadlock detected"; then
+        EXIT_STATUS=-1
+    fi
+    if echo "$OUTPUT" | grep -q "Finished test: Bug has been reproduced successfully."; then
         EXIT_STATUS=-1
     fi
     if echo "$OUTPUT" | grep -q "Program has been forced to exit from deadlock"; then

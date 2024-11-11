@@ -66,7 +66,6 @@ class BenchResult:
             return "TP(#13593)"
         if "FATAL src/Task.cc:1429:compute_trap_reasons" in stdout:
             return "Run failure"
-        print(stdout)
         return None
 
 
@@ -151,6 +150,8 @@ class BenchResult:
             return "TP(Time)"
         if "/rr/" in run_folder:
             return "Run failure"
+        if "QueuesTest" in stdout:
+            return "TP(Time)"
         # print(stdout)
         # exit(0)
         return "N/A"
@@ -251,6 +252,7 @@ class BenchResult:
                     match = self.fray_total_iter_pattern.search(line)
                     if match:
                         total_iteration = int(match.groups()[0])
+                        break
                 for line in stdout:
                     match = self.fray_error_pattern.search(line)
                     if match:
@@ -286,7 +288,10 @@ class BenchResult:
                 error_result = "NoError"
             else:
                 error_result = "Error"
-                bug_type = self.bug_classify(run_folder, "\n".join(stdout))
+            stdout = "\n".join(stdout)
+            if "Error found" in stdout:
+                bug_type = self.bug_classify(run_folder, stdout)
+                error_result = "Error"
             summary_file.write(
                 f"{self.benchmark}-{folder},{self.trial},{error_result},{bug_type},{first_bug_time},{first_bug_iter},{self.read_time(run_folder)},{total_iteration}\n")
 
@@ -307,14 +312,11 @@ class BenchmarkSuite:
         for path in paths:
             self.path = os.path.abspath(path)
             for tech in os.listdir(self.path):
-                if "pct" not in tech:
-                    continue
                 tech_folder = os.path.join(self.path, tech)
                 if os.path.exists(os.path.join(tech_folder, "iter-0")):
-                    # for i in range(20):
+                    # for i in range(1):
                     #     trial_folder = os.path.join(tech_folder, f"iter-{i}")
                     #     self.benchmarks.append(BenchResult(trial_folder, True))
-                    #             self.path = os.path.abspath(path)
                     for trial in os.listdir(tech_folder):
                         trial_folder = os.path.join(tech_folder, trial)
                         self.benchmarks.append(BenchResult(trial_folder, True))
@@ -402,6 +404,7 @@ class BenchmarkSuite:
                 sct_list.append(key)
             else:
                 jc_list.append(key)
+        print(jc_list)
         all_bms_sorted = sct_list + jc_list
         xlim = len(all_bms_sorted) + 0.5
         df['id'] = df['id'].apply(lambda value: all_bms_sorted.index(value))
