@@ -30,7 +30,7 @@ class KafkaCoreBenchmark(UnitTestBenchmark):
         subprocess.call([
             "git",
             "apply",
-            os.path.join(ASSETS_PATH, f"{self.name}.patch")
+            os.path.join(ASSETS_PATH, f"kafka.patch")
         ], cwd=self.bench_dir)
         subprocess.call([
             "./gradlew",
