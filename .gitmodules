@@ -25,3 +25,6 @@
 	path = bms/kafka
 	url = https://github.com/apache/kafka
   ignore = dirty
+[submodule "bms/kafka-new"]
+	path = bms/kafka-new
+	url = https://github.com/apache/kafka
