@@ -16,6 +16,8 @@ class KafkaCoreBenchmark(UnitTestBenchmark):
                              "core/build/libs/*.jar"),
                 os.path.join(self.bench_dir,
                              "core/build/dependant-testlibs/*.jar"),
+                os.path.join(self.bench_dir,
+                             "server-common/build/libs/*.jar"),
             ], load_test_cases(os.path.join(ASSETS_PATH, f"kafkacore.txt")),
             {
             },
