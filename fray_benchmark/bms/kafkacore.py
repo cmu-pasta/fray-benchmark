@@ -6,19 +6,17 @@ from ..commons import ARTIFACTS_PATH, ASSETS_PATH
 from ..utils import load_test_cases
 
 
-class KafkaBenchmark(UnitTestBenchmark):
+class KafkaCoreBenchmark(UnitTestBenchmark):
     def __init__(self) -> None:
         self.bench_dir = os.path.join(ARTIFACTS_PATH, "kafka")
         super().__init__(
-            "kafka",
+            "kafkacore",
             [
-                os.path.join(self.bench_dir, "streams/build/classes/java/main/"),
-                os.path.join(self.bench_dir, "streams/build/classes/java/test/"),
-                os.path.join(self.bench_dir, "streams/build/resources/test/"),
-                os.path.join(self.bench_dir, "streams/build/resources/main/"),
                 os.path.join(self.bench_dir,
-                             "streams/build/dependency/*.jar"),
-            ], load_test_cases(os.path.join(ASSETS_PATH, f"kafka.txt")),
+                             "core/build/libs/*.jar"),
+                os.path.join(self.bench_dir,
+                             "core/build/dependant-testlibs/*.jar"),
+            ], load_test_cases(os.path.join(ASSETS_PATH, f"kafkacore.txt")),
             {
             },
             False)
@@ -44,5 +42,5 @@ class KafkaBenchmark(UnitTestBenchmark):
         ], cwd=self.bench_dir)
         subprocess.call([
             "./gradlew",
-            "copyDependencies",
+            "copyDependantTestLibs",
         ], cwd=self.bench_dir)
