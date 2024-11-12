@@ -26,10 +26,11 @@ class BenchResult:
             self.trial = "iter-1"
             self.tech = components[-1]
             self.benchmark = components[-2]
-        self.error_pattern = re.compile(
-            r"(No Error|Error Found|Run failed): (\d+\.\d+)")
         self.fray_error_pattern = re.compile(
-            r"Error found at iter: (\d+), Elapsed time: (\d+)"
+            r"Error found at iter: (\d+).+Elapsed time: (\d+)"
+        )
+        self.fray_total_iter_pattern = re.compile(
+            r"Run finished. Total iter: (\d+)"
         )
         self.jpf_time_pattern = re.compile(
             r"ms time:\s+(\d+)"
@@ -59,99 +60,78 @@ class BenchResult:
             return "TP(#13552)"
         if "testSubclassConcurrentMergeScheduler" in stdout:
             return "TP(#13547)"
-        if "testMultiThreadedSnapshotting" in stdout:
+        if "maxSeqNo must be greater or equal to " in stdout:
             return "TP(#13571)"
-        if "testMaxMergeCount" in stdout:
-            return "TP(?890)"
+        if "vs maxMergeCount=" in stdout:
+            return "TP(#13593)"
         if "FATAL src/Task.cc:1429:compute_trap_reasons" in stdout:
             return "Run failure"
-        print(stdout)
         return None
 
 
     def kafka_bug_classify(self, stdout: str):
+        if "DeadlockException" in stdout:
+            if "onThreadParkNanos" in stdout or "onLatchAwaitTimeout" in stdout or "onConditionAwaitNanos" in stdout:
+                print(run_folder)
+                return "FP(Time)"
         if "DefaultStateUpdaterTest.shouldRecordMetrics" in stdout:
             # ignore
             return "TP(?90)"
         if "[FATAL src/Task.cc:1429:compute_trap_reasons()]" in stdout:
             return "Run failure"
-        if "Condition not met within timeout" in stdout:
-            return "TP(Time)"
-        if "shouldReturnFalseOnCloseWithCloseOptionWithLeaveGroupTrueWhenThreadsHaventTerminated" in stdout:
+        if "Condition not met within timeout" in stdout or "KafkaStreamsTest.shouldThrowOnCleanupWhileShuttingDownStreamClosedWithCloseOptionLeaveGroupFalse" in stdout:
             return "TP(Time)"
         if "shouldThrowIfAddingTasksWithSameId" in stdout:
             return "TP(KAFKA-17114)"
-        if "DefaultTaskExecutorTest.shouldSetTaskTimeoutOnTimeoutException" in stdout:
-            return "TP(Time)"
         if "Deadlock" in stdout and ("DefaultStateUpdater" in stdout or "DefaultTaskManager" in stdout):
             return "TP(KAFKA-17112)"
-        if "KafkaStreamsTest.shouldNotBlockInCloseWithCloseOptionLeaveGroupFalseForZeroDuration" in stdout:
-            return "TP(Time)"
-        if "shouldRecoverFromInvalidOffsetExceptionOnRestoreAndFinishRestore" in stdout:
-            return "TP(Time)"
-        if "KafkaStreamsTest.shouldThrowOnCleanupWhileShuttingDownStreamClosedWithCloseOptionLeaveGroupTrue" in stdout:
-            return "TP(Time)"
         if "StreamThreadTest$StateListenerStub.onChange" in stdout:
             return "TP(KAFKA-17354)"
-        if "KafkaStreamsTest.shouldNotBlockInCloseWithCloseOptionLeaveGroupTrueForZeroDuration" in stdout:
-            return "TP(Time)"
-        if "KafkaStreamsTest.shouldReturnFalseOnCloseWithCloseOptionWithLeaveGroupFalseWhenThreadsHaventTerminated" in stdout:
-            return "TP(Time)"
-        if "StreamThreadTest.shouldNotEnforceRebalanceWhenCurrentlyRebalancing" in stdout:
-            return "TP(Time)"
-        if "KafkaStreamsTest.shouldThrowOnCleanupWhileShuttingDownStreamClosedWithCloseOptionLeaveGroupFalse" in stdout:
-            return "TP(Time)"
-        if "DefaultTaskExecutorTest.shouldPunctuateSystemTime" in stdout:
-            return "TP(Time)"
         if "GlobalStreamThreadTest.shouldThrowStreamsExceptionOnStartupIfThereIsAStreamsException" in stdout:
             return "TP(KAFKA-17113)"
-        if "KafkaStreamsTest.shouldThrowOnCleanupWhileShuttingDown" in stdout:
-            return "TP(Time)"
-        if "DefaultStateUpdaterTest.shouldRestoreActiveStatefulTasksAndUpdateStandbyTasks" in stdout:
-            return "TP(Time)"
         if "DefaultTaskExecutorTest.shouldNotFlushOnException" in stdout:
             return "TP(?261)"
-        if "StreamThreadTest.shouldOnlyCompleteShutdownAfterRebalanceNotInProgress" in stdout:
-            return "TP(Time)"
         if "StreamThreadTest.shouldReinitializeRevivedTasksInAnyState" in stdout:
             return "TP(KAFKA-17112)"
         if "DefaultTaskExecutorTest.shouldUnassignTaskWhenRequired" in stdout:
             return "TP(KAFKA-17371)"
-        if "DefaultStateUpdaterTest.shouldRestoreActiveStatefulTaskThenUpdateStandbyTaskAndAgainRestoreActiveStatefulTask" in stdout:
-            return "TP(Time)"
-        if "DefaultTaskExecutorTest.shouldRespectPunctuationDisabledByTaskExecutionMetadata" in stdout:
-            return "TP(Time)"
-        if "KafkaStreamsTest.shouldNotBlockInCloseForZeroDuration" in stdout:
-            return "TP(Time)"
         if "KafkaStreamsTest.shouldNotAddThreadWhenError" in stdout:
             return "TP(KAFKA-17379)"
         if "DefaultTaskExecutorTest.shouldSetUncaughtStreamsException" in stdout:
             return "TP(KAFKA-17394)"
         if "DefaultStateUpdaterTest.shouldAddFailedTasksToQueueWhenUncaughtExceptionIsThrown" in stdout:
             return "TP(KAFKA-17114)"
-        if "DefaultTaskExecutorTest.shouldShutdownTaskExecutor" in stdout:
-            return "TP(Time)"
         if "GlobalStreamThreadTest.shouldThrowStreamsExceptionOnStartupIfExceptionOccurred" in stdout:
             return "TP(KAFKA-17113)"
-        if "DefaultTaskExecutorTest.shouldClearTaskTimeoutOnProcessed" in stdout:
-            return "TP(Time)"
         if "DefaultTaskExecutorTest.shouldUnassignTaskWhenNotProgressing" in stdout:
             return "TP(KAFKA-17394)"
-        if "KafkaStreamsTest.shouldReturnFalseOnCloseWhenThreadsHaventTerminated" in stdout:
-            return "TP(Time)"
-        if "DefaultStateUpdaterTest.shouldGetTasksFromRestoredActiveTasks" in stdout:
+        if "DefaultStateUpdaterTest.shouldGetTasksFromRestoredActiveTasks" in stdout or "DefaultStateUpdaterTest.verifyGetTasks" in stdout:
             return "TP(KAFKA-17402)"
+        if "DefaultTaskManagerTest.shouldBlockOnAwait" in stdout:
+            return "TP(KAFKA-17929)"
+        if "DefaultStateUpdaterTest.shouldResume" in stdout or "DefaultStateUpdaterTest.shouldPause" in stdout or "DefaultStateUpdaterTest.shouldUpdate" in stdout or\
+            "DefaultTaskExecutorTest.shouldPunctuate" in stdout or "Wanted but not invoked:" in stdout or "Wanted *at least* " in stdout:
+            return "TP(KFAKA-17946)"
         # cannot reproduce
         if "shouldNotFailWhenCreatingTaskDirectoryInParallel" in stdout:
             return "TP(?157)"
-        if "DefaultTaskExecutorTest.shouldProcessTasks" in stdout:
+        if "KafkaStreamsTest.should" in stdout and "AssertionFailedError: expected: <false> but was: <true>" in stdout:
             return "TP(Time)"
+        if "KafkaStreamsTest.shouldThrowOnCleanupWhileShuttingDown" in stdout:
+            return "TP(Time)"
+        if "StreamThreadTest.shouldRecoverFromInvalidOffsetExceptionOnRestoreAndFinishRestore" in stdout:
+            return "TP(Time)"
+        if "StreamThreadTest.should" in stdout:
+            return "TP(Time)"
+        # if "DefaultTaskExecutorTest.shouldProcessTasks" in stdout:
+        #     return "TP(Time)"
         print(stdout)
         return None
 
     def guava_bug_classify(self, stdout: str, run_folder: str) -> str:
         if "DeadlockException" in stdout:
             if "onThreadParkNanos" in stdout or "onLatchAwaitTimeout" in stdout or "onConditionAwaitNanos" in stdout:
+                print(run_folder)
                 return "FP(Time)"
         folder_id = int(run_folder.split("/")[-1])
         if folder_id <= 1194 and folder_id >= 1190:
@@ -166,8 +146,12 @@ class BenchResult:
             return "Run failure"
         if "timeout" in stdout or folder_id == 1128 or "GeneratedMonitorTest" in stdout:
             return "TP(Time)"
+        if "ClosingFuture" in stdout:
+            return "TP(Time)"
         if "/rr/" in run_folder:
             return "Run failure"
+        if "QueuesTest" in stdout:
+            return "TP(Time)"
         # print(stdout)
         # exit(0)
         return "N/A"
@@ -179,7 +163,10 @@ class BenchResult:
         if self.benchmark == "kafka":
             return self.kafka_bug_classify(stdout)
         if self.benchmark == "guava":
-            return self.guava_bug_classify(stdout, run_folder)
+            result = self.guava_bug_classify(stdout, run_folder)
+            # if "Time" in result:
+            #     print(stdout)
+            return result
         return "N/A"
 
     def read_time(self, path: str) -> float:
@@ -262,8 +249,12 @@ class BenchResult:
                     if line.startswith("Starting iteration"):
                         total_iteration = int(line.split(" ")[-1].strip()) + 1
                         break
+                    match = self.fray_total_iter_pattern.search(line)
+                    if match:
+                        total_iteration = int(match.groups()[0])
+                        break
                 for line in stdout:
-                    match = self.fray_error_pattern.match(line)
+                    match = self.fray_error_pattern.search(line)
                     if match:
                         first_bug_iter, first_bug_time = [int(x) for x in match.groups()]
                         if self.tech != "rr":
@@ -273,7 +264,8 @@ class BenchResult:
                 if "UnsupportedOperationException" in stdout or \
                     "NoSuchMethodException" in stdout or "FileNotFoundException" in stdout or\
                         "Null charset name" in stdout or "NoSuchMethodError" in stdout or\
-                            "JPF out of memory" in stdout:
+                            "JPF out of memory" in stdout or\
+                                "java.lang.NullPointerException: Calling 'startsWith(Ljava/lang/String;)Z' on null object" in stdout:
                         jpf_error = True
                 stdout = stdout.split("\n")
                 for line in reversed(stdout):
@@ -299,6 +291,7 @@ class BenchResult:
             stdout = "\n".join(stdout)
             if "Error found" in stdout:
                 bug_type = self.bug_classify(run_folder, stdout)
+                error_result = "Error"
             summary_file.write(
                 f"{self.benchmark}-{folder},{self.trial},{error_result},{bug_type},{first_bug_time},{first_bug_iter},{self.read_time(run_folder)},{total_iteration}\n")
 
@@ -319,14 +312,11 @@ class BenchmarkSuite:
         for path in paths:
             self.path = os.path.abspath(path)
             for tech in os.listdir(self.path):
-                # if "jpf" != tech:
-                #     continue
                 tech_folder = os.path.join(self.path, tech)
                 if os.path.exists(os.path.join(tech_folder, "iter-0")):
-                    # for i in range(20):
+                    # for i in range(1):
                     #     trial_folder = os.path.join(tech_folder, f"iter-{i}")
                     #     self.benchmarks.append(BenchResult(trial_folder, True))
-                    #             self.path = os.path.abspath(path)
                     for trial in os.listdir(tech_folder):
                         trial_folder = os.path.join(tech_folder, trial)
                         self.benchmarks.append(BenchResult(trial_folder, True))
@@ -376,6 +366,9 @@ class BenchmarkSuite:
 
     def generate_bug_table(self):
         df = self.to_aggregated_dataframe()
+        df = df.replace(r'^TP\(Time\)', 'Time', regex=True)
+        df = df.replace(r'^TP\(.+', 'TP', regex=True)
+        df = df.replace(r'^FP\(Time\)', 'Time (FP)', regex=True)
         pivot_df = df.pivot_table(values='id', index='Technique', columns='error', aggfunc='count', fill_value=0).reset_index().set_index("Technique")
         error_data = df.pivot_table(values="id", index='Technique', columns='type', aggfunc='count', fill_value=0).reset_index().set_index("Technique")
         result = pd.concat([pivot_df, error_data], axis=1).fillna(0).astype(int).reset_index()
@@ -411,6 +404,7 @@ class BenchmarkSuite:
                 sct_list.append(key)
             else:
                 jc_list.append(key)
+        print(jc_list)
         all_bms_sorted = sct_list + jc_list
         xlim = len(all_bms_sorted) + 0.5
         df['id'] = df['id'].apply(lambda value: all_bms_sorted.index(value))
