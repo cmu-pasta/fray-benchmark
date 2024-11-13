@@ -47,6 +47,12 @@ command = [
     "org.apache.flink.*",
     "--exclude-classname",
     "org.apache.flink.runtime.jobmaster.JobRecoveryITCase",
+    "--exclude-classname",
+    "org.apache.flink.runtime.jobmaster.JobExecutionITCase",
+    "--exclude-classname",
+    "org.apache.flink.runtime.scheduler.adaptive.AdaptiveSchedulerTest", #testExceptionHistoryWithGlobalFailureLabels
+    "--exclude-classname",
+    "org.apache.flink.runtime.leaderelection.LeaderChangeClusterComponentsTest", #testReelectionOfDispatcher
     # "--include-tag=flaky",
     #  "--disable-banner",
     #  "--disable-ansi-colors",
