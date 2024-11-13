@@ -4,8 +4,8 @@
 import subprocess
 import os
 
-target_dir = "/Users/aoli/repos/fray-benchmark/bms/kafka-new/build"
-target_dir = "/Users/aoli/repos/fray-benchmark/bms/kafka-new/core/build"
+# target_dir = "/Users/aoli/repos/fray-benchmark/bms/kafka-new/build"
+target_dir = "/Users/aoli/repos/fray-benchmark/bms/flink/flink-runtime/target"
 #  target_dir = "/Users/aoli/repos/sfuzz-benchmark/bms/solr/solr/core/build"
 # target_dir = "/Users/aoli/repos/sfuzz-benchmark/bms/commons-lang/target"
 #  target_dir = "/Users/aoli/repos/sfuzz-benchmark/bms/guava/guava-tests/target"
@@ -18,7 +18,7 @@ command = [
     "-ea",
     #  "-Djunit.jupiter.execution.parallel.enabled=true",
     #  "-Djunit.jupiter.execution.parallel.mode.default=concurrent",
-    #  "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005",
+    # "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005",
     "-javaagent:/Users/aoli/repos/fray-benchmark/helpers/junit-analyzer/build/libs/junit-analyzer-all.jar",
     "--add-opens", "java.base/java.lang=ALL-UNNAMED",
     "--add-opens", "java.base/java.util.concurrent.atomic=ALL-UNNAMED",
@@ -34,22 +34,19 @@ command = [
     #  "-cp",
     #  f"{target_dir}/resources/test/",
     "-cp",
-    f"{target_dir}/libs/kafka_2.13-4.0.0-SNAPSHOT.jar",
+    f"{target_dir}/flink-runtime-2.0-SNAPSHOT-tests.jar",
     "-cp",
-    f"{target_dir}/libs/kafka_2.13-4.0.0-SNAPSHOT-test.jar",
-    "-cp",
-    f"/Users/aoli/repos/fray-benchmark/bms/kafka-new/server-common/build/libs/kafka-server-common-4.0.0-SNAPSHOT-test.jar",
-    "-cp",
-    f"/Users/aoli/repos/fray-benchmark/bms/kafka-new/storage/api/build/libs/kafka-storage-api-4.0.0-SNAPSHOT-test.jar",
+    f"{target_dir}/flink-runtime-2.0-SNAPSHOT.jar",
     # storage/api/build/libs/*.jar
     # f"{target_dir}/commons-lang3-3.15.0-SNAPSHOT-tests.jar",
     #  f"{target_dir}/libs/lucene-core-10.0.0-SNAPSHOT-test.jar",
     #  f"{target_dir}/guava-tests-HEAD-jre-SNAPSHOT.jar",
     #  f"{target_dir}/libs/lucene-core-10.0.0-SNAPSHOT.jar",
-    "--include-engine=junit-jupiter",
     "--scan-classpath",
     "--include-classname",
-    "kafka.*",
+    "org.apache.flink.*",
+    "--exclude-classname",
+    "org.apache.flink.runtime.jobmaster.JobRecoveryITCase",
     # "--include-tag=flaky",
     #  "--disable-banner",
     #  "--disable-ansi-colors",
@@ -57,7 +54,7 @@ command = [
     #  "org.apache.solr.schema.TestBulkSchemaConcurrent#test"
 ]
 
-dependency_dir = f"{target_dir}/dependant-testlibs"
+dependency_dir = f"{target_dir}/dependency"
 for f in os.listdir(dependency_dir):
     print(f)
     dependencies.append(f)

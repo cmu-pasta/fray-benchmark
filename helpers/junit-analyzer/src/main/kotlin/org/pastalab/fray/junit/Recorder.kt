@@ -13,6 +13,7 @@ import org.junit.vintage.engine.descriptor.VintageTestDescriptor
 object Recorder {
   var newThreadSpawned = false
   val f = File("/tmp/junit.log")
+  val f2 = File("/tmp/failed.log")
 
   fun logThread() {
     newThreadSpawned = true
@@ -30,7 +31,7 @@ object Recorder {
 
   @JvmStatic
   fun executionFinished(descriptor: TestDescriptor, result: TestExecutionResult) {
-    if (newThreadSpawned) {
+    if (newThreadSpawned && result.status == TestExecutionResult.Status.SUCCESSFUL) {
       if (descriptor is VintageTestDescriptor) {
         val methodName = descriptor.displayName
         if (descriptor.parent.isPresent) {
@@ -46,6 +47,11 @@ object Recorder {
       }
       if (descriptor is TestMethodTestDescriptor) {
         f.appendText("${descriptor.testClass.name}#${descriptor.testMethod.name}\n")
+      }
+    }
+    if (result.status != TestExecutionResult.Status.SUCCESSFUL) {
+      if (descriptor is TestMethodTestDescriptor) {
+        f2.appendText("${descriptor.testClass.name}#${descriptor.testMethod.name}\n")
       }
     }
     newThreadSpawned = false
@@ -67,6 +73,8 @@ object Recorder {
   fun init() {
     f.delete()
     f.createNewFile()
+    f2.delete()
+    f2.createNewFile()
   }
 }
 

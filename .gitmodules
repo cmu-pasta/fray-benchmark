@@ -28,3 +28,6 @@
 [submodule "bms/kafka-new"]
 	path = bms/kafka-new
 	url = https://github.com/apache/kafka
+[submodule "bms/flink"]
+	path = bms/flink
+	url = https://github.com/apache/flink

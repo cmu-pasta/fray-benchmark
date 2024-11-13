@@ -27,11 +27,6 @@ class KafkaCoreBenchmark(UnitTestBenchmark):
 
     def build(self) -> None:
         subprocess.call([
-            "git",
-            "checkout",
-            "."
-        ], cwd=self.bench_dir)
-        subprocess.call([
             "./gradlew",
             "testJar",
         ], cwd=self.bench_dir)
