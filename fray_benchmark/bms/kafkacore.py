@@ -8,7 +8,7 @@ from ..utils import load_test_cases
 
 class KafkaCoreBenchmark(UnitTestBenchmark):
     def __init__(self) -> None:
-        self.bench_dir = os.path.join(ARTIFACTS_PATH, "kafka")
+        self.bench_dir = os.path.join(ARTIFACTS_PATH, "kafka-new")
         super().__init__(
             "kafkacore",
             [
@@ -18,6 +18,8 @@ class KafkaCoreBenchmark(UnitTestBenchmark):
                              "core/build/dependant-testlibs/*.jar"),
                 os.path.join(self.bench_dir,
                              "server-common/build/libs/*.jar"),
+                os.path.join(self.bench_dir,
+                             "storage/api/build/libs/*.jar"),
             ], load_test_cases(os.path.join(ASSETS_PATH, f"kafkacore.txt")),
             {
             },
@@ -28,11 +30,6 @@ class KafkaCoreBenchmark(UnitTestBenchmark):
             "git",
             "checkout",
             "."
-        ], cwd=self.bench_dir)
-        subprocess.call([
-            "git",
-            "apply",
-            os.path.join(ASSETS_PATH, f"kafka.patch")
         ], cwd=self.bench_dir)
         subprocess.call([
             "./gradlew",

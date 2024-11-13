@@ -4,8 +4,8 @@
 import subprocess
 import os
 
-target_dir = "/Users/aoli/repos/fray-benchmark/bms/kafka//build"
-target_dir = "/Users/aoli/repos/fray-benchmark/bms/kafka/core/build"
+target_dir = "/Users/aoli/repos/fray-benchmark/bms/kafka-new/build"
+target_dir = "/Users/aoli/repos/fray-benchmark/bms/kafka-new/core/build"
 #  target_dir = "/Users/aoli/repos/sfuzz-benchmark/bms/solr/solr/core/build"
 # target_dir = "/Users/aoli/repos/sfuzz-benchmark/bms/commons-lang/target"
 #  target_dir = "/Users/aoli/repos/sfuzz-benchmark/bms/guava/guava-tests/target"
@@ -38,14 +38,19 @@ command = [
     "-cp",
     f"{target_dir}/libs/kafka_2.13-4.0.0-SNAPSHOT-test.jar",
     "-cp",
-    f"/Users/aoli/repos/fray-benchmark/bms/kafka/server-common/build/libs/kafka-server-common-4.0.0-SNAPSHOT-test.jar",
+    f"/Users/aoli/repos/fray-benchmark/bms/kafka-new/server-common/build/libs/kafka-server-common-4.0.0-SNAPSHOT-test.jar",
+    "-cp",
+    f"/Users/aoli/repos/fray-benchmark/bms/kafka-new/storage/api/build/libs/kafka-storage-api-4.0.0-SNAPSHOT-test.jar",
+    # storage/api/build/libs/*.jar
     # f"{target_dir}/commons-lang3-3.15.0-SNAPSHOT-tests.jar",
     #  f"{target_dir}/libs/lucene-core-10.0.0-SNAPSHOT-test.jar",
     #  f"{target_dir}/guava-tests-HEAD-jre-SNAPSHOT.jar",
     #  f"{target_dir}/libs/lucene-core-10.0.0-SNAPSHOT.jar",
     "--include-engine=junit-jupiter",
     "--scan-classpath",
-    "--include-tag=flaky",
+    "--include-classname",
+    "kafka.*",
+    # "--include-tag=flaky",
     #  "--disable-banner",
     #  "--disable-ansi-colors",
     #  "-m",
