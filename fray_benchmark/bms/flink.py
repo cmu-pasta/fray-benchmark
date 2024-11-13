@@ -16,11 +16,21 @@ class FlinkBenchmark(UnitTestBenchmark):
                 os.path.join(self.target_dir, "flink-runtime/target/flink-runtime-2.0-SNAPSHOT.jar"),
                 os.path.join(self.target_dir,
                              "flink-runtime/target/dependency/*.jar"),
-            ], load_test_cases(os.path.join(ASSETS_PATH, "flink.txt")),
+            ], load_test_cases(os.path.join(ASSETS_PATH, "flink-interesting.txt")),
             {},
             False)
 
     def build(self) -> None:
+        subprocess.call([
+            "./mvnw",
+            "clean",
+            "package",
+            "-DskipTests",
+        ], cwd=self.target_dir)
+        subprocess.call([
+            "../mvnw",
+            "jar:jar",
+        ], cwd=os.path.join(self.target_dir, "flink-runtime"))
         subprocess.call([
             "../mvnw",
             "jar:test-jar",

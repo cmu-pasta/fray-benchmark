@@ -1,0 +1,2 @@
+org.apache.flink.runtime.scheduler.adaptive.AdaptiveSchedulerTest#testExceptionHistoryWithGlobalFailureLabels
+org.apache.flink.runtime.leaderelection.LeaderChangeClusterComponentsTest#testReelectionOfDispatcher
