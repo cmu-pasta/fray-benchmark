@@ -16,7 +16,7 @@ class FlinkBenchmark(UnitTestBenchmark):
                 os.path.join(self.target_dir, "flink-runtime/target/flink-runtime-2.0-SNAPSHOT.jar"),
                 os.path.join(self.target_dir,
                              "flink-runtime/target/dependency/*.jar"),
-            ], load_test_cases(os.path.join(ASSETS_PATH, "flink-interesting.txt")),
+            ], load_test_cases(os.path.join(ASSETS_PATH, "flink.txt")),
             {},
             False)
 
