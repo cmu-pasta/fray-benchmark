@@ -314,12 +314,12 @@ class BenchmarkSuite:
             for tech in os.listdir(self.path):
                 tech_folder = os.path.join(self.path, tech)
                 if os.path.exists(os.path.join(tech_folder, "iter-0")):
-                    # for i in range(1):
-                    #     trial_folder = os.path.join(tech_folder, f"iter-{i}")
-                    #     self.benchmarks.append(BenchResult(trial_folder, True))
-                    for trial in os.listdir(tech_folder):
-                        trial_folder = os.path.join(tech_folder, trial)
+                    for i in range(1):
+                        trial_folder = os.path.join(tech_folder, f"iter-{i}")
                         self.benchmarks.append(BenchResult(trial_folder, True))
+                    # for trial in os.listdir(tech_folder):
+                    #     trial_folder = os.path.join(tech_folder, trial)
+                    #     self.benchmarks.append(BenchResult(trial_folder, True))
                 else:
                     self.benchmarks.append(BenchResult(tech_folder, False))
     def to_timed_stats(self):
@@ -344,7 +344,7 @@ class BenchmarkSuite:
     def to_aggregated_dataframe(self) -> pd.DataFrame:
         data = []
         for bench in self.benchmarks:
-            # bench.to_csv()
+            bench.to_csv()
             df = bench.load_csv()
             df["Technique"] = self.name_remap(bench.tech)
             data.append(df)

@@ -27,11 +27,16 @@ class JaConTeBe(BenchmarkBase):
                 if target_match and cp_match:
                     class_to_run = target_match.group(1)
                     classpaths = cp_match.group(1).split(":")[1:]
+                    args = []
+                    if tool_type != "rr":
+                        args.append("-mo")
+                    if "Groovy5198" in class_to_run:
+                        args.extend(["-tn", "10", "-l", "1"])
                     yield RunConfig(
                         Executor(
                             class_to_run,
                             "main",
-                            [] if tool_type == "rr" else ["-mo"],
+                            args,
                             [
                                 os.path.join(self.bench_dir,
                                              "build", test_case) + "/",
