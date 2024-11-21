@@ -28,10 +28,10 @@ class JaConTeBe(BenchmarkBase):
                     class_to_run = target_match.group(1)
                     classpaths = cp_match.group(1).split(":")[1:]
                     args = []
-                    if tool_type != "rr":
+                    if tool_type != "rr" and tool_type != "java":
                         args.append("-mo")
                     if "Groovy5198" in class_to_run:
-                        args.extend(["-tn", "10", "-l", "1"])
+                        args.extend(["-tn", "2", "-l", "1"])
                     yield RunConfig(
                         Executor(
                             class_to_run,

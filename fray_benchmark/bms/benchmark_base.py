@@ -19,6 +19,46 @@ class BenchmarkBase(object):
     def build(self) -> None:
         pass
 
+    def generate_java_test_commands(self, out_dir: str, timeout: int, perf_mode: bool) -> Iterator[Tuple[List[str], str, str]]:
+        test_index = 0
+        for config_data in self.get_test_cases("java"):
+            log_path = f"{out_dir}/{test_index}"
+            test_index += 1
+            os.makedirs(log_path, exist_ok=True)
+            with open(f"{log_path}/config.json", "w") as f:
+                f.write(config_data.to_json())
+            command = ["/usr/bin/java", "-ea", "-XX:ActiveProcessorCount=2"]
+            if self.name != "jacontebe":
+                command.append(f"-javaagent:{HELPER_PATH}/assertion-handler-agent/AssertionHandlerAgent.jar")
+            command.extend(["--add-opens", "java.base/java.lang=ALL-UNNAMED"])
+            command.extend(["--add-opens", "java.base/java.util=ALL-UNNAMED"])
+            command.extend(["--add-opens", "java.base/java.io=ALL-UNNAMED"])
+            command.extend(["--add-opens", "java.base/java.util.concurrent=ALL-UNNAMED"])
+            command.extend(["--add-opens", "java.base/java.util.concurrent.atomic=ALL-UNNAMED"])
+            command.extend(["--add-opens", "java.base/java.lang.reflect=ALL-UNNAMED"])
+            command.extend([f"-cp", ':'.join(config_data.executor.classpaths)])
+            for property_key, property_value in config_data.executor.properties.items():
+                command.append(f"-D{property_key}={property_value}")
+            command.append(config_data.executor.clazz)
+            command.extend(config_data.executor.args)
+
+
+            prefix = [
+                "/usr/bin/time",
+                "-p",
+                "-o",
+                f"{log_path}/time.txt",
+                "timeout",
+                "-s",
+                "INT",
+                str(timeout),
+                f"{HELPER_PATH}/rr_runner.sh"]
+            if perf_mode:
+                prefix.append("-e")
+            command = prefix + [f"{log_path}/trace"] + command
+            yield command, log_path, RR_PATH
+        pass
+
     def generate_rr_test_commands(self, out_dir: str, timeout: int, perf_mode: bool) -> Iterator[Tuple[List[str], str, str]]:
         test_index = 0
         for config_data in self.get_test_cases("rr"):

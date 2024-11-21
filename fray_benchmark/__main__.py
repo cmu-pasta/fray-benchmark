@@ -28,7 +28,7 @@ def build(application: str):
 
 
 @main.command(name="run")
-@click.argument("tool", type=click.Choice(["jpf", "rr", "fray", "stat"]))
+@click.argument("tool", type=click.Choice(["jpf", "rr", "fray", "stat", "java"]))
 @click.argument("application", type=click.Choice(list(BENCHMARKS.keys())))
 @click.option("--scheduler", type=click.Choice(list(SCHEDULERS.keys())))
 @click.option("--name", type=str, default=datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
@@ -44,7 +44,10 @@ def run(tool: str, application: str, scheduler: str, name: str, timeout: int, cp
             shutil.rmtree(out_dir)
         os.makedirs(out_dir, exist_ok=True)
         with Pool(processes=cpu) as pool:
-            if tool == "rr":
+            if tool == "java":
+                pool.starmap(run_rr, map(lambda it: (*it, timeout),
+                            app.generate_java_test_commands(out_dir, timeout, perf_mode)))
+            elif tool == "rr":
                 pool.starmap(run_rr, map(lambda it: (*it, timeout),
                             app.generate_rr_test_commands(out_dir, timeout, perf_mode)))
             elif tool == "jpf":

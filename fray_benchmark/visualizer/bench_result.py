@@ -77,6 +77,8 @@ class BenchResult:
         if "DefaultStateUpdaterTest.shouldRecordMetrics" in stdout:
             # ignore
             return "TP(?90)"
+        if "83/report" in stdout:
+            return "TP(KAFKA-17162)"
         if "[FATAL src/Task.cc:1429:compute_trap_reasons()]" in stdout:
             return "Run failure"
         if "Condition not met within timeout" in stdout or "KafkaStreamsTest.shouldThrowOnCleanupWhileShuttingDownStreamClosedWithCloseOptionLeaveGroupFalse" in stdout:
@@ -111,7 +113,7 @@ class BenchResult:
             return "TP(KAFKA-17929)"
         if "DefaultStateUpdaterTest.shouldResume" in stdout or "DefaultStateUpdaterTest.shouldPause" in stdout or "DefaultStateUpdaterTest.shouldUpdate" in stdout or\
             "DefaultTaskExecutorTest.shouldPunctuate" in stdout or "Wanted but not invoked:" in stdout or "Wanted *at least* " in stdout:
-            return "TP(KFAKA-17946)"
+            return "TP(KAFKA-17946)"
         # cannot reproduce
         if "shouldNotFailWhenCreatingTaskDirectoryInParallel" in stdout:
             return "TP(?157)"
@@ -234,7 +236,7 @@ class BenchResult:
             if folder == "results":
                 continue
             run_folder = os.path.join(self.path, folder)
-            if self.tech == "rr" or self.tech == "jpf":
+            if self.tech == "rr" or self.tech == "jpf" or self.tech == "java":
                 stdout = open(os.path.join(
                     run_folder, "stdout.txt")).read()
             else:
@@ -312,6 +314,8 @@ class BenchmarkSuite:
         for path in paths:
             self.path = os.path.abspath(path)
             for tech in os.listdir(self.path):
+                # if "java" not in tech:
+                #     continue
                 tech_folder = os.path.join(self.path, tech)
                 if os.path.exists(os.path.join(tech_folder, "iter-0")):
                     for i in range(1):
@@ -344,7 +348,7 @@ class BenchmarkSuite:
     def to_aggregated_dataframe(self) -> pd.DataFrame:
         data = []
         for bench in self.benchmarks:
-            bench.to_csv()
+            # bench.to_csv()
             df = bench.load_csv()
             df["Technique"] = self.name_remap(bench.tech)
             data.append(df)
@@ -362,7 +366,7 @@ class BenchmarkSuite:
             return "RR-Chaos"
         if name == "jpf":
             return "JPF-Random"
-        # return name.upper()
+        return name.upper()
 
     def generate_bug_table(self):
         df = self.to_aggregated_dataframe()
