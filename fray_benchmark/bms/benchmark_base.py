@@ -19,31 +19,15 @@ class BenchmarkBase(object):
     def build(self) -> None:
         pass
 
-    def generate_java_test_commands(self, out_dir: str, timeout: int, perf_mode: bool) -> Iterator[Tuple[List[str], str, str]]:
+    def generate_java_test_commands(self, config: List[str], out_dir: str, timeout: int, perf_mode: bool) -> Iterator[Tuple[List[str], str, str]]:
         test_index = 0
         for config_data in self.get_test_cases("java"):
             log_path = f"{out_dir}/{test_index}"
-            test_index += 1
             os.makedirs(log_path, exist_ok=True)
             with open(f"{log_path}/config.json", "w") as f:
                 f.write(config_data.to_json())
-            command = ["/usr/bin/java", "-ea", "-XX:ActiveProcessorCount=2"]
-            if self.name != "jacontebe":
-                command.append(f"-javaagent:{HELPER_PATH}/assertion-handler-agent/AssertionHandlerAgent.jar")
-            command.extend(["--add-opens", "java.base/java.lang=ALL-UNNAMED"])
-            command.extend(["--add-opens", "java.base/java.util=ALL-UNNAMED"])
-            command.extend(["--add-opens", "java.base/java.io=ALL-UNNAMED"])
-            command.extend(["--add-opens", "java.base/java.util.concurrent=ALL-UNNAMED"])
-            command.extend(["--add-opens", "java.base/java.util.concurrent.atomic=ALL-UNNAMED"])
-            command.extend(["--add-opens", "java.base/java.lang.reflect=ALL-UNNAMED"])
-            command.extend([f"-cp", ':'.join(config_data.executor.classpaths)])
-            for property_key, property_value in config_data.executor.properties.items():
-                command.append(f"-D{property_key}={property_value}")
-            command.append(config_data.executor.clazz)
-            command.extend(config_data.executor.args)
-
-
-            prefix = [
+            test_index += 1
+            command = [
                 "/usr/bin/time",
                 "-p",
                 "-o",
@@ -51,13 +35,37 @@ class BenchmarkBase(object):
                 "timeout",
                 "-s",
                 "INT",
-                str(timeout),
-                f"{HELPER_PATH}/rr_runner.sh"]
+                str(timeout + 120),
+                f"{FRAY_PATH}/instrumentation/jdk/build/java-inst/bin/java",
+                "-XX:ActiveProcessorCount=1",
+                "-ea",
+                f"-agentpath:{FRAY_PATH}/jvmti/build/native-libs/libjvmti.so",
+                f"-javaagent:{FRAY_PATH}/instrumentation/agent/build/libs/agent-{FRAY_VERSION}-shadow.jar",
+                "--add-opens", "java.base/java.lang=ALL-UNNAMED",
+                "--add-opens", "java.base/java.util=ALL-UNNAMED",
+                "--add-opens", "java.base/java.io=ALL-UNNAMED",
+                "--add-opens", "java.base/java.util.concurrent.atomic=ALL-UNNAMED",
+                "--add-opens", "java.base/sun.nio.ch=ALL-UNNAMED",
+                "--add-opens", "java.base/java.lang.reflect=ALL-UNNAMED",
+                "-cp", ":".join(resolve_classpaths([
+                    f"{FRAY_PATH}/core/build/libs/core-{FRAY_VERSION}.jar",
+                    f"{FRAY_PATH}/core/build/dependency/*.jar",
+                ])),
+                "org.pastalab.fray.core.MainKt",
+                "--run-config",
+                "json",
+                "--config-path",
+                f"{log_path}/config.json",
+                "-o", f"{log_path}/report",
+                "--iter", "-1",
+                "--timeout", str(timeout),
+                *config
+            ]
             if perf_mode:
-                prefix.append("-e")
-            command = prefix + [f"{log_path}/trace"] + command
-            yield command, log_path, RR_PATH
-        pass
+                command.append("--explore")
+            command.extend(["--iter", "-1"])
+            command.append("--no-fray")
+            yield command, log_path, FRAY_PATH
 
     def generate_rr_test_commands(self, out_dir: str, timeout: int, perf_mode: bool) -> Iterator[Tuple[List[str], str, str]]:
         test_index = 0
@@ -163,7 +171,7 @@ class BenchmarkBase(object):
             command.append("true")
             yield command, log_path, FRAY_PATH
 
-    def generate_fray_test_commands(self, config: List[str], out_dir: str, timetout: int, perf_mode: bool) -> Iterator[Tuple[List[str], str, str]]:
+    def generate_fray_test_commands(self, config: List[str], out_dir: str, timeout: int, perf_mode: bool) -> Iterator[Tuple[List[str], str, str]]:
         test_index = 0
         for config_data in self.get_test_cases("fray"):
             log_path = f"{out_dir}/{test_index}"
@@ -179,7 +187,7 @@ class BenchmarkBase(object):
                 "timeout",
                 "-s",
                 "INT",
-                str(timetout + 120),
+                str(timeout + 120),
                 f"{FRAY_PATH}/instrumentation/jdk/build/java-inst/bin/java",
                 "-ea",
                 f"-agentpath:{FRAY_PATH}/jvmti/build/native-libs/libjvmti.so",
@@ -201,7 +209,7 @@ class BenchmarkBase(object):
                 f"{log_path}/config.json",
                 "-o", f"{log_path}/report",
                 "--iter", "-1",
-                "--timeout", str(timetout),
+                "--timeout", str(timeout),
                 *config
             ]
             if perf_mode:

@@ -45,8 +45,8 @@ def run(tool: str, application: str, scheduler: str, name: str, timeout: int, cp
         os.makedirs(out_dir, exist_ok=True)
         with Pool(processes=cpu) as pool:
             if tool == "java":
-                pool.starmap(run_rr, map(lambda it: (*it, timeout),
-                            app.generate_java_test_commands(out_dir, timeout, perf_mode)))
+                pool.starmap(run_fray, map(lambda it: (*it, timeout),
+                            app.generate_java_test_commands(SCHEDULERS["random"], out_dir, timeout, perf_mode)))
             elif tool == "rr":
                 pool.starmap(run_rr, map(lambda it: (*it, timeout),
                             app.generate_rr_test_commands(out_dir, timeout, perf_mode)))

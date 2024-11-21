@@ -16,8 +16,8 @@
 # python3 -m fray_benchmark run jpf lincheck --name bug-1 --cpu 10 --iterations 1
 # python3 -m fray_benchmark run rr lincheck --name bug-2 --cpu 10 --iterations 1
 #
-python3 -m fray_benchmark run java jacontebe --name exec-1 --cpu 32 --perf-mode --timeout 600 --iterations 20
-python3 -m fray_benchmark run java sctbench --name exec-1 --cpu 32 --perf-mode --timeout 600 --iterations 20
+python3 -m fray_benchmark run java jacontebe --name exec-1 --cpu 32 --perf-mode --timeout 60 --iterations 1
+# python3 -m fray_benchmark run java sctbench --name exec-1 --cpu 32 --perf-mode --timeout 60 --iterations 1
 # python3 -m fray_benchmark run fray jacontebe --name exec-1 --scheduler random --cpu 32 --perf-mode --timeout 600 --iterations 20
 # python3 -m fray_benchmark run fray sctbench --name exec-1 --scheduler random --cpu 32 --perf-mode --timeout 600 --iterations 20
 # python3 -m fray_benchmark run jpf sctbench --name exec-1 --cpu 32 --perf-mode --timeout 600 --iterations 20
