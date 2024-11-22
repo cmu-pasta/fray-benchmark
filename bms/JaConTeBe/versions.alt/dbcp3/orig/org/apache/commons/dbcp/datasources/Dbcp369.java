@@ -68,9 +68,9 @@ public class Dbcp369 {
         // them modifies the HashMap.
         // This will cause an exception.
         for (int i = 0; i < loops; i++) {
-            if (buggy) {
-                break;
-            }
+            // if (buggy) {
+                // break;
+            // }
             final CountDownLatch latch = new CountDownLatch(1);
             Thread t1 = new Thread(new Runnable() {
                 public void run() {
