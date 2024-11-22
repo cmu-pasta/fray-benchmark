@@ -22,7 +22,6 @@ public class Sync02Bad {
         while (num > 0) {
           if (Thread.activeCount() == 2) {
             System.out.println("Deadlock detected");
-            full.signalAll();
             throw new RuntimeException();
           }
           synchronized (waiting) {
@@ -54,7 +53,6 @@ public class Sync02Bad {
         while (num == 0)
           if (Thread.activeCount() == 2) {
             System.out.println("Deadlock detected");
-            empty.signalAll();
             throw new RuntimeException();
           }
         synchronized (waiting) {

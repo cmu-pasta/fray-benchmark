@@ -20,8 +20,9 @@ public class Sync01Bad {
         m.lock();
         try {
             while (num > 0) {
-                if (Thread.activeCount() == 2) {
+                if (Thread.activeCount() == 2 || emptySignaled) {
                     System.out.println("Deadlock detected");
+                    t2.interrupt();
                     throw new RuntimeException();
                 }
                 empty.await();  // BAD: deadlock
@@ -34,6 +35,7 @@ public class Sync01Bad {
             m.unlock();
         }
     }
+    static volatile boolean emptySignaled = false;
 
     static void thread2() {
         m.lock();
@@ -41,6 +43,7 @@ public class Sync01Bad {
             while (num == 0) {
                 if (Thread.activeCount() == 2) {
                     System.out.println("Deadlock detected");
+                    t1.interrupt();
                     throw new RuntimeException();
                 }
                 full.await();
@@ -48,6 +51,7 @@ public class Sync01Bad {
             // num--;
             // System.out.println("consume ....");
             empty.signal();
+            emptySignaled = true;
         } catch (InterruptedException e) {
             e.printStackTrace();
         } finally {
@@ -55,11 +59,14 @@ public class Sync01Bad {
         }
     }
 
+    public static Thread t1;
+    public static Thread t2;
     public static void main(String[] args) {
         num = 1;
+        emptySignaled = false;
 
-        Thread t1 = new Thread(() -> thread1());
-        Thread t2 = new Thread(() -> thread2());
+        t1 = new Thread(() -> thread1());
+        t2 = new Thread(() -> thread2());
 
         t1.start();
         t2.start();
