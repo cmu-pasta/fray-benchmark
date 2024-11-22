@@ -318,7 +318,7 @@ class BenchmarkSuite:
                 #     continue
                 tech_folder = os.path.join(self.path, tech)
                 if os.path.exists(os.path.join(tech_folder, "iter-0")):
-                    for i in range(1):
+                    for i in range(10):
                         trial_folder = os.path.join(tech_folder, f"iter-{i}")
                         self.benchmarks.append(BenchResult(trial_folder, True))
                     # for trial in os.listdir(tech_folder):
@@ -416,6 +416,11 @@ class BenchmarkSuite:
         fig, ax = plt.subplots()
         for key, grp in df.groupby(['id']):
             ax.plot(grp['id'], grp[column], linestyle='-', color='#42f5d7', zorder=1)
+        df = df[~((df['Technique'] == 'JAVA') & (df['exec'] < 10))]
+        pivot_df = df.pivot(index="id", columns="Technique", values="exec")
+        cleaned_df = pivot_df.dropna()
+
+        display(cleaned_df)
         sns.scatterplot(data=df, x="id", y=column, hue="Technique", style="Technique", ax=ax, zorder=2, s=80, alpha=0.9, markers=['s', "^", "P"])
         ax.fill_between([-1, len(sct_list) - 0.5], y1=[ylim, ylim], alpha=0.3, facecolor=sns_config.colors[-1], linewidth=0.0, label="SCTBench")
         ax.fill_between([len(sct_list) - 0.5, xlim], y1=[ylim, ylim], alpha=0.3, linewidth=0.0, facecolor=sns_config.colors[-2], label="JaConTeBe")
