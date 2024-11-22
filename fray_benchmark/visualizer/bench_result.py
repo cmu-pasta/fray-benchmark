@@ -236,7 +236,7 @@ class BenchResult:
             if folder == "results":
                 continue
             run_folder = os.path.join(self.path, folder)
-            if self.tech == "rr" or self.tech == "jpf" or self.tech == "java":
+            if self.tech == "rr" or self.tech == "jpf":
                 stdout = open(os.path.join(
                     run_folder, "stdout.txt")).read()
             else:
@@ -408,6 +408,7 @@ class BenchmarkSuite:
                 sct_list.append(key)
             else:
                 jc_list.append(key)
+        print(sct_list)
         print(jc_list)
         all_bms_sorted = sct_list + jc_list
         xlim = len(all_bms_sorted) + 0.5
