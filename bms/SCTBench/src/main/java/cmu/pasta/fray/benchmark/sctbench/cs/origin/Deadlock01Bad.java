@@ -11,6 +11,10 @@ public class Deadlock01Bad {
 
     static void thread1() {
         a.lock();
+        if (b.isLocked()) {
+            a.unlock();
+            throw new RuntimeException("deadlock");
+        }
         b.lock(); /* BAD: deadlock */
         try {
             counter++;
@@ -21,7 +25,11 @@ public class Deadlock01Bad {
     }
 
     static void thread2() {
-        b.lock();  
+        b.lock();
+        if (a.isLocked()) {
+            b.unlock();
+            throw new RuntimeException("deadlock");
+        }
         a.lock(); /* BAD: deadlock */
         try {
             counter--;

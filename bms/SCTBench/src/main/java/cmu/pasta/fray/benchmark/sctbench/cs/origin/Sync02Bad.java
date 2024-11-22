@@ -22,11 +22,13 @@ public class Sync02Bad {
         while (num > 0) {
           if (Thread.activeCount() == 2) {
             System.out.println("Deadlock detected");
+            full.signalAll();
             throw new RuntimeException();
           }
           synchronized (waiting) {
             if (waiting) {
-                throw new RuntimeException();
+              t2.interrupt();
+              throw new RuntimeException();
             }
             waiting = true;
           }
@@ -52,11 +54,13 @@ public class Sync02Bad {
         while (num == 0)
           if (Thread.activeCount() == 2) {
             System.out.println("Deadlock detected");
+            empty.signalAll();
             throw new RuntimeException();
           }
         synchronized (waiting) {
           if (waiting == true) {
             System.out.println("Deadlock detected");
+            t1.interrupt();
             throw new RuntimeException();
           }
           waiting = true;
@@ -74,14 +78,16 @@ public class Sync02Bad {
     }
   }
 
+  public static Thread t1;
+  public static Thread t2;
   public static void main(String[] args) {
     num = 2;
     waiting = false;
 
-    Thread t1 = new Thread(() -> {
+    t1 = new Thread(() -> {
       producer();
     });
-    Thread t2 = new Thread(() -> {
+    t2 = new Thread(() -> {
       consumer();
     });
 
