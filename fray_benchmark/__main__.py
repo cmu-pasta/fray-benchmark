@@ -62,17 +62,36 @@ def run(tool: str, application: str, scheduler: str, name: str, timeout: int, cp
 
 
 @main.command(name="runOne")
-@click.argument("path", type=str)
+@click.argument("experiment", type=str)
+@click.argument("application", type=click.Choice(list(BENCHMARKS.keys())))
+@click.argument("tool", type=str)
+@click.argument("index", type=str)
 @click.option("--timeout", "-t", type=int, default=10 * 60)
-def run_one(path: str, timeout: int):
-    saved = SavedBenchmark(path)
-    tech = path.split("/")[-3]
-    if tech == "rr":
-        run_rr(saved.load_command(), path, RR_PATH, timeout)
-    elif tech == "jpf":
-        run_jpf(saved.load_command(), path, JPF_PATH, timeout)
-    else:
-        run_fray(saved.load_command(), path, FRAY_PATH, timeout)
+@click.option("--iterations", type=int, default=20)
+def run_one(experiment: str, application: str, tool: str, index: str, timeout: int, iterations: int):
+    cpu = os.cpu_count()
+    run_configs = []
+    for i in range(iterations):
+        out_dir = os.path.join(OUTPUT_PATH, experiment, application, tool, f"iter-{i}", index)
+        saved = SavedBenchmark(out_dir, i)
+        run_configs.append(saved)
+
+    with Pool(processes=cpu) as pool:
+        if tool == "java":
+            pool.starmap(run_fray,
+                         map(lambda it: (it.load_command(), it.path, FRAY_PATH, timeout), run_configs))
+        elif tool == "rr":
+            pool.starmap(run_rr,
+                         map(lambda it: (it.load_command(), it.path, RR_PATH, timeout), run_configs))
+        elif tool == "jpf":
+            pool.starmap(run_jpf,
+                         map(lambda it: (it.load_command(), it.path, JPF_PATH, timeout), run_configs))
+        # elif tool == "stat":
+        #     pool.starmap(run_stats_collector, map(lambda it: (*it, timeout),
+        #                 app.generate_fray_stats_collector_commands(out_dir)))
+        else:
+            pool.starmap(run_fray,
+                         map(lambda it: (it.load_command(), it.path, FRAY_PATH, timeout), run_configs))
 
 
 @main.command(name="runSingle")
