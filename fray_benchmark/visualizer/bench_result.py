@@ -51,7 +51,7 @@ class BenchResult:
         if "AssertionError: JVM fork arguments are not present" in stdout:
             return "Run failure"
         if "testTimeLimitingBulkScorer" in stdout:
-            return "TP(Time)"
+            return "TP(#13779)"
         if "TestRateLimiter" in stdout:
             return "TP(Time)"
         if "testTimeoutLargeNumberOfMerges" in stdout:
@@ -72,9 +72,10 @@ class BenchResult:
 
 
     def kafka_bug_classify(self, stdout: str):
+        if "shouldThrowOnCleanupWhileShuttingDownStreamClosedWithCloseOptionLeaveGroupFalse" in stdout:
+            return "TP(KAFKA-18418)"
         if "DeadlockException" in stdout:
             if "onThreadParkNanos" in stdout or "onLatchAwaitTimeout" in stdout or "onConditionAwaitNanos" in stdout:
-                print(run_folder)
                 return "FP(Time)"
         if "DefaultStateUpdaterTest.shouldRecordMetrics" in stdout:
             # ignore
@@ -83,7 +84,7 @@ class BenchResult:
             return "TP(KAFKA-17162)"
         if "[FATAL src/Task.cc:1429:compute_trap_reasons()]" in stdout:
             return "Run failure"
-        if "Condition not met within timeout" in stdout or "KafkaStreamsTest.shouldThrowOnCleanupWhileShuttingDownStreamClosedWithCloseOptionLeaveGroupFalse" in stdout:
+        if "Condition not met within timeout" in stdout:
             return "TP(Time)"
         if "shouldThrowIfAddingTasksWithSameId" in stdout:
             return "TP(KAFKA-17114)"
@@ -120,9 +121,9 @@ class BenchResult:
         if "shouldNotFailWhenCreatingTaskDirectoryInParallel" in stdout:
             return "TP(?157)"
         if "KafkaStreamsTest.should" in stdout and "AssertionFailedError: expected: <false> but was: <true>" in stdout:
-            return "TP(Time)"
+            return "TP(KAFKA-18418)"
         if "KafkaStreamsTest.shouldThrowOnCleanupWhileShuttingDown" in stdout:
-            return "TP(Time)"
+            return "TP(KAFKA-18418)"
         if "StreamThreadTest.shouldRecoverFromInvalidOffsetExceptionOnRestoreAndFinishRestore" in stdout:
             return "TP(Time)"
         if "StreamThreadTest.should" in stdout:
