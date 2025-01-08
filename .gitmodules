@@ -31,3 +31,6 @@
 [submodule "bms/flink"]
 	path = bms/flink
 	url = https://github.com/apache/flink
+[submodule "bms/lucene-new"]
+	path = bms/lucene-new
+	url = https://github.com/apache/lucene.git

@@ -85,8 +85,7 @@ def run_single(path: str, debug_jvm: bool, no_fray: bool):
         shutil.rmtree(out_dir)
     os.makedirs(out_dir)
     fray_args = [
-        "--scheduler=pct",
-        "--num-switch-points=10",
+        "--scheduler=pos",
     ]
     if no_fray:
         fray_args.append("--no-fray")

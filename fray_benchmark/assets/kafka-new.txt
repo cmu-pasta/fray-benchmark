@@ -1,0 +1,3 @@
+org.apache.kafka.streams.KafkaStreamsTest#shouldThrowOnCleanupWhileShuttingDownStreamClosedWithCloseOptionLeaveGroupFalse
+org.apache.kafka.streams.KafkaStreamsTest#shouldNotBlockInCloseForZeroDuration
+org.apache.kafka.streams.KafkaStreamsTest#shouldReturnFalseOnCloseWhenThreadsHaventTerminated
