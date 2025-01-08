@@ -13,6 +13,8 @@ import seaborn as sns
 import json
 from . import sns_config
 
+TOOL_NAME = "Fizz"
+
 
 class BenchResult:
     def __init__(self, path: str, has_trial: bool):
@@ -49,7 +51,7 @@ class BenchResult:
         if "AssertionError: JVM fork arguments are not present" in stdout:
             return "Run failure"
         if "testTimeLimitingBulkScorer" in stdout:
-            return "TP(Time)"
+            return "TP(#13779)"
         if "TestRateLimiter" in stdout:
             return "TP(Time)"
         if "testTimeoutLargeNumberOfMerges" in stdout:
@@ -70,9 +72,10 @@ class BenchResult:
 
 
     def kafka_bug_classify(self, stdout: str):
+        if "shouldThrowOnCleanupWhileShuttingDownStreamClosedWithCloseOptionLeaveGroupFalse" in stdout:
+            return "TP(KAFKA-18418)"
         if "DeadlockException" in stdout:
             if "onThreadParkNanos" in stdout or "onLatchAwaitTimeout" in stdout or "onConditionAwaitNanos" in stdout:
-                print(run_folder)
                 return "FP(Time)"
         if "DefaultStateUpdaterTest.shouldRecordMetrics" in stdout:
             # ignore
@@ -81,7 +84,7 @@ class BenchResult:
             return "TP(KAFKA-17162)"
         if "[FATAL src/Task.cc:1429:compute_trap_reasons()]" in stdout:
             return "Run failure"
-        if "Condition not met within timeout" in stdout or "KafkaStreamsTest.shouldThrowOnCleanupWhileShuttingDownStreamClosedWithCloseOptionLeaveGroupFalse" in stdout:
+        if "Condition not met within timeout" in stdout:
             return "TP(Time)"
         if "shouldThrowIfAddingTasksWithSameId" in stdout:
             return "TP(KAFKA-17114)"
@@ -118,9 +121,9 @@ class BenchResult:
         if "shouldNotFailWhenCreatingTaskDirectoryInParallel" in stdout:
             return "TP(?157)"
         if "KafkaStreamsTest.should" in stdout and "AssertionFailedError: expected: <false> but was: <true>" in stdout:
-            return "TP(Time)"
+            return "TP(KAFKA-18418)"
         if "KafkaStreamsTest.shouldThrowOnCleanupWhileShuttingDown" in stdout:
-            return "TP(Time)"
+            return "TP(KAFKA-18418)"
         if "StreamThreadTest.shouldRecoverFromInvalidOffsetExceptionOnRestoreAndFinishRestore" in stdout:
             return "TP(Time)"
         if "StreamThreadTest.should" in stdout:
@@ -314,16 +317,16 @@ class BenchmarkSuite:
         for path in paths:
             self.path = os.path.abspath(path)
             for tech in os.listdir(self.path):
-                # if "java" not in tech:
-                #     continue
+                if "java" in tech and "sctbench" not in self.path:
+                    continue
                 tech_folder = os.path.join(self.path, tech)
                 if os.path.exists(os.path.join(tech_folder, "iter-0")):
-                    for i in range(10):
-                        trial_folder = os.path.join(tech_folder, f"iter-{i}")
-                        self.benchmarks.append(BenchResult(trial_folder, True))
-                    # for trial in os.listdir(tech_folder):
-                    #     trial_folder = os.path.join(tech_folder, trial)
+                    # for i in range(10):
+                    #     trial_folder = os.path.join(tech_folder, f"iter-{i}")
                     #     self.benchmarks.append(BenchResult(trial_folder, True))
+                    for trial in os.listdir(tech_folder):
+                        trial_folder = os.path.join(tech_folder, trial)
+                        self.benchmarks.append(BenchResult(trial_folder, True))
                 else:
                     self.benchmarks.append(BenchResult(tech_folder, False))
     def to_timed_stats(self):
@@ -357,15 +360,17 @@ class BenchmarkSuite:
 
     def name_remap(self, name: str) -> str:
         if name == "random":
-            return "$\\textsc{Fray}$-Random"
+            return "$\\textsc{Fizz}$-Random"
         if name.startswith("pct"):
-            return "$\\textsc{Fray}$-PCT"
+            return "$\\textsc{Fizz}$-PCT" + name.replace("pct", "")
         if name.startswith("pos"):
-            return "$\\textsc{Fray}$-POS"
+            return "$\\textsc{Fizz}$-POS"
         if name == "rr":
             return "RR-Chaos"
         if name == "jpf":
             return "JPF-Random"
+        if name == "java":
+            return "Original"
         return name.upper()
 
     def generate_bug_table(self):
@@ -393,7 +398,7 @@ class BenchmarkSuite:
 
     def generate_aggregated_plot(self, df: pd.DataFrame, column: str) -> matplotlib.axis.Axis:
         df = df.groupby(['Technique', 'id'])[column].mean().reset_index()
-        fray_key = "$\\textsc{Fray}$-Random"
+        fray_key = "$\\textsc{Fizz}$-Random"
         all_bms_sorted = df[df["Technique"] == fray_key].sort_values(by=column)["id"].to_list()
         for id in df["id"].to_list():
             if id not in all_bms_sorted:
@@ -416,12 +421,17 @@ class BenchmarkSuite:
         fig, ax = plt.subplots()
         for key, grp in df.groupby(['id']):
             ax.plot(grp['id'], grp[column], linestyle='-', color='#42f5d7', zorder=1)
-        df = df[~((df['Technique'] == 'JAVA') & (df['exec'] < 10))]
-        pivot_df = df.pivot(index="id", columns="Technique", values="exec")
-        cleaned_df = pivot_df.dropna()
-
-        display(cleaned_df)
-        sns.scatterplot(data=df, x="id", y=column, hue="Technique", style="Technique", ax=ax, zorder=2, s=80, alpha=0.9, markers=['s', "^", "P"])
+        markers = ['s', "^", "P", "X"]
+        hue_order = ["$\\textsc{Fizz}$-Random", "JPF-Random", "RR-Chaos"]
+        ncols = 5
+        if column == "exec":
+            pivot_df = df.pivot(index="id", columns="Technique", values="exec")
+            cleaned_df = pivot_df.dropna()
+            display(cleaned_df)
+            hue_order.append("Original")
+            ncols = 6
+            # display(cleaned_df)
+        sns.scatterplot(data=df, x="id", y=column, hue="Technique", style="Technique", ax=ax, zorder=2, s=80, alpha=0.9, markers=markers, hue_order=hue_order, style_order=hue_order)
         ax.fill_between([-1, len(sct_list) - 0.5], y1=[ylim, ylim], alpha=0.3, facecolor=sns_config.colors[-1], linewidth=0.0, label="SCTBench")
         ax.fill_between([len(sct_list) - 0.5, xlim], y1=[ylim, ylim], alpha=0.3, linewidth=0.0, facecolor=sns_config.colors[-2], label="JaConTeBe")
         # ax.legend([f1, f2], ["SCTBench", "JaConTeBe"])
@@ -443,8 +453,16 @@ class BenchmarkSuite:
         ax.set_yticks(ticks)
         ax.set_yticklabels(tick_labels)
         ax.legend(title="", bbox_to_anchor=(0., 1.02, 1., .102), loc='lower left',
-                      ncols=5, mode="expand", borderaxespad=0., labelspacing=0.0,
-                      handlelength=1.0, facecolor='white', edgecolor='black')
+                      ncols=ncols, mode="expand", borderaxespad=0., labelspacing=0.0,
+                      handlelength=1.0, facecolor='white', edgecolor='black', handletextpad=0.2)
+        if column == "exec":
+            handles, labels = ax.get_legend_handles_labels()
+            order = [3, 0,1,2,4,5]
+            print(handles[2])
+            plt.legend([handles[idx] for idx in order],[labels[idx] for idx in order],
+        title="", bbox_to_anchor=(0., 1.02, 1., .102), loc='lower left',
+                      ncols=ncols, mode="expand", borderaxespad=0., labelspacing=0.0,
+                      handlelength=1.0, facecolor='white', edgecolor='black', handletextpad=0.2)
         ax.set(xlim=(-1, xlim))
         ax.set(ylim=(ticks[0]-0.5, ylim))
 
@@ -459,7 +477,7 @@ class BenchmarkSuite:
         df = df.sort_values(by="exec")
         df_reduced = df[['id', 'trial', 'Technique', 'exec']]
         df_pivot = df_reduced.pivot_table(index=['id', 'trial'], columns='Technique', values='exec').reset_index()
-        fray_key = "$\\textsc{Fray}$-Random"
+        fray_key = "$\\textsc{Fizz}$-Random"
         candidate_key = "JPF-Random"
         df_pivot.dropna(subset=[fray_key, candidate_key], inplace=True)
         return self.generate_aggregated_plot(df, "exec")

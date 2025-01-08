@@ -4,6 +4,7 @@
 import os
 from typing import List, Iterator, Tuple, Dict
 from sys import platform
+import re
 
 
 from ..commons import FRAY_PATH, RR_PATH, JPF_PATH, HELPER_PATH, PERF_ITER, FRAY_VERSION
@@ -192,6 +193,7 @@ class BenchmarkBase(object):
                 str(timeout + 120),
                 f"{FRAY_PATH}/instrumentation/jdk/build/java-inst/bin/java",
                 "-ea",
+                "-Xmx4g",
                 f"-agentpath:{FRAY_PATH}/jvmti/build/native-libs/libjvmti.so",
                 f"-javaagent:{FRAY_PATH}/instrumentation/agent/build/libs/agent-{FRAY_VERSION}-shadow.jar",
                 "--add-opens", "java.base/java.lang=ALL-UNNAMED",
@@ -223,11 +225,14 @@ class BenchmarkBase(object):
         return iter([])
 
 class SavedBenchmark:
-    def __init__(self, path: str) -> None:
+    def __init__(self, path: str, index: int) -> None:
+        self.new_index = index
         self.path = os.path.abspath(path)
 
     def load_command(self) -> List[str]:
-        return open(os.path.join(self.path, "command.txt")).read().strip().split(" ")
+        command = open(os.path.join(self.path, "command.txt")).read().strip()
+        updated_command = re.sub(r"taskset -c \d+", f"taskset -c {self.new_index}", command)
+        return updated_command.split(" ")
 
 class MainMethodBenchmark(BenchmarkBase):
     def __init__(self, name: str, classpath: List[str], test_cases: List[str], properties: Dict[str, str]) -> None:
