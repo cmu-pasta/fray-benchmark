@@ -13,7 +13,11 @@ import seaborn as sns
 import json
 from . import sns_config
 
-TOOL_NAME = "Fizz"
+TOOL_NAME = "Fray"
+
+TOOL_RANDOM = "$\\textsc{" + TOOL_NAME + "}$-Random"
+TOOL_PCT = "$\\textsc{" + TOOL_NAME + "}$-PCT"
+TOOL_POS = "$\\textsc{" + TOOL_NAME + "}$-POS"
 
 
 class BenchResult:
@@ -360,11 +364,11 @@ class BenchmarkSuite:
 
     def name_remap(self, name: str) -> str:
         if name == "random":
-            return "$\\textsc{Fizz}$-Random"
+            return TOOL_RANDOM
         if name.startswith("pct"):
-            return "$\\textsc{Fizz}$-PCT" + name.replace("pct", "")
+            return TOOL_PCT + name.replace("pct", "")
         if name.startswith("pos"):
-            return "$\\textsc{Fizz}$-POS"
+            return TOOL_POS
         if name == "rr":
             return "RR-Chaos"
         if name == "jpf":
@@ -398,7 +402,7 @@ class BenchmarkSuite:
 
     def generate_aggregated_plot(self, df: pd.DataFrame, column: str) -> matplotlib.axis.Axis:
         df = df.groupby(['Technique', 'id'])[column].mean().reset_index()
-        fray_key = "$\\textsc{Fizz}$-Random"
+        fray_key = TOOL_RANDOM
         all_bms_sorted = df[df["Technique"] == fray_key].sort_values(by=column)["id"].to_list()
         for id in df["id"].to_list():
             if id not in all_bms_sorted:
@@ -422,7 +426,7 @@ class BenchmarkSuite:
         for key, grp in df.groupby(['id']):
             ax.plot(grp['id'], grp[column], linestyle='-', color='#42f5d7', zorder=1)
         markers = ['s', "^", "P", "X"]
-        hue_order = ["$\\textsc{Fizz}$-Random", "JPF-Random", "RR-Chaos"]
+        hue_order = [TOOL_RANDOM, "JPF-Random", "RR-Chaos"]
         ncols = 5
         if column == "exec":
             pivot_df = df.pivot(index="id", columns="Technique", values="exec")
@@ -477,7 +481,7 @@ class BenchmarkSuite:
         df = df.sort_values(by="exec")
         df_reduced = df[['id', 'trial', 'Technique', 'exec']]
         df_pivot = df_reduced.pivot_table(index=['id', 'trial'], columns='Technique', values='exec').reset_index()
-        fray_key = "$\\textsc{Fizz}$-Random"
+        fray_key = TOOL_RANDOM
         candidate_key = "JPF-Random"
         df_pivot.dropna(subset=[fray_key, candidate_key], inplace=True)
         return self.generate_aggregated_plot(df, "exec")
