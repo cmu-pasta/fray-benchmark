@@ -2,6 +2,7 @@ package org.pastalab.fray.benchmark.time;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
+// Adopted from Kafka
 public class WaitFinishTimeout {
     public static void main(String[] args) throws InterruptedException {
         AtomicBoolean flag = new AtomicBoolean(false);

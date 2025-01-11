@@ -2,6 +2,7 @@ package org.pastalab.fray.benchmark.time;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
+// Adopted from Kafka DefaultStateUpdaterTest#shouldNotResumeStandbyTaskInFailedTasks
 public class WaitDoneInfLoop {
     public static void main(String[] args) throws InterruptedException {
         AtomicBoolean isRunning = new AtomicBoolean(true);
