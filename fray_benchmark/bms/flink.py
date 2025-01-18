@@ -23,7 +23,6 @@ class FlinkBenchmark(UnitTestBenchmark):
     def build(self) -> None:
         subprocess.call([
             "./mvnw",
-            "clean",
             "package",
             "-DskipTests",
         ], cwd=self.target_dir)
