@@ -12,12 +12,14 @@ class KafkaBenchmark(UnitTestBenchmark):
         super().__init__(
             "kafka-new",
             [
-                os.path.join(self.bench_dir, "streams/build/classes/java/main/"),
-                os.path.join(self.bench_dir, "streams/build/classes/java/test/"),
-                os.path.join(self.bench_dir, "streams/build/resources/test/"),
-                os.path.join(self.bench_dir, "streams/build/resources/main/"),
+                os.path.join(self.bench_dir, "streams/integration-tests/build/classes/java/main/"),
+                os.path.join(self.bench_dir, "streams/integration-tests/build/classes/java/test/"),
+                os.path.join(self.bench_dir, "streams/integration-tests/build/resources/test/"),
+                os.path.join(self.bench_dir, "streams/integration-tests/build/resources/main/"),
                 os.path.join(self.bench_dir,
-                             "core/build/dependant-testlibs/*.jar"),
+                             "streams/integration-tests/build/libs/*.jar"),
+                os.path.join(self.bench_dir,
+                             "streams/integration-tests/build/dependency/*.jar"),
             ], load_test_cases(os.path.join(ASSETS_PATH, f"kafka-new.txt")),
             {
             },
