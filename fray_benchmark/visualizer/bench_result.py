@@ -4,6 +4,10 @@ import shutil
 from typing import List
 import matplotlib.axis
 import numpy as np
+from .bug_classfiers.lucene import lucene_bug_classify
+from .bug_classfiers.kafka import kafka_bug_classify
+from .bug_classfiers.guava import guava_bug_classify
+from .bug_classfiers.flink import flink_bug_classify
 
 import matplotlib
 import matplotlib.axes
@@ -46,136 +50,16 @@ class BenchResult:
         )
 
         self.user_time_pattern = re.compile(r"real (\d+\.\d+)")
-        # self.sys_time_pattern = re.compile(r"sys (\d+\.\d+)")
-
-    def lucene_bug_classify(self, stdout: str):
-        if "DeadlockException" in stdout:
-            if "onThreadParkNanos" in stdout:
-                return "FP(Time)"
-        if "AssertionError: JVM fork arguments are not present" in stdout:
-            return "Run failure"
-        if "testTimeLimitingBulkScorer" in stdout:
-            return "TP(#13779)"
-        if "TestRateLimiter" in stdout:
-            return "TP(Time)"
-        if "testTimeoutLargeNumberOfMerges" in stdout:
-            return "TP(Time)"
-        if "TestConcurrentMergeScheduler.testIntraMergeThreadPoolIsLimitedByMaxThreads" in stdout:
-            return "TP(Time)"
-        if "java.lang.RuntimeException: unclosed IndexInput" in stdout:
-            return "TP(#13552)"
-        if "testSubclassConcurrentMergeScheduler" in stdout:
-            return "TP(#13547)"
-        if "maxSeqNo must be greater or equal to " in stdout:
-            return "TP(#13571)"
-        if "vs maxMergeCount=" in stdout:
-            return "TP(#13593)"
-        if "FATAL src/Task.cc:1429:compute_trap_reasons" in stdout:
-            return "Run failure"
-        return None
-
-
-    def kafka_bug_classify(self, stdout: str):
-        if "shouldThrowOnCleanupWhileShuttingDownStreamClosedWithCloseOptionLeaveGroupFalse" in stdout:
-            return "TP(KAFKA-18418)"
-        if "DeadlockException" in stdout:
-            if "onThreadParkNanos" in stdout or "onLatchAwaitTimeout" in stdout or "onConditionAwaitNanos" in stdout:
-                return "FP(Time)"
-        if "DefaultStateUpdaterTest.shouldRecordMetrics" in stdout:
-            # ignore
-            return "TP(?90)"
-        if "83/report" in stdout:
-            return "TP(KAFKA-17162)"
-        if "[FATAL src/Task.cc:1429:compute_trap_reasons()]" in stdout:
-            return "Run failure"
-        if "Condition not met within timeout" in stdout:
-            return "TP(Time)"
-        if "shouldThrowIfAddingTasksWithSameId" in stdout:
-            return "TP(KAFKA-17114)"
-        if "Deadlock" in stdout and ("DefaultStateUpdater" in stdout or "DefaultTaskManager" in stdout):
-            return "TP(KAFKA-17112)"
-        if "StreamThreadTest$StateListenerStub.onChange" in stdout:
-            return "TP(KAFKA-17354)"
-        if "GlobalStreamThreadTest.shouldThrowStreamsExceptionOnStartupIfThereIsAStreamsException" in stdout:
-            return "TP(KAFKA-17113)"
-        if "DefaultTaskExecutorTest.shouldNotFlushOnException" in stdout:
-            return "TP(?261)"
-        if "StreamThreadTest.shouldReinitializeRevivedTasksInAnyState" in stdout:
-            return "TP(KAFKA-17112)"
-        if "DefaultTaskExecutorTest.shouldUnassignTaskWhenRequired" in stdout:
-            return "TP(KAFKA-17371)"
-        if "KafkaStreamsTest.shouldNotAddThreadWhenError" in stdout:
-            return "TP(KAFKA-17379)"
-        if "DefaultTaskExecutorTest.shouldSetUncaughtStreamsException" in stdout:
-            return "TP(KAFKA-17394)"
-        if "DefaultStateUpdaterTest.shouldAddFailedTasksToQueueWhenUncaughtExceptionIsThrown" in stdout:
-            return "TP(KAFKA-17114)"
-        if "GlobalStreamThreadTest.shouldThrowStreamsExceptionOnStartupIfExceptionOccurred" in stdout:
-            return "TP(KAFKA-17113)"
-        if "DefaultTaskExecutorTest.shouldUnassignTaskWhenNotProgressing" in stdout:
-            return "TP(KAFKA-17394)"
-        if "DefaultStateUpdaterTest.shouldGetTasksFromRestoredActiveTasks" in stdout or "DefaultStateUpdaterTest.verifyGetTasks" in stdout:
-            return "TP(KAFKA-17402)"
-        if "DefaultTaskManagerTest.shouldBlockOnAwait" in stdout:
-            return "TP(KAFKA-17929)"
-        if "DefaultStateUpdaterTest.shouldResume" in stdout or "DefaultStateUpdaterTest.shouldPause" in stdout or "DefaultStateUpdaterTest.shouldUpdate" in stdout or\
-            "DefaultTaskExecutorTest.shouldPunctuate" in stdout or "Wanted but not invoked:" in stdout or "Wanted *at least* " in stdout:
-            return "TP(KAFKA-17946)"
-        # cannot reproduce
-        if "shouldNotFailWhenCreatingTaskDirectoryInParallel" in stdout:
-            return "TP(?157)"
-        if "KafkaStreamsTest.should" in stdout and "AssertionFailedError: expected: <false> but was: <true>" in stdout:
-            return "TP(KAFKA-18418)"
-        if "KafkaStreamsTest.shouldThrowOnCleanupWhileShuttingDown" in stdout:
-            return "TP(KAFKA-18418)"
-        if "StreamThreadTest.shouldRecoverFromInvalidOffsetExceptionOnRestoreAndFinishRestore" in stdout:
-            return "TP(Time)"
-        if "StreamThreadTest.should" in stdout:
-            return "TP(Time)"
-        # if "DefaultTaskExecutorTest.shouldProcessTasks" in stdout:
-        #     return "TP(Time)"
-        print(stdout)
-        return None
-
-    def guava_bug_classify(self, stdout: str, run_folder: str) -> str:
-        if "DeadlockException" in stdout:
-            if "onThreadParkNanos" in stdout or "onLatchAwaitTimeout" in stdout or "onConditionAwaitNanos" in stdout:
-                print(run_folder)
-                return "FP(Time)"
-        folder_id = int(run_folder.split("/")[-1])
-        if folder_id <= 1194 and folder_id >= 1190:
-            return "Run failure"
-        if (folder_id <= 1115 and folder_id >= 1084) or \
-              (folder_id == 108) or \
-                (folder_id <= 1194 and folder_id >= 1135) or \
-                (folder_id <= 86 and folder_id >= 74) or \
-                    (folder_id == 94):
-            return "TP(#7319)"
-        if run_folder.endswith("/1123"):
-            return "Run failure"
-        if "timeout" in stdout or folder_id == 1128 or "GeneratedMonitorTest" in stdout:
-            return "TP(Time)"
-        if "ClosingFuture" in stdout:
-            return "TP(Time)"
-        if "/rr/" in run_folder:
-            return "Run failure"
-        if "QueuesTest" in stdout:
-            return "TP(Time)"
-        # print(stdout)
-        # exit(0)
-        return "N/A"
-        pass
 
     def bug_classify(self, run_folder: str, stdout: str):
         if self.benchmark == "lucene":
-            return self.lucene_bug_classify(stdout)
+            return lucene_bug_classify(stdout)
         if self.benchmark == "kafka":
-            return self.kafka_bug_classify(stdout)
+            return kafka_bug_classify(stdout)
         if self.benchmark == "guava":
-            result = self.guava_bug_classify(stdout, run_folder)
-            # if "Time" in result:
-            #     print(stdout)
-            return result
+            return guava_bug_classify(stdout, run_folder)
+        if self.benchmark == "flink":
+            return flink_bug_classify(stdout, run_folder)
         return "N/A"
 
     def read_time(self, path: str) -> float:
@@ -301,8 +185,8 @@ class BenchResult:
             if "Error found" in stdout:
                 bug_type = self.bug_classify(run_folder, stdout)
                 error_result = "Error"
-            summary_file.write(
-                f"{self.benchmark}-{folder},{self.trial},{error_result},{bug_type},{first_bug_time},{first_bug_iter},{self.read_time(run_folder)},{total_iteration}\n")
+            # summary_file.write(
+            #     f"{self.benchmark}-{folder},{self.trial},{error_result},{bug_type},{first_bug_time},{first_bug_iter},{self.read_time(run_folder)},{total_iteration}\n")
 
     def load_csv(self) -> pd.DataFrame:
         result_folder = os.path.join(self.path, "results")
