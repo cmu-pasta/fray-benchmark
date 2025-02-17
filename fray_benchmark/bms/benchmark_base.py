@@ -253,7 +253,6 @@ class MainMethodBenchmark(BenchmarkBase):
                 ),
                 False,
                 False,
-                False,
                 -1
             )
 
@@ -282,7 +281,6 @@ class UnitTestBenchmark(BenchmarkBase):
                     self.classpath,
                     self.properties
                 ),
-                False,
                 False,
                 False,
                 -1,

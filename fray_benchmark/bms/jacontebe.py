@@ -46,7 +46,6 @@ class JaConTeBe(BenchmarkBase):
                         ),
                         False,
                         False,
-                        False,
                         -1,
                     )
 
