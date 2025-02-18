@@ -195,7 +195,7 @@ class BenchmarkBase(object):
                 "-ea",
                 "-Xmx4g",
                 f"-agentpath:{FRAY_PATH}/jvmti/build/native-libs/libjvmti.so",
-                f"-javaagent:{FRAY_PATH}/instrumentation/agent/build/libs/agent-{FRAY_VERSION}-shadow.jar",
+                f"-javaagent:{FRAY_PATH}/instrumentation/agent/build/libs/fray-instrumentation-agent-{FRAY_VERSION}.jar",
                 "--add-opens", "java.base/java.lang=ALL-UNNAMED",
                 "--add-opens", "java.base/java.util=ALL-UNNAMED",
                 "--add-opens", "java.base/java.io=ALL-UNNAMED",
@@ -203,8 +203,10 @@ class BenchmarkBase(object):
                 "--add-opens", "java.base/sun.nio.ch=ALL-UNNAMED",
                 "--add-opens", "java.base/java.lang.reflect=ALL-UNNAMED",
                 "-cp", ":".join(resolve_classpaths([
-                    f"{FRAY_PATH}/core/build/libs/core-{FRAY_VERSION}.jar",
+                    f"{FRAY_PATH}/core/build/libs/fray-core-{FRAY_VERSION}.jar",
+                    f"{FRAY_PATH}/junit/build/libs/fray-junit-{FRAY_VERSION}.jar",
                     f"{FRAY_PATH}/core/build/dependency/*.jar",
+                    f"{FRAY_PATH}/junit/build/dependency/*.jar",
                 ])),
                 "org.pastalab.fray.core.MainKt",
                 "--run-config",
@@ -267,6 +269,24 @@ class UnitTestBenchmark(BenchmarkBase):
         ])
         self.properties = properties
         self.is_junit4 = is_junit4
+
+    def generate_collector_command(self) -> List[str]:
+        command = [
+            f"{FRAY_PATH}/instrumentation/jdk/build/java-inst/bin/java",
+            f"-javaagent:{HELPER_PATH}/junit-analyzer/build/libs/junit-analyzer-all.jar",
+            "--add-opens", "java.base/java.lang=ALL-UNNAMED",
+            "--add-opens", "java.base/java.util=ALL-UNNAMED",
+            "--add-opens", "java.base/java.io=ALL-UNNAMED",
+            "--add-opens", "java.base/java.util.concurrent.atomic=ALL-UNNAMED",
+            "--add-opens", "java.base/sun.nio.ch=ALL-UNNAMED",
+            "--add-opens", "java.base/java.lang.reflect=ALL-UNNAMED",
+            "-cp", "{HELPER_PATH}/junit-analyzer/build/libs/junit-analyzer-all.jar",
+            "org.junit.platform.console.ConsoleLauncher",
+            "execute",
+            "--scan-classpath",
+        ] + sum([["-cp", cp] for cp in self.classpath], [])
+        return command
+
 
     def get_test_cases(self, _tool_name: str) -> Iterator[RunConfig]:
         for test_case in self.test_cases:

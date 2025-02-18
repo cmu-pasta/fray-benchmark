@@ -19,6 +19,13 @@ from .utils import run_fray, run_rr, run_jpf, run_stats_collector
 def main():
     pass
 
+@main.command(name="collector")
+@click.argument("application", type=click.Choice(list(BENCHMARKS.keys())))
+def build(application: str):
+    app = BENCHMARKS[application]
+    command = app.generate_collector_command()
+    subprocess.call(command, cwd=FRAY_PATH)
+
 
 @main.command(name="build")
 @click.argument("application", type=click.Choice(list(BENCHMARKS.keys())))

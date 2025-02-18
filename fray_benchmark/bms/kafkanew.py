@@ -12,6 +12,12 @@ class KafkaBenchmark(UnitTestBenchmark):
         super().__init__(
             "kafka-new",
             [
+                os.path.join(self.bench_dir, "streams/build/classes/java/main/"),
+                os.path.join(self.bench_dir, "streams/build/classes/java/test/"),
+                os.path.join(self.bench_dir, "streams/build/resources/test/"),
+                os.path.join(self.bench_dir, "streams/build/resources/main/"),
+                os.path.join(self.bench_dir,
+                             "streams/build/dependant-testlibs/*.jar"),
                 os.path.join(self.bench_dir, "streams/integration-tests/build/classes/java/main/"),
                 os.path.join(self.bench_dir, "streams/integration-tests/build/classes/java/test/"),
                 os.path.join(self.bench_dir, "streams/integration-tests/build/resources/test/"),
@@ -19,13 +25,23 @@ class KafkaBenchmark(UnitTestBenchmark):
                 os.path.join(self.bench_dir,
                              "streams/integration-tests/build/libs/*.jar"),
                 os.path.join(self.bench_dir,
-                             "streams/integration-tests/build/dependency/*.jar"),
+                             "streams/integration-tests/build/dependant-testlibs/*.jar"),
             ], load_test_cases(os.path.join(ASSETS_PATH, f"kafka-new.txt")),
             {
             },
             False)
 
     def build(self) -> None:
+        subprocess.call([
+            "git",
+            "checkout",
+            "."
+        ], cwd=self.bench_dir)
+        subprocess.call([
+            "git",
+            "apply",
+            os.path.join(ASSETS_PATH, f"{self.name}.patch")
+        ], cwd=self.bench_dir)
         subprocess.call([
             "./gradlew",
             "testJar",

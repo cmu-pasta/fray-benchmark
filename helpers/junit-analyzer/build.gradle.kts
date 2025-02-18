@@ -15,7 +15,7 @@ dependencies {
   api("org.ow2.asm:asm-tree:9.7")
   api("org.ow2.asm:asm-commons:9.7")
   api("org.ow2.asm:asm-util:9.7")
-  compileOnly("org.pastalab.fray:runtime:0.1.4-SNAPSHOT")
+  compileOnly("org.pastalab.fray:fray-runtime:0.2.6-SNAPSHOT")
 }
 
 kotlin {
