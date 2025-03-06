@@ -112,6 +112,7 @@ def run_single(path: str, debug_jvm: bool, no_fray: bool):
     os.makedirs(out_dir)
     fray_args = [
         "--scheduler=random",
+        "--timeout=20"
     ]
     if no_fray:
         fray_args.append("--no-fray")
