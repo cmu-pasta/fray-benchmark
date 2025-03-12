@@ -43,7 +43,7 @@ class BenchmarkBase(object):
                 f"{FRAY_PATH}/instrumentation/jdk/build/java-inst/bin/java",
                 "-ea",
                 f"-agentpath:{FRAY_PATH}/jvmti/build/native-libs/libjvmti.so",
-                f"-javaagent:{FRAY_PATH}/instrumentation/agent/build/libs/agent-{FRAY_VERSION}-shadow.jar",
+                f"-javaagent:{FRAY_PATH}/instrumentation/agent/build/libs/fray-instrumentation-agent-{FRAY_VERSION}.jar",
                 "--add-opens", "java.base/java.lang=ALL-UNNAMED",
                 "--add-opens", "java.base/java.util=ALL-UNNAMED",
                 "--add-opens", "java.base/java.io=ALL-UNNAMED",
@@ -51,7 +51,7 @@ class BenchmarkBase(object):
                 "--add-opens", "java.base/sun.nio.ch=ALL-UNNAMED",
                 "--add-opens", "java.base/java.lang.reflect=ALL-UNNAMED",
                 "-cp", ":".join(resolve_classpaths([
-                    f"{FRAY_PATH}/core/build/libs/core-{FRAY_VERSION}.jar",
+                    f"{FRAY_PATH}/core/build/libs/fray-core-{FRAY_VERSION}.jar",
                     f"{FRAY_PATH}/core/build/dependency/*.jar",
                 ])),
                 "org.pastalab.fray.core.MainKt",
