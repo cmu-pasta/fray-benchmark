@@ -12,6 +12,15 @@ def run_fray(command: Dict[str, Any], log_path: str, cwd: str, timeout: int):
     print(f"Running {log_path}")
     with open(os.path.join(log_path, "command.txt"), "w") as f:
         f.write(" ".join(command))
+
+    fray_log_path = os.path.join(log_path, "report", "fray.log")
+    if os.path.exists(fray_log_path):
+        with open(fray_log_path) as f:
+            fray_log = f.read()
+            # Skip if already finished
+            if "Run finished" in fray_log or "Error found at iter" in fray_log:
+                print(f"Prior run detected, skipping: {log_path}")
+                return
     error_found = False
     try:
         start_time = time.time()

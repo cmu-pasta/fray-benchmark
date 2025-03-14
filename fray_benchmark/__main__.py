@@ -47,8 +47,8 @@ def run(tool: str, application: str, scheduler: str, name: str, timeout: int, cp
     app = BENCHMARKS[application]
     for i in range(iterations):
         out_dir = os.path.join(OUTPUT_PATH, name, app.name, scheduler if tool == "fray" else tool, f"iter-{i}")
-        if os.path.exists(out_dir):
-            shutil.rmtree(out_dir)
+        # if os.path.exists(out_dir):
+        #     shutil.rmtree(out_dir)
         os.makedirs(out_dir, exist_ok=True)
         with Pool(processes=cpu) as pool:
             if tool == "java":
