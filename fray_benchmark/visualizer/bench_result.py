@@ -185,8 +185,12 @@ class BenchResult:
             if "Error found" in stdout:
                 bug_type = self.bug_classify(run_folder, stdout)
                 error_result = "Error"
-            # summary_file.write(
-            #     f"{self.benchmark}-{folder},{self.trial},{error_result},{bug_type},{first_bug_time},{first_bug_iter},{self.read_time(run_folder)},{total_iteration}\n")
+            exec_time = self.read_time(run_folder)
+            if self.tech == "java" and exec_time < 600:
+                error_result = "Error"
+                first_bug_time = int(exec_time * 1000)
+            summary_file.write(
+                f"{self.benchmark}-{folder},{self.trial},{error_result},{bug_type},{first_bug_time},{first_bug_iter},{exec_time},{total_iteration}\n")
 
     def load_csv(self) -> pd.DataFrame:
         result_folder = os.path.join(self.path, "results")
@@ -205,16 +209,16 @@ class BenchmarkSuite:
         for path in paths:
             self.path = os.path.abspath(path)
             for tech in os.listdir(self.path):
-                if "java" in tech and "sctbench" not in self.path:
-                    continue
+                # if "java" in tech and "sctbench" not in self.path:
+                #     continue
                 tech_folder = os.path.join(self.path, tech)
                 if os.path.exists(os.path.join(tech_folder, "iter-0")):
-                    # for i in range(10):
-                    #     trial_folder = os.path.join(tech_folder, f"iter-{i}")
-                    #     self.benchmarks.append(BenchResult(trial_folder, True))
-                    for trial in os.listdir(tech_folder):
-                        trial_folder = os.path.join(tech_folder, trial)
+                    for i in range(1):
+                        trial_folder = os.path.join(tech_folder, f"iter-{i}")
                         self.benchmarks.append(BenchResult(trial_folder, True))
+                    # for trial in os.listdir(tech_folder):
+                    #     trial_folder = os.path.join(tech_folder, trial)
+                    #     self.benchmarks.append(BenchResult(trial_folder, True))
                 else:
                     self.benchmarks.append(BenchResult(tech_folder, False))
     def to_timed_stats(self):
@@ -239,7 +243,7 @@ class BenchmarkSuite:
     def to_aggregated_dataframe(self) -> pd.DataFrame:
         data = []
         for bench in self.benchmarks:
-            # bench.to_csv()
+            bench.to_csv()
             df = bench.load_csv()
             df["Technique"] = self.name_remap(bench.tech)
             data.append(df)
@@ -401,6 +405,7 @@ class BenchmarkSuite:
             group = group.reset_index().rename(columns={'index': 'bug_time'})
             group['bug_time'] = group["bug_time"] / 1000
             return group
+        display(df_grouped[df_grouped["Technique"] == "Original"])
         df_grouped = df_grouped.groupby(['trial', 'Technique']).apply(interpolate_sum).reset_index(drop=True)
         ax = sns.lineplot(data=df_grouped, x="bug_time", y="sum", hue="Technique",
                           linewidth=2, errorbar='sd', estimator='mean', err_style='band', style="Technique")
