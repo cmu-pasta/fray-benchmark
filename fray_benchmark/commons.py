@@ -4,6 +4,7 @@ SCHEDULERS = {
     "pct3": ['--scheduler=pct', '--num-switch-points=3'],
     "pct15": ['--scheduler=pct', '--num-switch-points=15'],
     "pos": ['--scheduler=pos'],
+    "surw": ['--scheduler=surw'],
     "random": ['--scheduler=random'],
 }
 
