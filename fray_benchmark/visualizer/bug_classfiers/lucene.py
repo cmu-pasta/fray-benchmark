@@ -5,7 +5,7 @@ def lucene_bug_classify(stdout: str):
     if "AssertionError: JVM fork arguments are not present" in stdout:
         return "Run failure"
     if "testTimeLimitingBulkScorer" in stdout:
-        return "TP(#13779)"
+        return "TP(Time)"
     if "TestRateLimiter" in stdout:
         return "TP(Time)"
     if "testTimeoutLargeNumberOfMerges" in stdout:
