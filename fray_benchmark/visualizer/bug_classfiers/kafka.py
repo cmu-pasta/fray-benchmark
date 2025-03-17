@@ -6,7 +6,11 @@ def kafka_bug_classify(stdout: str):
             return "FP(Time)"
     if "DefaultStateUpdaterTest.shouldRecordMetrics" in stdout:
         # ignore
-        return "TP(?90)"
+        return "TP(Time)"
+    if "because \"this.thread\" is null" in stdout:
+        return "TP(Time)"
+    if "DefaultTaskExecutorTest.shouldShutdownTaskExecutor" in stdout:
+        return "TP(Time)"
     if "83/report" in stdout:
         return "TP(KAFKA-17162)"
     if "[FATAL src/Task.cc:1429:compute_trap_reasons()]" in stdout:
@@ -22,7 +26,7 @@ def kafka_bug_classify(stdout: str):
     if "GlobalStreamThreadTest.shouldThrowStreamsExceptionOnStartupIfThereIsAStreamsException" in stdout:
         return "TP(KAFKA-17113)"
     if "DefaultTaskExecutorTest.shouldNotFlushOnException" in stdout:
-        return "TP(?261)"
+        return "TP(Time)"
     if "StreamThreadTest.shouldReinitializeRevivedTasksInAnyState" in stdout:
         return "TP(KAFKA-17112)"
     if "DefaultTaskExecutorTest.shouldUnassignTaskWhenRequired" in stdout:
@@ -58,4 +62,4 @@ def kafka_bug_classify(stdout: str):
     # if "DefaultTaskExecutorTest.shouldProcessTasks" in stdout:
     #     return "TP(Time)"
     print(stdout)
-    return None
+    return "TP(???)"

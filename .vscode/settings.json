@@ -1,0 +1,8 @@
+{
+    "python.analysis.exclude": [
+        "./bms/*"
+    ],
+    "files.exclude": {
+        "**/bms": true
+    }
+}

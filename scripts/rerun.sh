@@ -27,7 +27,7 @@
 # python3 -m fray_benchmark run rr jacontebe --name exec-1 --cpu 32 --perf-mode --timeout 600 --iterations 20
 # python3 -m fray_benchmark run fray guava --name bug-1 --scheduler random --cpu 30 --iterations 1
 # python3 -m fray_benchmark run fray guava --name bug-1 --scheduler pos --cpu 30 --iterations 1
-python3 -m fray_benchmark run fray kafka --name bug-1 --scheduler surw --cpu 30 --iterations 1
-python3 -m fray_benchmark run fray lucene --name bug-1 --scheduler surw --cpu 30 --iterations 1
-python3 -m fray_benchmark run fray guava --name bug-1 --scheduler surw --cpu 30 --iterations 1
-python3 -m fray_benchmark run fray lincheck --name bug-1 --scheduler surw --cpu 30 --iterations 1
+python3 -m fray_benchmark run fray kafka --name bug-2 --scheduler surw --cpu 30 --iterations 1
+python3 -m fray_benchmark run fray lucene --name bug-2 --scheduler surw --cpu 30 --iterations 1
+python3 -m fray_benchmark run fray guava --name bug-2 --scheduler surw --cpu 30 --iterations 1
+python3 -m fray_benchmark run fray lincheck --name bug-2 --scheduler surw --cpu 30 --iterations 1

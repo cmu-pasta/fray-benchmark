@@ -211,14 +211,16 @@ class BenchmarkSuite:
             for tech in os.listdir(self.path):
                 # if "java" in tech and "sctbench" not in self.path:
                 #     continue
+                if "surw" not in tech:
+                    continue
                 tech_folder = os.path.join(self.path, tech)
                 if os.path.exists(os.path.join(tech_folder, "iter-0")):
-                    for i in range(1):
-                        trial_folder = os.path.join(tech_folder, f"iter-{i}")
-                        self.benchmarks.append(BenchResult(trial_folder, True))
-                    # for trial in os.listdir(tech_folder):
-                    #     trial_folder = os.path.join(tech_folder, trial)
+                    # for i in range(1):
+                    #     trial_folder = os.path.join(tech_folder, f"iter-{i}")
                     #     self.benchmarks.append(BenchResult(trial_folder, True))
+                    for trial in os.listdir(tech_folder):
+                        trial_folder = os.path.join(tech_folder, trial)
+                        self.benchmarks.append(BenchResult(trial_folder, True))
                 else:
                     self.benchmarks.append(BenchResult(tech_folder, False))
     def to_timed_stats(self):
@@ -243,7 +245,7 @@ class BenchmarkSuite:
     def to_aggregated_dataframe(self) -> pd.DataFrame:
         data = []
         for bench in self.benchmarks:
-            bench.to_csv()
+            # bench.to_csv()
             df = bench.load_csv()
             df["Technique"] = self.name_remap(bench.tech)
             data.append(df)
@@ -268,11 +270,14 @@ class BenchmarkSuite:
     def generate_bug_table(self):
         df = self.to_aggregated_dataframe()
         df = df.replace(r'^TP\(Time\)', 'Time', regex=True)
+        display(df["type"].unique())
         df = df.replace(r'^TP\(.+', 'TP', regex=True)
         df = df.replace(r'^FP\(Time\)', 'Time (FP)', regex=True)
         pivot_df = df.pivot_table(values='id', index='Technique', columns='error', aggfunc='count', fill_value=0).reset_index().set_index("Technique")
         error_data = df.pivot_table(values="id", index='Technique', columns='type', aggfunc='count', fill_value=0).reset_index().set_index("Technique")
         result = pd.concat([pivot_df, error_data], axis=1).fillna(0).astype(int).reset_index()
+        if "TP" not in result:
+            result["TP"] = 0
         if "Time (FP)" not in result:
             result["Time (FP)"] = 0
         if "Time" not in result:
