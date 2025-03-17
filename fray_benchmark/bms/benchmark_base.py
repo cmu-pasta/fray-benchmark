@@ -174,6 +174,58 @@ class BenchmarkBase(object):
             command.append("true")
             yield command, log_path, FRAY_PATH
 
+
+    def generate_lincheck_test_commands(self, config: List[str], out_dir: str, timeout: int, perf_mode: bool) -> Iterator[Tuple[List[str], str, str]]:
+        test_index = 0
+        for config_data in self.get_test_cases("fray"):
+            log_path = f"{out_dir}/{test_index}"
+            os.makedirs(log_path, exist_ok=True)
+            with open(f"{log_path}/config.json", "w") as f:
+                f.write(config_data.to_json())
+            test_index += 1
+            command = [
+                "/usr/bin/time",
+                "-p",
+                "-o",
+                f"{log_path}/time.txt",
+                "timeout",
+                "-s",
+                "INT",
+                str(timeout + 120),
+                f"{FRAY_PATH}/instrumentation/jdk/build/java-inst/bin/java",
+                "-ea",
+                "-Xmx4g",
+                f"-agentpath:{FRAY_PATH}/jvmti/build/native-libs/libjvmti.so",
+                f"-javaagent:{FRAY_PATH}/instrumentation/agent/build/libs/fray-instrumentation-agent-{FRAY_VERSION}.jar",
+                "--add-opens", "java.base/java.lang=ALL-UNNAMED",
+                "--add-opens", "java.base/java.util=ALL-UNNAMED",
+                "--add-opens", "java.base/java.io=ALL-UNNAMED",
+                "--add-opens", "java.base/java.util.concurrent.atomic=ALL-UNNAMED",
+                "--add-opens", "java.base/sun.nio.ch=ALL-UNNAMED",
+                "--add-opens", "java.base/java.lang.reflect=ALL-UNNAMED",
+                "-cp", ":".join(resolve_classpaths([
+                    f"{FRAY_PATH}/core/build/libs/fray-core-{FRAY_VERSION}.jar",
+                    f"{FRAY_PATH}/junit/build/libs/fray-junit-{FRAY_VERSION}.jar",
+                    f"{FRAY_PATH}/core/build/dependency/*.jar",
+                    f"{FRAY_PATH}/junit/build/dependency/*.jar",
+                ])),
+                "org.pastalab.fray.core.MainKt",
+                "--run-config",
+                "json",
+                "--config-path",
+                f"{log_path}/config.json",
+                "-o", f"{log_path}/report",
+                "--iter", "-1",
+                "--timeout", str(timeout),
+                *config
+            ]
+            if perf_mode:
+                command.append("--explore")
+            command.extend(["--iter", "-1"])
+            yield command, log_path, FRAY_PATH
+
+
+
     def generate_fray_test_commands(self, config: List[str], out_dir: str, timeout: int, perf_mode: bool) -> Iterator[Tuple[List[str], str, str]]:
         test_index = 0
         for config_data in self.get_test_cases("fray"):
