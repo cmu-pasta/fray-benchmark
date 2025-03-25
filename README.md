@@ -32,9 +32,8 @@ Commands:
 To run a single benchmark application you can use the following command:
 
 ```
-Usage: python -m fray_benchmark run [OPTIONS] {jpf|rr|fray} {lucene|solr|jacon
-                                    tebe|guava|kafka|lincheck|sctbench|apachec
-                                    ommon}
+Usage: python -m fray_benchmark run [OPTIONS] {jpf|rr|fray} {lucene|jacon
+                                    tebe|guava|kafka|lincheck|sctbench}
 
 Options:
   --scheduler [pct3|pct15|pos|random]
