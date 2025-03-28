@@ -10,7 +10,7 @@ from multiprocessing import Pool
 import click
 
 from .benchmarks import BENCHMARKS
-from .bms.benchmark_base import BenchmarkBase, SavedBenchmark
+from .bm_configs.benchmark_base import SavedBenchmark
 from .commons import FRAY_PATH, OUTPUT_PATH, SCHEDULERS, RR_PATH, JPF_PATH
 from .utils import run_fray, run_rr, run_jpf, run_stats_collector
 
@@ -21,7 +21,7 @@ def main():
 
 @main.command(name="collector")
 @click.argument("application", type=click.Choice(list(BENCHMARKS.keys())))
-def build(application: str):
+def collector(application: str):
     app = BENCHMARKS[application]
     command = app.generate_collector_command()
     subprocess.call(command, cwd=FRAY_PATH)
