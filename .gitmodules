@@ -34,3 +34,6 @@
 [submodule "bms/lucene-new"]
 	path = bms/lucene-new
 	url = https://github.com/apache/lucene.git
+[submodule "bms/curator"]
+	path = bms/curator
+	url = git@github.com:aoli-al/curator.git
