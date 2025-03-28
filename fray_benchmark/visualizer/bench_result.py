@@ -211,8 +211,8 @@ class BenchmarkSuite:
             for tech in os.listdir(self.path):
                 # if "java" in tech and "sctbench" not in self.path:
                 #     continue
-                if "surw" not in tech:
-                    continue
+                # if "surw" not in tech:
+                #     continue
                 tech_folder = os.path.join(self.path, tech)
                 if os.path.exists(os.path.join(tech_folder, "iter-0")):
                     # for i in range(1):
@@ -325,6 +325,10 @@ class BenchmarkSuite:
             pivot_df = df.pivot(index="id", columns="Technique", values="exec")
             cleaned_df = pivot_df.dropna()
             display(cleaned_df)
+            display((cleaned_df["Original"] / cleaned_df[TOOL_RANDOM]).median())
+            display((cleaned_df["Original"] / cleaned_df["JPF-Random"]).median())
+            display(((cleaned_df[TOOL_RANDOM] - cleaned_df["JPF-Random"]) / cleaned_df["JPF-Random"]).mean())
+            display(((cleaned_df[TOOL_RANDOM] - cleaned_df["RR-Chaos"]) / cleaned_df["RR-Chaos"]).mean())
             hue_order.append("Original")
             ncols = 6
             # display(cleaned_df)

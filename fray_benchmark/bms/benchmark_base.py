@@ -156,9 +156,9 @@ class BenchmarkBase(object):
                 f.write(config_data.to_json())
             test_index += 1
             command = [
-                f"{FRAY_PATH}/instrumentation/jdk/build/java-inst/bin/java",
+                f"java",
                 "-ea",
-                f"-javaagent:{HELPER_PATH}/timed-operation-observer/build/libs/timed-operation-observer-1.0-SNAPSHOT.jar={log_path}/timed-operations.txt",
+                f"-javaagent:/home/aoli/lib/jacocoagent.jar=destfile=/home/aoli/tmp/jacoco2.exec",
                 "--add-opens", "java.base/java.lang=ALL-UNNAMED",
                 "--add-opens", "java.base/java.util=ALL-UNNAMED",
                 "--add-opens", "java.base/java.io=ALL-UNNAMED",
