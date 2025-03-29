@@ -19,7 +19,6 @@ import org.junit.runner.Request;
 import org.junit.runner.manipulation.Filter;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.Result;
-import org.pastalab.fray.runtime.Runtime;
 
 public class JUnitRunner {
     public static class Junit5Listener implements TestExecutionListener {
@@ -36,6 +35,10 @@ public class JUnitRunner {
             }
         }
 
+        @Override
+        public void executionSkipped(TestIdentifier testIdentifier, String reason) {
+            TestExecutionListener.super.executionSkipped(testIdentifier, reason);
+        }
     }
 
 

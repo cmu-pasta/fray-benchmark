@@ -12,6 +12,7 @@ repositories {
 
 
 dependencies {
+    implementation("org.junit.jupiter:junit-jupiter-engine:5.10.2")
     implementation("org.junit.vintage:junit-vintage-engine:5.10.2")
     implementation("org.junit.platform:junit-platform-launcher:1.10.3")
     compileOnly("org.pastalab.fray:fray-runtime:0.3.1")
