@@ -15,7 +15,7 @@ class CuratorRecipesBenchmark(UnitTestBenchmark):
                 os.path.join(self.target_dir, "curator-recipes/target/curator-recipes-5.8.1-SNAPSHOT.jar"),
                 os.path.join(self.target_dir, "curator-recipes/target/curator-recipes-5.8.1-SNAPSHOT-tests.jar"),
                 os.path.join(self.target_dir, "curator-recipes/target/dependency/*.jar"),
-            ], load_test_cases(os.path.join(ASSETS_PATH, "flink.txt")),
+            ], load_test_cases(os.path.join(ASSETS_PATH, "curator.txt")),
             {},
             False)
 
