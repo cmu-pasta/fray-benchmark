@@ -24,6 +24,16 @@ class CuratorRecipesBenchmark(UnitTestBenchmark):
 
     def build(self) -> None:
         subprocess.call([
+            "git",
+            "checkout",
+            "."
+        ], cwd=self.target_dir)
+        subprocess.call([
+            "git",
+            "apply",
+            os.path.join(ASSETS_PATH, "curator.patch")
+        ], cwd=self.target_dir)
+        subprocess.call([
             "./mvnw",
             "install",
             "-DskipTests",
