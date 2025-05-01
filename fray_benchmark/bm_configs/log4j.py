@@ -26,13 +26,13 @@ class Log4jBenchmark(UnitTestBenchmark):
 
     def build(self) -> None:
         subprocess.call([
-            "./mvnw",
+            "mvn",
             "install",
             "-DskipTests",
             "-Drat.skip=true",
         ], cwd=self.target_dir)
         subprocess.call([
-            "./mvnw",
+            "mvn",
             "dependency:copy-dependencies",
         ], cwd=self.target_dir)
 
