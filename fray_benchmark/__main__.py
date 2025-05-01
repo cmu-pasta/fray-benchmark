@@ -24,6 +24,7 @@ def main():
 def collector(application: str):
     app = BENCHMARKS[application]
     command = app.generate_collector_command()
+    print(" ".join(command))
     subprocess.call(command, cwd=FRAY_PATH)
 
 

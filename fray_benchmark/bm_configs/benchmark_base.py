@@ -332,7 +332,7 @@ class UnitTestBenchmark(BenchmarkBase):
             "--add-opens", "java.base/java.util.concurrent.atomic=ALL-UNNAMED",
             "--add-opens", "java.base/sun.nio.ch=ALL-UNNAMED",
             "--add-opens", "java.base/java.lang.reflect=ALL-UNNAMED",
-            "-cp", "{HELPER_PATH}/junit-analyzer/build/libs/junit-analyzer-all.jar",
+            "-cp", f"{HELPER_PATH}/junit-analyzer/build/libs/junit-analyzer-all.jar",
             "org.junit.platform.console.ConsoleLauncher",
             "execute",
             "--scan-classpath",
