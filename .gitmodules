@@ -36,7 +36,7 @@
 	url = https://github.com/apache/lucene.git
 [submodule "bms/curator"]
 	path = bms/curator
-	url = git@github.com:aoli-al/curator.git
+	url = https://github.com/aoli-al/curator.git
 [submodule "bms/logging-log4j2"]
 	path = bms/logging-log4j2
 	url = https://github.com/apache/logging-log4j2
