@@ -40,3 +40,6 @@
 [submodule "bms/logging-log4j2"]
 	path = bms/logging-log4j2
 	url = https://github.com/apache/logging-log4j2
+[submodule "bms/ignite-3"]
+	path = bms/ignite-3
+	url = https://github.com/apache/ignite-3

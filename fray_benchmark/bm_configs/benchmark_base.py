@@ -337,6 +337,7 @@ class UnitTestBenchmark(BenchmarkBase):
             "execute",
             "--scan-classpath",
         ] + sum([["-cp", cp] for cp in self.classpath], [])
+        print(" ".join(command))
         return command
 
 
