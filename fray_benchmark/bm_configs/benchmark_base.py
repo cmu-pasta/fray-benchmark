@@ -29,7 +29,7 @@ class BenchmarkBase(object):
                 f.write(config_data.to_json())
             test_index += 1
             command = [
-                "/usr/bin/time",
+                "time",
                 "-p",
                 "-o",
                 f"{log_path}/time.txt",
@@ -95,7 +95,7 @@ class BenchmarkBase(object):
 
 
             prefix = [
-                "/usr/bin/time",
+                "time",
                 "-p",
                 "-o",
                 f"{log_path}/time.txt",
@@ -120,7 +120,7 @@ class BenchmarkBase(object):
             with open(f"{log_path}/config.json", "w") as f:
                 f.write(config_data.to_json())
             command = [
-                "/usr/bin/time",
+                "time",
                 "-p",
                 "-o",
                 f"{log_path}/time.txt",
@@ -184,7 +184,7 @@ class BenchmarkBase(object):
                 f.write(config_data.to_json())
             test_index += 1
             command = [
-                "/usr/bin/time",
+                "time",
                 "-p",
                 "-o",
                 f"{log_path}/time.txt",
@@ -235,7 +235,7 @@ class BenchmarkBase(object):
                 f.write(config_data.to_json())
             test_index += 1
             command = [
-                "/usr/bin/time",
+                "time",
                 "-p",
                 "-o",
                 f"{log_path}/time.txt",

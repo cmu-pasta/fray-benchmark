@@ -20,7 +20,7 @@ class Log4jBenchmark(UnitTestBenchmark):
                 os.path.join(
                     self.target_dir, "modules/sql-engine/build/dependencies/*.jar"
                 ),
-            ], load_test_cases(os.path.join(ASSETS_PATH, "log4j.txt")),
+            ], load_test_cases(os.path.join(ASSETS_PATH, "ignite.txt")),
             {},
             False)
 
