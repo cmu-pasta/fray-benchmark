@@ -15,7 +15,7 @@ class Log4jBenchmark(UnitTestBenchmark):
                     self.target_dir, "modules/sql-engine/build/libs/*.jar"
                 ),
                 os.path.join(
-                    self.target_dir, "modules/sql-engine/build/classes/java/test"
+                    self.target_dir, "modules/sql-engine/build/classes/java/test/"
                 ),
                 os.path.join(
                     self.target_dir, "modules/sql-engine/build/dependencies/*.jar"
