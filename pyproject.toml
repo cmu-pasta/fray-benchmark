@@ -1,20 +1,27 @@
-[tool.poetry]
+[project]
 name = "fray-benchmark"
-authors = ["fray-devs"]
+authors = [{name = "fray-devs"}]
 version = "0.1.0"
 description = ""
 readme = "README.md"
-packages = [{include = "fray_benchmark"}]
+requires-python = ">=3.11"
+dependencies = [
+    "click>=8.1.7",
+    "seaborn>=0.13.2",
+    "ipykernel>=6.29.5",
+    "jinja2>=3.1.4",
+    "scipy>=1.14.1",
+    "jupyter>=1.1.1",
+    "notebook>=7.4.3",
+    "ipython>=9.3.0",
+    "jupyterlab>=4.4.3",
+]
 
-[tool.poetry.dependencies]
-python = "^3.10"
-click = "^8.1.7"
-seaborn = "^0.13.2"
-ipykernel = "^6.29.5"
-jinja2 = "^3.1.4"
-scipy = "^1.14.1"
-jupyter = "^1.1.1"
-notebook = "^7.4.3"
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv]
+dev-dependencies = [
+    "ipykernel>=6.29.5",
+]

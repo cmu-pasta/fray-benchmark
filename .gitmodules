@@ -9,10 +9,6 @@
 	path = tools/rr
 	url = https://github.com/rr-debugger/rr.git
   ignore = dirty
-[submodule "tools/jpf-core"]
-	path = tools/jpf-core
-	url = https://github.com/javapathfinder/jpf-core.git
-  ignore = dirty
 [submodule "bms/kafka"]
 	path = bms/kafka
 	url = https://github.com/apache/kafka

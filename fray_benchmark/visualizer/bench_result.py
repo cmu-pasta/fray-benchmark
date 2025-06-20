@@ -270,7 +270,6 @@ class BenchmarkSuite:
     def generate_bug_table(self):
         df = self.to_aggregated_dataframe()
         df = df.replace(r'^TP\(Time\)', 'Time', regex=True)
-        display(df["type"].unique())
         df = df.replace(r'^TP\(.+', 'TP', regex=True)
         df = df.replace(r'^FP\(Time\)', 'Time (FP)', regex=True)
         pivot_df = df.pivot_table(values='id', index='Technique', columns='error', aggfunc='count', fill_value=0).reset_index().set_index("Technique")
@@ -324,11 +323,6 @@ class BenchmarkSuite:
         if column == "exec":
             pivot_df = df.pivot(index="id", columns="Technique", values="exec")
             cleaned_df = pivot_df.dropna()
-            display(cleaned_df)
-            display((cleaned_df["Original"] / cleaned_df[TOOL_RANDOM]).median())
-            display((cleaned_df["Original"] / cleaned_df["JPF-Random"]).median())
-            display(((cleaned_df[TOOL_RANDOM] - cleaned_df["JPF-Random"]) / cleaned_df["JPF-Random"]).mean())
-            display(((cleaned_df[TOOL_RANDOM] - cleaned_df["RR-Chaos"]) / cleaned_df["RR-Chaos"]).mean())
             hue_order.append("Original")
             ncols = 6
             # display(cleaned_df)
@@ -414,7 +408,6 @@ class BenchmarkSuite:
             group = group.reset_index().rename(columns={'index': 'bug_time'})
             group['bug_time'] = group["bug_time"] / 1000
             return group
-        display(df_grouped[df_grouped["Technique"] == "Original"])
         df_grouped = df_grouped.groupby(['trial', 'Technique']).apply(interpolate_sum).reset_index(drop=True)
         ax = sns.lineplot(data=df_grouped, x="bug_time", y="sum", hue="Technique",
                           linewidth=2, errorbar='sd', estimator='mean', err_style='band', style="Technique")
