@@ -277,6 +277,7 @@ class BenchmarkBase(object):
                 "--iter", "-1",
                 "--timeout", str(timeout),
                 "--network-delegate-type", "none",
+                "--system-time-delegate-type", "none",
                 *config
             ]
             if perf_mode:
