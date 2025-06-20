@@ -16,6 +16,7 @@ class RunConfig:
     ignore_unhandled_exceptions: bool = False
     interleave_memory_ops: bool = False
     max_scheduled_step: int = -1
+    timed_wait_wait_inf: bool = False
     def to_json(self) -> str:
         return json.dumps(asdict(self), indent=4)
 
