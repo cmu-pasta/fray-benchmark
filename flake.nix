@@ -32,7 +32,7 @@
               (mkPoetryEnv { projectDir = self; })
               poetry
               python3Packages.gitpython
-              jdk17
+              jdk21
               maven
             ];
           };
