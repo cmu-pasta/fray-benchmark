@@ -1,4 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env bash
+export PATH="/run/current-system/sw/bin:$PATH"
+
 EXPLORE_MODE=0
 if [ "$1" == "-e" ]; then
     EXPLORE_MODE=1
@@ -21,6 +23,7 @@ while [ $EXIT_STATUS -eq 0 ] || [ $EXPLORE_MODE -eq 1 ];  do
         EXIT_STATUS=$?
     fi
     echo "$OUTPUT"
+    break
     if echo "$OUTPUT" | grep -q "Deadlock detected"; then
         EXIT_STATUS=-1
     fi

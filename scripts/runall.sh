@@ -1,14 +1,17 @@
-# python3 -m fray_benchmark jacontebe runJPF --name eval-1 --cpu 8
-# python3 -m fray_benchmark jacontebe runRR --name eval-1 --cpu 8
-# python3 -m fray_benchmark jacontebe run --name eval-1 --scheduler random --cpu 8
-# python3 -m fray_benchmark sctbench runJPF --name eval-1 --cpu 8
-# python3 -m fray_benchmark sctbench runRR --name eval-1 --cpu 8
-# python3 -m fray_benchmark sctbench run --name eval-1 --scheduler random --cpu 8
-# python3 -m fray_benchmark run fray sctbench --name e-1 --scheduler random --cpu 32
-# python3 -m fray_benchmark run fray jacontebe --name e-1 --scheduler random --cpu 32
-# python3 -m fray_benchmark run jpf sctbench --name perf-1 --cpu 32
-# python3 -m fray_benchmark run jpf jacontebe --name perf-1 --cpu 32
-# python3 -m fray_benchmark run rr jacontebe --name perf-1 --cpu 32
-# python3 -m fray_benchmark run rr sctbench --name perf-1 --cpu 32
-python3 -m fray_benchmark run fray kafka --name e-1 --scheduler random --cpu 32
-python3 -m fray_benchmark run fray lucene --name e-1 --scheduler random --cpu 32
+python3 -m fray_benchmark run rr sctbench --name benchmark --iterations 1
+python3 -m fray_benchmark run fray sctbench --name benchmark --scheduler random --iterations 1
+python3 -m fray_benchmark run jpf sctbench --name benchmark --iterations 1
+python3 -m fray_benchmark run fray jacontebe --name benchmark --scheduler random --iterations 1
+python3 -m fray_benchmark run jpf jacontebe --name benchmark --iterations 1
+python3 -m fray_benchmark run rr jacontebe --name benchmark --iterations 1
+
+
+python3 -m fray_benchmark run fray kafka --name realworld --scheduler pos --iterations 1
+python3 -m fray_benchmark run jpf kafka --name realworld --iterations 1
+python3 -m fray_benchmark run rr kafka --name realworld --iterations 1
+python3 -m fray_benchmark run fray lucene --name realworld --scheduler pos --iterations 1
+python3 -m fray_benchmark run jpf lucene --name realworld --iterations 1
+python3 -m fray_benchmark run rr lucene --name realworld --iterations 1
+python3 -m fray_benchmark run fray guava --name realworld --scheduler pos --iterations 1
+python3 -m fray_benchmark run jpf guava --name realworld --iterations 1
+python3 -m fray_benchmark run rr guava --name realworld --iterations 1

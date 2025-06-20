@@ -17,3 +17,6 @@
 	path = bms/kafka
 	url = https://github.com/apache/kafka
   ignore = dirty
+[submodule "tools/fray"]
+	path = tools/fray
+	url = https://github.com/cmu-pasta/fray

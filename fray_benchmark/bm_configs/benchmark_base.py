@@ -78,7 +78,7 @@ class BenchmarkBase(object):
             os.makedirs(log_path, exist_ok=True)
             with open(f"{log_path}/config.json", "w") as f:
                 f.write(config_data.to_json())
-            command = ["/usr/bin/java", "-ea"]
+            command = ["/usr/bin/env", "java", "-ea"]
             if self.name != "jacontebe":
                 command.append(f"-javaagent:{HELPER_PATH}/assertion-handler-agent/AssertionHandlerAgent.jar")
             command.extend(["--add-opens", "java.base/java.lang=ALL-UNNAMED"])
@@ -95,6 +95,7 @@ class BenchmarkBase(object):
 
 
             prefix = [
+                "/usr/bin/env",
                 "time",
                 "-p",
                 "-o",
@@ -113,6 +114,7 @@ class BenchmarkBase(object):
 
     def generate_jpf_test_commands(self, out_dir: str, timeout: int, perf_mode: bool) -> Iterator[Tuple[List[str], str, str]]:
         test_index = 0
+        java11_path = os.environ.get("JDK11_HOME", "/usr/lib/jvm/java-11-openjdk-amd64")
         for config_data in self.get_test_cases("jpf"):
             log_path = f"{out_dir}/{test_index}"
             test_index += 1
@@ -128,7 +130,12 @@ class BenchmarkBase(object):
                 "-s",
                 "INT",
                 str(timeout),
-                "./bin/jpf"]
+                java11_path + "/bin/java",
+                "-Xmx1024m", "-ea",
+                "--add-opens", "java.base/jdk.internal.misc=ALL-UNNAMED",
+                "-jar",
+                JPF_PATH + "/build/RunJPF.jar",
+                ]
             if perf_mode:
                 command.append("+search.multiple_errors=true")
             command.append("+search.class=gov.nasa.jpf.search.RandomSearch")
@@ -142,6 +149,7 @@ class BenchmarkBase(object):
             command = {
                 "command": command,
                 "env": {
+                    "JAVA_HOME": os.environ.get("JDK11_HOME", "/usr/lib/jvm/java-11-openjdk-amd64"),
                     # "JVM_FLAGS": "-Xmx1024m -ea --add-opens java.base/jdk.internal.misc=ALL-UNNAMED"
                 }
             }
