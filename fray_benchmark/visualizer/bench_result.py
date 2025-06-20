@@ -325,7 +325,6 @@ class BenchmarkSuite:
             cleaned_df = pivot_df.dropna()
             hue_order.append("Original")
             ncols = 6
-            # display(cleaned_df)
         sns.scatterplot(data=df, x="id", y=column, hue="Technique", style="Technique", ax=ax, zorder=2, s=80, alpha=0.9, markers=markers, hue_order=hue_order, style_order=hue_order)
         ax.fill_between([-1, len(sct_list) - 0.5], y1=[ylim, ylim], alpha=0.3, facecolor=sns_config.colors[-1], linewidth=0.0, label="SCTBench")
         ax.fill_between([len(sct_list) - 0.5, xlim], y1=[ylim, ylim], alpha=0.3, linewidth=0.0, facecolor=sns_config.colors[-2], label="JaConTeBe")
