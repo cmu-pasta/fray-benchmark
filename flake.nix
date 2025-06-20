@@ -41,6 +41,7 @@
           runScript = "bash";
           profile = ''
             export JDK11_HOME="${pkgs.jdk11.home}"
+            export JDK21_HOME="${pkgs.jdk21.home}"
           '';
         }).env;
       });
