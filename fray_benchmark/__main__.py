@@ -114,7 +114,7 @@ def run_single(path: str, debug_jvm: bool, no_fray: bool):
     fray_args = [
         "--scheduler=pos",
         "--timeout=600",
-        "--"
+        "--network-delegate-type", "none",
     ]
     if no_fray:
         fray_args.append("--no-fray")

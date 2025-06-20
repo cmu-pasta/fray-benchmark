@@ -276,6 +276,7 @@ class BenchmarkBase(object):
                 "-o", f"{log_path}/report",
                 "--iter", "-1",
                 "--timeout", str(timeout),
+                "--network-delegate-type", "none",
                 *config
             ]
             if perf_mode:
