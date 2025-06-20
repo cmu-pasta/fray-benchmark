@@ -243,7 +243,7 @@ class BenchmarkBase(object):
                 "-s",
                 "INT",
                 str(timeout + 120),
-                f"{FRAY_PATH}/instrumentation/jdk/build/java-inst/bin/java",
+                f"{FRAY_PATH}/instrumentation/jdk/build/java-inst-jdk21/bin/java",
                 "-ea",
                 "-Xmx4g",
                 f"-agentpath:{FRAY_PATH}/jvmti/build/native-libs/libjvmti.so",
@@ -278,6 +278,7 @@ class BenchmarkBase(object):
                 "--timeout", str(timeout),
                 "--network-delegate-type", "none",
                 "--system-time-delegate-type", "none",
+                "--sleep-as-yield",
                 *config
             ]
             if perf_mode:
