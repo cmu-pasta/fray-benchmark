@@ -72,13 +72,14 @@ class BenchmarkBase(object):
 
     def generate_rr_test_commands(self, out_dir: str, timeout: int, perf_mode: bool) -> Iterator[Tuple[List[str], str, str]]:
         test_index = 0
+        java21_path = os.environ.get("JDK21_HOME", "/usr/lib/jvm/java-21-openjdk-amd64")
         for config_data in self.get_test_cases("rr"):
             log_path = f"{out_dir}/{test_index}"
             test_index += 1
             os.makedirs(log_path, exist_ok=True)
             with open(f"{log_path}/config.json", "w") as f:
                 f.write(config_data.to_json())
-            command = ["/usr/bin/env", "java", "-ea"]
+            command = [f"{java21_path}/bin/java", "-ea"]
             if self.name != "jacontebe":
                 command.append(f"-javaagent:{HELPER_PATH}/assertion-handler-agent/AssertionHandlerAgent.jar")
             command.extend(["--add-opens", "java.base/java.lang=ALL-UNNAMED"])

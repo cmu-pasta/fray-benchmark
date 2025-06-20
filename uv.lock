@@ -450,6 +450,7 @@ dependencies = [
     { name = "jupyter" },
     { name = "jupyterlab" },
     { name = "notebook" },
+    { name = "pexpect" },
     { name = "scipy" },
     { name = "seaborn" },
 ]
@@ -468,6 +469,7 @@ requires-dist = [
     { name = "jupyter", specifier = ">=1.1.1" },
     { name = "jupyterlab", specifier = ">=4.4.3" },
     { name = "notebook", specifier = ">=7.4.3" },
+    { name = "pexpect", specifier = ">=4.9.0" },
     { name = "scipy", specifier = ">=1.14.1" },
     { name = "seaborn", specifier = ">=0.13.2" },
 ]

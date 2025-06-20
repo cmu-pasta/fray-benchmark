@@ -34,7 +34,6 @@
           targetPkgs = pkgs: with pkgs; [
             python
             uv
-            python3Packages.gitpython
             jdk21
             jdk11  # Added since you reference it in shellHook
             maven
@@ -43,7 +42,6 @@
             capnproto
             makeWrapper
             pkg-config
-            python3
             which
             bash
             gdb
@@ -51,12 +49,27 @@
             procps
             zlib
             zstd
-            python312Packages.pexpect
+            # python311Packages.pexpect  # Removed - will use from virtual environment
           ];
           runScript = "bash";
           profile = ''
             export JDK11_HOME="${pkgs.jdk11.home}"
             export JDK21_HOME="${pkgs.jdk21.home}"
+            
+            # Create virtual environment with uv if it doesn't exist
+            if [ ! -d ".venv" ]; then
+              echo "Creating virtual environment with uv..."
+              uv venv .venv
+              echo "Installing dependencies with uv..."
+              uv sync
+            fi
+            
+            # Activate the virtual environment
+            if [ -d ".venv/bin" ]; then
+              export PATH="$PWD/.venv/bin:$PATH"
+              export VIRTUAL_ENV="$PWD/.venv"
+              echo "Virtual environment activated: $VIRTUAL_ENV"
+            fi
           '';
         }).env;
       });
