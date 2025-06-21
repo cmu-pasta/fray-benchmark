@@ -13,7 +13,8 @@ This document only includes the instructions to run the evaluation. The document
 ## JPF and Fray
 
 - You can run evaluation on any Linux and macOS system
-- If you wish to use our prebuild version, you can download it from [here]().
+- We provide a pre-configured container image that includes all the dependencies and tools to run the evaluation.
+  - `podman run -it --privileged  localhost/fray-benchmark bash`
 - You may also use nix to build the project manually.
 
 ## RR (Record and Replay)
@@ -34,15 +35,42 @@ This document only includes the instructions to run the evaluation. The document
 
 # Build the Project
 
-You may skip this step if you are using our prebuilt container.
 
-- First you need to enable the direnv by running `direnv allow`. 
+- First you need to enable the devshell `nix develop`. 
+  - If you run this command in the container, you may ignore the error: `error: remounting /nix/store writable: Invalid argument`.
 - Next run the following command to build all projects `./scripts/build.sh`.
 
 
+## Run the Evaluation
+
+- You may use the following script to run all benchmarks `./scripts/runall.sh`.
+
+- You can also run a single benchmark by using the following command:
+
+```bash
+Usage: python -m fray_benchmark run [OPTIONS] {jpf|rr|fray|java} {kafka|s
+                                    ctbench|jacontebe|lucene|lincheck|guava}
+
+Options:
+  --scheduler [pct3|pct15|pos|surw|random]
+  --name TEXT
+  -t, --timeout INTEGER
+  --cpu INTEGER
+  --perf-mode
+  --iterations INTEGER
+  --help                          Show this message and exit.
+```
 
 
 ## Analyze Result
+
+
+- All results will be saved in the `output` directory.
+- If you run the `runall.sh` script, you can find the RQ1 and RQ2 results in the `output/benchmark` directory and the RQ3, and RQ4 results in the `output/realworld` directory.
+  - `{benchmark_name}/{technique}/iter-0/{testcase}/` contains the output of each technique for each testcase.
+- We provide a jupyter notebook to analyze the results. You can run the notebook by using the following command `uv run --with jupyter jupyter lab`.
+
+### RQ1
 
 
 ### Note

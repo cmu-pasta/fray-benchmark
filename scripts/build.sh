@@ -4,6 +4,7 @@ BASEDIR=$(dirname $SCRIPT_PATH)/..
 echo $BASEDIR
 
 cd $BASEDIR/tools/rr
+rm -rf build
 mkdir build
 cd build
 cmake -Ddisable32bit=ON -DCMAKE_BUILD_TYPE=Release  ../
@@ -15,7 +16,8 @@ export JAVA_HOME=$JDK11_HOME
 export JAVA_HOME=$JDK21_HOME
 
 cd $BASEDIR/tools/fray
-./gradlew build -x test --no-daemon
+rm -rf result
+nix build
 
 
 cd $BASEDIR

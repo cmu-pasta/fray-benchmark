@@ -9,33 +9,21 @@
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
-        
-        # Create the workspace from pyproject.toml
         workspace = uv2nix.lib.${system}.workspace.loadWorkspace { workspaceRoot = ./.; };
-        
-        # Create overlay
         overlay = workspace.mkPyprojectOverlay {
           sourcePreference = "wheel"; # or "sdist"
         };
-        
-        # Create python with overlay
         python = pkgs.python311.override {
           packageOverrides = overlay;
         };
-        
-        # Get the package
-        app = python.pkgs.fray-benchmark;
       in
       {
-        packages.default = app;
-        
-        devShells.default = (pkgs.buildFHSEnv {
-          name = "dev-shell";
-          targetPkgs = pkgs: with pkgs; [
+        devShells.default = pkgs.mkShell {
+          buildInputs = with pkgs; [
             python
             uv
             jdk21
-            jdk11  # Added since you reference it in shellHook
+            jdk11
             maven
             time
             cmake
@@ -47,12 +35,13 @@
             gdb
             libpfm
             procps
-            zlib
-            zstd
-            # python311Packages.pexpect  # Removed - will use from virtual environment
+            zlib.dev
+            zstd.dev
+            gcc
+            vim
           ];
-          runScript = "bash";
-          profile = ''
+          
+          shellHook = ''
             export JDK11_HOME="${pkgs.jdk11.home}"
             export JDK21_HOME="${pkgs.jdk21.home}"
             
@@ -68,9 +57,10 @@
             if [ -d ".venv/bin" ]; then
               export PATH="$PWD/.venv/bin:$PATH"
               export VIRTUAL_ENV="$PWD/.venv"
+              source .venv/bin/activate
               echo "Virtual environment activated: $VIRTUAL_ENV"
             fi
           '';
-        }).env;
+        };
       });
 }
