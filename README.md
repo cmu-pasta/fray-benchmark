@@ -49,7 +49,7 @@ You may skip this step if you are using our prebuilt container.
 
 1. RR is very sensitive to the kernel version, CPU architecture, and the system configuration. Different systems may produce different results. 
 
-2. We have been improving Fray for the past few months, and the results may not be consistent with the paper. 
+2. We have been improving Fray for the past few months, you may see better results for Fray for some benchmarks. 
 
 
 
