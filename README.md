@@ -1,10 +1,14 @@
 # Fray Artifact Evaluation
 
-This repository contains artifacts to reproduce the paper "Fray: An Efficient General-Purpose Concurrency Testing Platform for the JVM". We would like to claim reusable, results reproduced, and artifact available badges for the paper. 
+# Introduction
 
-This README only includes the instructions to run the evaluation. The documentation of the Fray project is available in the [Fray repository](https://github.com/cmu-pasta/fray/) and [docs](https://github.com/cmu-pasta/fray/tree/main/docs) folder.
+This repository contains artifacts to reproduce the paper "Fray: An Efficient General-Purpose Concurrency Testing Platform for the JVM". This README only includes the instructions to run the evaluation. The documentation of the Fray project is available in the [Fray repository](https://github.com/cmu-pasta/fray/) and [docs](https://github.com/cmu-pasta/fray/tree/main/docs) folder. Fray claims the following badge for the paper:
 
-# Requirements
+- **Artifact Available**: Both [Fray](https://github.com/cmu-pasta/fray) and Fray Benchmark are available on GitHub. Fray uses Nix to provide reproducible builds.
+- **Reusable**: Fray is designed to be reusable in real-world applications. It can be used as a JUnit test to find concurrency bugs in Java applications. The Fray debugger plugin is also available for IntelliJ IDEA. The Fray documentation provides detailed instructions on how to use Fray in real-world applications and how to extend Fray to support new concurrency testing algorithms.
+- **Results Reproduced**: The results of the paper are reproduced in this repository.
+
+# Hardware Dependencies
 
 ## Hardware
 
@@ -31,7 +35,10 @@ This README only includes the instructions to run the evaluation. The documentat
 - Intel CPU is recommended for better performance
   - For AMD CPU, you need [extra configuration](https://github.com/rr-debugger/rr/wiki/Zen)
 
-# Get the Repo
+
+# Getting Started Guide
+
+## Get the Repo
 
 - You may clone this repository: `git clone --recurse-submodules -j8 https://github.com/cmu-pasta/fray-benchmark`.
   - The project uses Nix to manage its dependencies. You may download Nix from [here](https://nixos.org/download.html).
@@ -39,15 +46,21 @@ This README only includes the instructions to run the evaluation. The documentat
   - `podman run -p 8888:8888 -it --privileged leeleo3x/fray-benchmark bash`
   - We need the `--privileged` flag to run nix and RR.
 
-# Build the Project
+## Build the Project
 
 - You may skip this step if you are using the pre-configured container image.
 - First, you need to enter the devshell: `nix develop`. 
 - Next, run the following command to build all projects: `./scripts/build.sh`.
 
+## Kick the Tire 
 
-# Run the Evaluation
+- You can run the following command to run the sctbench benchmark for each technique for 1 minute (mini RQ 1): `bash ./scripts/run_kickthetire.sh`.
+- Next you can run the jupyter notebook to visualize the results: `uv run --with jupyter jupyter lab`.
+- Go to the `Kick The Tire` section in the notebook to see the results of the mini RQ 1.
 
+# Step-by-Step Instructions
+
+## Run Full Evaluation
 
 - The source code of the benchmark applications is available in the `bms/{benchmark_name}` directory.
 - Test cases are defined in `fray_benchmark/assets/{benchmark_name}.txt` file.
@@ -62,7 +75,7 @@ This README only includes the instructions to run the evaluation. The documentat
   - Note that depending on the hardware, Fray may find more or fewer bugs than reported in the original paper.
   - If you want to run all collected concurrency tests, replacing the `fray_benchmark/assets/{benchmark_name}.txt` with `fray_benchmark/assets/{benchmark_name}.full.txt` will run all tests. Note that this will take days to complete.
 
-# Analyze Results
+## Analyze Results
 
 - All results will be saved in the `output` directory.
 - You can find the RQ1 and RQ2 results in the `output/benchmark` directory and the RQ3 and RQ4 results in the `output/realworld` directory.
@@ -71,7 +84,7 @@ This README only includes the instructions to run the evaluation. The documentat
 - We provide a Jupyter notebook to analyze the results. You can run the notebook by using the following command: `uv run --with jupyter jupyter lab`. The notebook is located in `fray_benchmark/visualizer/visuralize_result.ipynb`.
 
 
-# Real-world Bugs and Corresponding Run ID
+## Real-world Bugs and Corresponding Run ID
 
 - Kafka 
 
@@ -99,6 +112,16 @@ This README only includes the instructions to run the evaluation. The documentat
 - Guava 
 
   - Run 0, 1, 2: [#7319 Lingering threads in multiple tests](https://github.com/google/guava/issues/7319)
+
+
+# Reusability Guide
+
+The [Fray](https://github.com/cmu-pasta/fray) repository contains the main documentation of Fray design and implementation. 
+
+- [Usage Guide](https://github.com/cmu-pasta/fray/blob/main/docs/usage.md) provides instructions on how to use Fray in normal applications as JUnit tests.
+- [Debugger Plugin](https://github.com/cmu-pasta/fray/blob/main/docs/IDE.md) provides instructions on how to use the Fray dubugger plugin.
+- [Architecture](https://github.com/cmu-pasta/fray/blob/main/docs/architecture.md) provdes an overview of the Fray architecture and design.
+- [Debugging Guide](https://github.com/cmu-pasta/fray/blob/main/docs/debug_fray.md) provides instructions on how to debug Fray and its components.
 
 
 # (Optional) Reproducing a Bug Found by Fray

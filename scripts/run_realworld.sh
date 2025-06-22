@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 CPU_COUNT=6
 FULL_EVALUATION=false
