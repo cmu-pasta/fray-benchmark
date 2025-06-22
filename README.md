@@ -34,6 +34,13 @@ This README only includes the instructions to run the evaluation. The documentat
 - Intel CPU is recommended for better performance
   - For AMD CPU, you need [extra configuration](https://github.com/rr-debugger/rr/wiki/Zen)
 
+# Get the Repo
+
+- You may clone this repository: `git clone --recurse-submodules -j8 https://github.com/cmu-pasta/fray-benchmark`.
+- You may also use the pre-configured container image that includes all the dependencies and tools to run the evaluation.
+  - `podman run -it --privileged leeleo3x/fray-benchmark bash`
+  - We need the `--privileged` flag to run nix and RR.
+
 # Build the Project
 
 - You may skip this step if you are using the pre-configured container image.
@@ -41,7 +48,7 @@ This README only includes the instructions to run the evaluation. The documentat
 - Next, run the following command to build all projects: `./scripts/build.sh`.
 
 
-## Run the Evaluation
+# Run the Evaluation
 
 
 - The source code of the benchmark applications is available in the `bms/{benchmark_name}` directory.
@@ -57,7 +64,7 @@ This README only includes the instructions to run the evaluation. The documentat
   - Note that depending on the hardware, Fray may find more or fewer bugs than reported in the original paper.
   - If you want to run all collected concurrency tests, replacing the `fray_benchmark/assets/{benchmark_name}.txt` with `fray_benchmark/assets/{benchmark_name}.full.txt` will run all tests. Note that this will take days to complete.
 
-## Analyze Results
+# Analyze Results
 
 - All results will be saved in the `output` directory.
 - If you run the `runall.sh` script, you can find the RQ1 and RQ2 results in the `output/benchmark` directory and the RQ3 and RQ4 results in the `output/realworld` directory.
@@ -66,7 +73,7 @@ This README only includes the instructions to run the evaluation. The documentat
 - We provide a Jupyter notebook to analyze the results. You can run the notebook by using the following command: `uv run --with jupyter jupyter lab`. The notebook is located in `fray_benchmark/visualizer/visuralize_result.ipynb`.
 
 
-## Real-world Bugs and Corresponding Run ID
+# Real-world Bugs and Corresponding Run ID
 
 - Kafka 
 
@@ -96,7 +103,7 @@ This README only includes the instructions to run the evaluation. The documentat
   - Run 0, 1, 2: [#7319 Lingering threads in multiple tests](https://github.com/google/guava/issues/7319)
 
 
-## (Optional) Reproducing a Bug Found by Fray
+# (Optional) Reproducing a Bug Found by Fray
 
 
 To reproduce a bug found by Fray, you can use the following command:
@@ -110,11 +117,11 @@ For example, you can run `python3 -m fray_benchmark replay ./output/benchmark/sc
 Note that real-world applications have randomness other than concurrency, so you may not be able to reproduce the bug deterministically. [This commit](https://github.com/aoli-al/lucene/commit/fd606ec9ec3d603d9c71ee0d74cdee405b554032#diff-70e9ce52bc55b1688f99fd8eb54799b3a94506f8d0990016c6cc723be60b5040R136-R141) shows the changes required to reproduce the bug found in Lucene.
 
 
-## (Optional) Using Fray in Real-World Applications
+# (Optional) Using Fray in Real-World Applications
 
 Please follow the [Fray documentation](https://github.com/cmu-pasta/fray/blob/main/docs/usage.md) to use Fray in any real-world applications. Good luck finding real-world bugs!
 
 
-## Other Notes:
+# Other Notes:
 
 - RR is very sensitive to the CPU and kernel version. You may have slightly different result if you are using a different CPU or kernel version.
