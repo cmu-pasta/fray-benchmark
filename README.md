@@ -55,7 +55,7 @@ This repository contains artifacts to reproduce the paper "Fray: An Efficient Ge
 ## Kick the Tire 
 
 - You can run the following command to run the sctbench benchmark for each technique for 1 minute (mini RQ 1): `bash ./scripts/run_kickthetire.sh`.
-- Next you can run the jupyter notebook to visualize the results: `uv run --with jupyter jupyter lab --allow-root`.
+- Next you can run the jupyter notebook to visualize the results: `uv run --with jupyter jupyter lab --allow-root --ip 0.0.0.0 --no-browser`.
 - Go to the `Kick The Tire` section in the notebook to see the results of the mini RQ 1.
 
 # Step-by-Step Instructions
@@ -81,7 +81,7 @@ This repository contains artifacts to reproduce the paper "Fray: An Efficient Ge
 - You can find the RQ1 and RQ2 results in the `output/benchmark` directory and the RQ3 and RQ4 results in the `output/realworld` directory.
   - `{benchmark_name}/{technique}/iter-0/{run_id}/` contains the output of each technique for each test case.
   - For Fray, the `report` folder contains the output. `report/fray.log` contains the log of Fray and error information if Fray finds a bug.
-- We provide a Jupyter notebook to analyze the results. You can run the notebook by using the following command: `uv run --with jupyter jupyter lab --allow-root`. The notebook is located in `fray_benchmark/visualizer/visuralize_result.ipynb`.
+- We provide a Jupyter notebook to analyze the results. You can run the notebook by using the following command: `uv run --with jupyter jupyter lab --allow-root --ip 0.0.0.0 --no-browser`. The notebook is located in `fray_benchmark/visualizer/visuralize_result.ipynb`.
 
 
 ## Real-world Bugs and Corresponding Run ID

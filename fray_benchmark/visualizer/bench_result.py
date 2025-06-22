@@ -19,9 +19,9 @@ from . import sns_config
 
 TOOL_NAME = "Fray"
 
-TOOL_RANDOM = "$\\textsc{" + TOOL_NAME + "}$-Random"
-TOOL_PCT = "$\\textsc{" + TOOL_NAME + "}$-PCT"
-TOOL_POS = "$\\textsc{" + TOOL_NAME + "}$-POS"
+TOOL_RANDOM = TOOL_NAME + "-Random"
+TOOL_PCT = TOOL_NAME + "-PCT"
+TOOL_POS = TOOL_NAME + "-POS"
 
 
 class BenchResult:
