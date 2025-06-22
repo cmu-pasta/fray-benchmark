@@ -12,7 +12,7 @@ This repository contains artifacts to reproduce the paper "Fray: An Efficient Ge
 
 ## Hardware
 
-- CPU with at least 6 cores
+- x86 CPU with at least 6 cores
 - 32 GB of RAM
 
 ## JPF and Fray
