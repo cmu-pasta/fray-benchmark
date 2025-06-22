@@ -67,8 +67,8 @@ This README only includes the instructions to run the evaluation. The documentat
 # Analyze Results
 
 - All results will be saved in the `output` directory.
-- If you run the `runall.sh` script, you can find the RQ1 and RQ2 results in the `output/benchmark` directory and the RQ3 and RQ4 results in the `output/realworld` directory.
-  - `{benchmark_name}/{technique}/iter-0/{testcase}/` contains the output of each technique for each test case.
+- You can find the RQ1 and RQ2 results in the `output/benchmark` directory and the RQ3 and RQ4 results in the `output/realworld` directory.
+  - `{benchmark_name}/{technique}/iter-0/{run_id}/` contains the output of each technique for each test case.
   - For Fray, the `report` folder contains the output. `report/fray.log` contains the log of Fray and error information if Fray finds a bug.
 - We provide a Jupyter notebook to analyze the results. You can run the notebook by using the following command: `uv run --with jupyter jupyter lab`. The notebook is located in `fray_benchmark/visualizer/visuralize_result.ipynb`.
 
