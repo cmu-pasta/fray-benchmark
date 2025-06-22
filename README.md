@@ -2,7 +2,7 @@
 
 This repository contains artifacts to reproduce the paper "Fray: An Efficient General-Purpose Concurrency Testing Platform for the JVM". We would like to claim reusable, results reproduced, and artifact available badges for the paper. 
 
-This README only includes the instructions to run the evaluation. The documentation of the Fray project is available in the [Fray repository](https://github.com/cmu-pasta/fray/docs).
+This README only includes the instructions to run the evaluation. The documentation of the Fray project is available in the [Fray repository](https://github.com/cmu-pasta/fray/) and [docs](https://github.com/cmu-pasta/fray/tree/main/docs) folder.
 
 # Requirements
 
