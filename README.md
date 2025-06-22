@@ -14,9 +14,6 @@ This README only includes the instructions to run the evaluation. The documentat
 ## JPF and Fray
 
 - You can run evaluation on any Linux and macOS system
-- We provide a pre-configured container image that includes all the dependencies and tools to run the evaluation.
-  - `podman run -it --privileged  localhost/fray-benchmark bash`
-- You may also use nix to build the project manually.
 
 ## RR (Record and Replay)
 
@@ -37,8 +34,9 @@ This README only includes the instructions to run the evaluation. The documentat
 # Get the Repo
 
 - You may clone this repository: `git clone --recurse-submodules -j8 https://github.com/cmu-pasta/fray-benchmark`.
+  - The project uses Nix to manage its dependencies. You may download Nix from [here](https://nixos.org/download.html).
 - You may also use the pre-configured container image that includes all the dependencies and tools to run the evaluation.
-  - `podman run -it --privileged leeleo3x/fray-benchmark bash`
+  - `podman run -p 8888:8888 -it --privileged leeleo3x/fray-benchmark bash`
   - We need the `--privileged` flag to run nix and RR.
 
 # Build the Project
@@ -125,3 +123,7 @@ Please follow the [Fray documentation](https://github.com/cmu-pasta/fray/blob/ma
 # Other Notes:
 
 - RR is very sensitive to the CPU and kernel version. You may have slightly different result if you are using a different CPU or kernel version.
+
+# Changes for Revision
+
+All required revision changes concern paper writing only and do not affect Fray's implementation or evaluation, so we expect no changes to the evaluation results.
