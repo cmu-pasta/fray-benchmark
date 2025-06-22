@@ -48,11 +48,12 @@ This repository contains artifacts to reproduce the paper "Fray: An Efficient Ge
 
 ## Build the Project
 
-- First, you need to enter the devshell: `nix develop`. 
-- Next, run the following command to build all projects: `./scripts/build.sh`.
-  - You may skip this step if you are using the pre-configured container image.
+- Enter the project directory: `cd fray-benchmark`.
+  - In the pre-configured container image, you are already in the project directory (`/fray-benchmark`).
+- Next, you need to enter the devshell: `nix develop`. 
+- If you are not using the pre-configured container image, run the following command to build all projects: `./scripts/build.sh`.
 
-## Kick the Tire 
+## Kick the Tire (Reproduce Mini RQ 1)
 
 - You can run the following command to run the sctbench benchmark for each technique for 1 minute (mini RQ 1): `bash ./scripts/run_kickthetire.sh`.
 - Next you can run the jupyter notebook to visualize the results: `uv run --with jupyter jupyter lab --allow-root --ip 0.0.0.0 --no-browser`.
