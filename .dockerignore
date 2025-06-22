@@ -6,3 +6,4 @@ output
 build/
 result/
 TestDoug*
+.venv

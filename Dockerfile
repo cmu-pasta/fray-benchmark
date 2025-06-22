@@ -23,4 +23,6 @@ RUN cd /fray-benchmark && \
     export NIX_BUILD_SHELL=/bin/bash && \
     nix develop --impure --no-write-lock-file --option sandbox false --command bash -c "./scripts/build.sh"
 
+
+WORKDIR /fray-benchmark
 CMD ["bash"]
