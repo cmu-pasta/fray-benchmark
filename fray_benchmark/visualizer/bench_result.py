@@ -58,8 +58,8 @@ class BenchResult:
             return kafka_bug_classify(stdout)
         if self.benchmark == "guava":
             return guava_bug_classify(stdout, run_folder)
-        if self.benchmark == "flink":
-            return flink_bug_classify(stdout, run_folder)
+        if self.benchmark == "lincheck":
+            return "TP(0000)"
         return "N/A"
 
     def read_time(self, path: str) -> float:

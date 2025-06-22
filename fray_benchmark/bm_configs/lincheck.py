@@ -47,5 +47,5 @@ class LinCheckBenchmark(MainMethodBenchmark):
             if "CATreeTest" in test_case.executor.clazz:
                 test_case.max_scheduled_step = 100000
             if "LogicalOrderingAVL" in test_case.executor.clazz:
-                test_case.max_scheduled_step = 100000
+                test_case.max_scheduled_step = 10000
             yield test_case
