@@ -24,7 +24,6 @@
             uv
             jdk21
             jdk11
-            maven
             time
             cmake
             capnproto
@@ -44,6 +43,7 @@
           shellHook = ''
             export JDK11_HOME="${pkgs.jdk11.home}"
             export JDK21_HOME="${pkgs.jdk21.home}"
+            export LD_LIBRARY_PATH="${pkgs.stdenv.cc.cc.lib}/lib:$LD_LIBRARY_PATH"
             
             # Create virtual environment with uv if it doesn't exist
             if [ ! -d ".venv" ]; then

@@ -8,13 +8,13 @@ from typing import Iterator
 from fray_benchmark.objects.execution_config import RunConfig
 
 from .benchmark_base import MainMethodBenchmark
-from ..commons import FRAY_PATH, ASSETS_PATH
+from ..commons import ARTIFACTS_PATH, ASSETS_PATH
 from ..utils import load_test_cases
 
 
 class LinCheckBenchmark(MainMethodBenchmark):
     def __init__(self) -> None:
-        self.bench_dir = os.path.join(FRAY_PATH, "integration-tests")
+        self.bench_dir = os.path.join(ARTIFACTS_PATH, "licheck")
         super().__init__(
             "lincheck",
             [
@@ -32,15 +32,15 @@ class LinCheckBenchmark(MainMethodBenchmark):
         subprocess.call([
             "./gradlew",
             "jar",
-        ], cwd=os.path.join(self.bench_dir, ".."))
+        ], cwd=self.bench_dir)
         subprocess.call([
             "./gradlew",
-            "testJar",
-        ], cwd=os.path.join(self.bench_dir, ".."))
+            "build",
+        ], cwd=self.bench_dir)
         subprocess.call([
             "./gradlew",
             "copyDependencies",
-        ], cwd=os.path.join(self.bench_dir, ".."))
+        ], cwd=self.bench_dir)
 
     def get_test_cases(self, _tool_name: str) -> Iterator[RunConfig]:
         for test_case in super().get_test_cases(_tool_name):

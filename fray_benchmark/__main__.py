@@ -40,8 +40,8 @@ def build(application: str):
 @click.argument("application", type=click.Choice(list(BENCHMARKS.keys())))
 @click.option("--scheduler", type=click.Choice(list(SCHEDULERS.keys())))
 @click.option("--name", type=str, default=datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
-@click.option("--timeout", "-t", type=int, default=60)
-@click.option("--cpu", type=int, default=os.cpu_count())
+@click.option("--timeout", "-t", type=int, default=60 * 10)
+@click.option("--cpu", type=int, default=6)
 @click.option("--perf-mode", type=bool, is_flag=True, show_default=True, default=False)
 @click.option("--iterations", type=int, default=20)
 def run(tool: str, application: str, scheduler: str, name: str, timeout: int, cpu: int, iterations: int, perf_mode: bool):
@@ -131,9 +131,9 @@ def run_single(path: str, debug_jvm: bool, no_fray: bool):
 
 @main.command(name="replay")
 @click.argument("path", type=str)
-@click.argument("replay", type=str)
 @click.option("--debug-jvm", type=bool, is_flag=True, show_default=True, default=False)
-def replay(path: str, replay: str, debug_jvm: bool):
+def replay(path: str, debug_jvm: bool):
+    path = os.path.abspath(path)
     out_dir = os.path.join("/tmp/replay")
     if os.path.exists(out_dir):
         shutil.rmtree(out_dir)
@@ -144,9 +144,8 @@ def replay(path: str, replay: str, debug_jvm: bool):
         "-PconfigPath=" + os.path.join(path, "config.json"),
         "-PextraArgs=" + " ".join([
             "--scheduler=replay",
-            f'--path={os.path.join(path, "report", f"recording_{replay}")}',
+            f'--path-to-scheduler={os.path.join(path, "report", "recording_0")}',
         ],),
-        "--debug-jvm"
     ], cwd=FRAY_PATH)
 
 

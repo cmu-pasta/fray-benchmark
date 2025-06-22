@@ -76,9 +76,10 @@ def run_rr(command: List[str], log_path: str, cwd: str, timeout: int):
     with open(os.path.join(log_path, "report.txt"), "w") as stdout:
         start_time = time.time()
         error_found = False
+        origin_env = os.environ.copy()
         try:
             proc = subprocess.run(command, cwd=cwd, stdout=open(os.path.join(
-                log_path, "stdout.txt"), "w"), stderr=open(os.path.join(log_path, "stderr.txt"), "w"), env={"RR_TIMEOUT": str(timeout)})
+                log_path, "stdout.txt"), "w"), stderr=open(os.path.join(log_path, "stderr.txt"), "w"), env={"RR_TIMEOUT": str(timeout), **origin_env})
             error_found = proc.returncode != 0 and proc.returncode != 124
         except subprocess.TimeoutExpired:
             pass

@@ -1,14 +1,15 @@
 # Fray Artifact Evaluation
 
-This repository contains the benchmark applications as well as the scripts to run them.
+This repository contains artifacts to reproduce the paper "Fray: An Efficient General-Purpose Concurrency Testing Platform for the JVM". We would like to claim reusable, results reproduced, and artifact available badges for the paper. 
 
-# 
-
-This repository is used to evaluate the results of the paper . We would like to claim reusable, results reproduced, and artifact available badges for the paper. 
-
-This document only includes the instructions to run the evaluation. The documentation of the Fray project is available in the [Fray repository](https://github.com/cmu-pasta/fray/docs).
+This README only includes the instructions to run the evaluation. The documentation of the Fray project is available in the [Fray repository](https://github.com/cmu-pasta/fray/docs).
 
 # Requirements
+
+## Hardware
+
+- CPU with at least 6 cores
+- 32 GB of RAM
 
 ## JPF and Fray
 
@@ -19,8 +20,8 @@ This document only includes the instructions to run the evaluation. The document
 
 ## RR (Record and Replay)
 
-- Linux baremetal machine with Linux kernel version 4.7 or higher
-  - If you do not have a Linux system or running the evaluation in a VM, you cannot evaluate the results with RR.
+- Linux bare-metal machine with Linux kernel version 4.7 or higher
+  - If you do not have a Linux system or are running the evaluation in a VM, you cannot evaluate the results with RR.
   - You need to set `kernel.perf_event_paranoid` to `1` or lower to use RR.
     - You can do this by running the following command:
       ```bash
@@ -35,92 +36,85 @@ This document only includes the instructions to run the evaluation. The document
 
 # Build the Project
 
-
-- First you need to enable the devshell `nix develop`. 
-  - If you run this command in the container, you may ignore the error: `error: remounting /nix/store writable: Invalid argument`.
-- Next run the following command to build all projects `./scripts/build.sh`.
+- You may skip this step if you are using the pre-configured container image.
+- First, you need to enter the devshell: `nix develop`. 
+- Next, run the following command to build all projects: `./scripts/build.sh`.
 
 
 ## Run the Evaluation
 
-- You may use the following script to run all benchmarks `./scripts/runall.sh`.
 
-- You can also run a single benchmark by using the following command:
+- The source code of the benchmark applications is available in the `bms/{benchmark_name}` directory.
+- Test cases are defined in `fray_benchmark/assets/{benchmark_name}.txt` file.
+- (~2 hours) Reproduce the benchmark results (RQ1 and RQ2):
+  - `bash ./scripts/run_benchmark.sh`
+  - This script only runs the benchmark with 1 repetition for each technique.
+  - If you have a powerful machine, you can run the evaluation with more concurrent jobs by using the `--cpu NUM_OF_JOBS` option. For example, `bash ./scripts/run_benchmark.sh --cpu 24` will run the evaluation with 24 concurrent jobs.
 
-```bash
-Usage: python -m fray_benchmark run [OPTIONS] {jpf|rr|fray|java} {kafka|s
-                                    ctbench|jacontebe|lucene|lincheck|guava}
+- (~30 minutes) Reproduce real-world bugs found by Fray (RQ3 and RQ4):
+  - `bash ./scripts/run_realworld.sh`
+  - By default, this script only reproduces failures using the POS algorithm. You may add the `--full-evaluation` option to run all algorithms (PCT3, PCT15, and Random) and all techniques (JPF and RR). The full evaluation will take ~4 hours to complete.
+  - Note that depending on the hardware, Fray may find more or fewer bugs than reported in the original paper.
+  - If you want to run all collected concurrency tests, replacing the `fray_benchmark/assets/{benchmark_name}.txt` with `fray_benchmark/assets/{benchmark_name}.full.txt` will run all tests. Note that this will take days to complete.
 
-Options:
-  --scheduler [pct3|pct15|pos|surw|random]
-  --name TEXT
-  -t, --timeout INTEGER
-  --cpu INTEGER
-  --perf-mode
-  --iterations INTEGER
-  --help                          Show this message and exit.
-```
-
-
-## Analyze Result
-
+## Analyze Results
 
 - All results will be saved in the `output` directory.
-- If you run the `runall.sh` script, you can find the RQ1 and RQ2 results in the `output/benchmark` directory and the RQ3, and RQ4 results in the `output/realworld` directory.
-  - `{benchmark_name}/{technique}/iter-0/{testcase}/` contains the output of each technique for each testcase.
-- We provide a jupyter notebook to analyze the results. You can run the notebook by using the following command `uv run --with jupyter jupyter lab`.
-
-### RQ1
-
-
-### Note
-
-1. RR is very sensitive to the kernel version, CPU architecture, and the system configuration. Different systems may produce different results. 
-
-2. We have been improving Fray for the past few months, you may see better results for Fray for some benchmarks. 
+- If you run the `runall.sh` script, you can find the RQ1 and RQ2 results in the `output/benchmark` directory and the RQ3 and RQ4 results in the `output/realworld` directory.
+  - `{benchmark_name}/{technique}/iter-0/{testcase}/` contains the output of each technique for each test case.
+  - For Fray, the `report` folder contains the output. `report/fray.log` contains the log of Fray and error information if Fray finds a bug.
+- We provide a Jupyter notebook to analyze the results. You can run the notebook by using the following command: `uv run --with jupyter jupyter lab`. The notebook is located in `fray_benchmark/visualizer/visuralize_result.ipynb`.
 
 
+## Real-world Bugs and Corresponding Run ID
 
-<!-- # Structure
+- Kafka 
 
-- `bms` contains the source code for each benchmark application.
-- `tools` contains the source code for JPF and RR.
+  - Run 11: [#17112 StreamThread shutdown calls completeShutdown only in CREATED state](https://issues.apache.org/jira/browse/KAFKA-17112)
+  - Run 10: [#17113 Flaky Test in GlobalStreamThreadTest#shouldThrowStreamsExceptionOnStartupIfExceptionOccurred](https://issues.apache.org/jira/browse/KAFKA-17113)
+  - Run 9: [#17114 DefaultStateUpdater::handleRuntimeException should update isRunning before calling `addToExceptionsAndFailedTasksThenClearUpdatingAndPausedTasks`](https://issues.apache.org/jira/browse/KAFKA-17114)
+  - Run 8: [#17162 DefaultTaskManagerTest may leak AwaitingRunnable thread](https://issues.apache.org/jira/browse/KAFKA-17162?filter=-2)
+  - Run 7: [#17354 StreamThread::setState race condition causes java.lang.RuntimeException: State mismatch PENDING_SHUTDOWN different from STARTING](https://issues.apache.org/jira/browse/KAFKA-17354?filter=-2)
+  - Run 6: [#17371 Flaky test in DefaultTaskExecutorTest.shouldUnassignTaskWhenRequired](https://issues.apache.org/jira/browse/KAFKA-17371?filter=-2)
+  - Run 5: [#17379 KafkaStreams: Unexpected state transition from ERROR to PENDING_SHUTDOWN](https://issues.apache.org/jira/browse/KAFKA-17379?filter=-2)
+  - Run 4: [#17394 Flaky test in DefaultTaskExecutorTest.shouldSetUncaughtStreamsException](https://issues.apache.org/jira/browse/KAFKA-17394?filter=-2)
+  - Run 3: [#17402 Test failure: DefaultStateUpdaterTest.shouldGetTasksFromRestoredActiveTasks expected: <2> but was: <3>](https://issues.apache.org/jira/browse/KAFKA-17402?filter=-2)
+  - Run 2: [#17929 `awaitProcessableTasks` is not safe in the presence of spurious wakeups.](https://issues.apache.org/jira/browse/KAFKA-17929?filter=-2)
+  - Run 1: [#17946 Flaky test DeafultStateUpdaterTest::shouldResumeStandbyTask due to concurrency issue](https://issues.apache.org/jira/browse/KAFKA-17946?filter=-2)
+  - Run 0: [#18418 Flaky test in KafkaStreamsTest::shouldThrowOnCleanupWhileShuttingDownStreamClosedWithCloseOptionLeaveGroupFalse](https://issues.apache.org/jira/browse/KAFKA-18418?filter=-2)
+
+- Lucene
+
+  - Run 1: [#13547 Flaky Test in TestMergeSchedulerExternal#testSubclassConcurrentMergeScheduler](https://github.com/apache/lucene/issues/13547)
+  - Run 4: [#13552 Test TestIndexWriterWithThreads#testIOExceptionDuringWriteSegmentWithThreadsOnlyOnce Failed](https://github.com/apache/lucene/issues/13552)
+  - Run 0, 3: [#13571 DocumentsWriterDeleteQueue.getNextSequenceNumber assertion failure seqNo=9 vs maxSeqNo=8](https://github.com/apache/lucene/issues/13571)
+  - Run 2: [#13593 ConcurrentMergeScheduler may spawn more merge threads than specified](https://github.com/apache/lucene/issues/13593)
+ 
+
+- Guava 
+
+  - Run 0, 1, 2: [#7319 Lingering threads in multiple tests](https://github.com/google/guava/issues/7319)
 
 
-To run understand how to use benchmark scripts you can start with
+## (Optional) Reproducing a Bug Found by Fray
 
+
+To reproduce a bug found by Fray, you can use the following command:
+
+```bash
+python -m fray_benchmark replay RUN_DIR
 ```
-python -m fray_benchmark --help
 
-```
+For example, you can run `python3 -m fray_benchmark replay ./output/benchmark/sctbench/random/iter-0/0` to reproduce the `StringBufferJDK` bug found in SCTBench. 
 
-```
-Usage: python -m fray_benchmark [OPTIONS] COMMAND [ARGS]...
+Note that real-world applications have randomness other than concurrency, so you may not be able to reproduce the bug deterministically. [This commit](https://github.com/aoli-al/lucene/commit/fd606ec9ec3d603d9c71ee0d74cdee405b554032#diff-70e9ce52bc55b1688f99fd8eb54799b3a94506f8d0990016c6cc723be60b5040R136-R141) shows the changes required to reproduce the bug found in Lucene.
 
-Options:
-  --help  Show this message and exit.
 
-Commands:
-  build
-  replay
-  run
-  runOne
-  runSingle
-```
+## (Optional) Using Fray in Real-World Applications
 
-To run a single benchmark application you can use the following command:
+Please follow the [Fray documentation](https://github.com/cmu-pasta/fray/blob/main/docs/usage.md) to use Fray in any real-world applications. Good luck finding real-world bugs!
 
-```
-Usage: python -m fray_benchmark run [OPTIONS] {jpf|rr|fray} {lucene|solr|jacon
-                                    tebe|guava|kafka|lincheck|sctbench|apachec
-                                    ommon}
 
-Options:
-  --scheduler [pct3|pct15|pos|random]
-  --name TEXT
-  -t, --timeout INTEGER
-  --cpu INTEGER
-  --perf-mode
-  --iterations INTEGER
-  --help                          Show this message and exit.
-``` -->
+## Other Notes:
+
+- RR is very sensitive to the CPU and kernel version. You may have slightly different result if you are using a different CPU or kernel version.
