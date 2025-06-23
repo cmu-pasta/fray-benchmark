@@ -1,8 +1,12 @@
 # Fray Artifact Evaluation
 
+
+[![DOI](https://zenodo.org/badge/719683344.svg)](https://doi.org/10.5281/zenodo.15724288)
+
+
 # Introduction
 
-This repository contains artifacts to reproduce the paper "Fray: An Efficient General-Purpose Concurrency Testing Platform for the JVM". This README only includes the instructions to run the evaluation. The documentation of the Fray project is available in the [Fray repository](https://github.com/cmu-pasta/fray/) and [docs](https://github.com/cmu-pasta/fray/tree/main/docs) folder. Fray claims the following badge for the paper:
+[This repository](https://github.com/cmu-pasta/fray-benchmark) contains artifacts to reproduce the paper "Fray: An Efficient General-Purpose Concurrency Testing Platform for the JVM". This README only includes the instructions to run the evaluation. The documentation of the Fray project is available in the [Fray repository](https://github.com/cmu-pasta/fray/) and [docs](https://github.com/cmu-pasta/fray/tree/main/docs) folder. We claim the following badge for the paper:
 
 - **Artifact Available**: Both [Fray](https://github.com/cmu-pasta/fray) and Fray Benchmark are available on GitHub. Fray uses Nix to provide reproducible builds.
 - **Reusable**: Fray is designed to be reusable in real-world applications. It can be used as a JUnit test to find concurrency bugs in Java applications. The Fray debugger plugin is also available for IntelliJ IDEA. The Fray documentation provides detailed instructions on how to use Fray in real-world applications and how to extend Fray to support new concurrency testing algorithms.
