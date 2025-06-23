@@ -51,7 +51,7 @@ This repository contains artifacts to reproduce the paper "Fray: An Efficient Ge
 - Enter the project directory: `cd fray-benchmark`.
   - In the pre-configured container image, you are already in the project directory (`/fray-benchmark`).
 - Next, you need to enter the devshell: `nix develop`. 
-- If you are not using the pre-configured container image, run the following command to build all projects: `./scripts/build.sh`.
+- If you are **not** using the pre-configured container image, run the following command to build all projects: `./scripts/build.sh`.
 
 ## Kick the Tire (Reproduce Mini RQ 1)
 
@@ -145,9 +145,9 @@ Note that real-world applications have randomness other than concurrency, so you
 Please follow the [Fray documentation](https://github.com/cmu-pasta/fray/blob/main/docs/usage.md) to use Fray in any real-world applications. Good luck finding real-world bugs!
 
 
-# Other Notes:
+# Other Notes
 
-- RR is very sensitive to the CPU and kernel version. You may have slightly different result if you are using a different CPU or kernel version.
+RR is very sensitive to the CPU and kernel version. You may have slightly different result if you are using a different CPU or kernel version.
 
 # Changes for Revision
 
