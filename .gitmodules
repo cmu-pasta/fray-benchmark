@@ -19,3 +19,6 @@
 [submodule "tools/jpf-core"]
 	path = tools/jpf-core
 	url = https://github.com/aoli-al/jpf-core
+[submodule "bms/conductor"]
+	path = bms/conductor
+	url = https://github.com/conductor-oss/conductor
