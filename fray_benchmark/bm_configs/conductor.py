@@ -42,12 +42,14 @@ class ConductorBenchmark(UnitTestBenchmark):
         ], cwd=self.bench_dir)
         subprocess.call([
             "./gradlew",
-            ":conductor-test-harness:build",
-            ":conductor-mysql-persistence:build",
+            "build",
             "-x", "test",
         ], cwd=self.bench_dir, env=env)
         subprocess.call([
             "./gradlew",
-            ":conductor-test-harness:copyDependencies",
-            ":conductor-mysql-persistence:copyDependencies",
+            "testClasses",
+        ], cwd=self.bench_dir, env=env)
+        subprocess.call([
+            "./gradlew",
+            "copyDependencies",
         ], cwd=self.bench_dir, env=env)
