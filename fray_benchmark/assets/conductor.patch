@@ -1,0 +1,45 @@
+diff --git a/build.gradle b/build.gradle
+index a1b2c3d..e2f3g4h 100644
+--- a/build.gradle
++++ b/build.gradle
+@@ -89,6 +89,15 @@ allprojects {
+             showStandardStreams = false
+         }
+     }
++
++    tasks.create(name: "copyDependencies", type: Copy) {
++        from (configurations.testRuntimeClasspath) {
++            include('*.jar')
++        }
++        into "$buildDir/dependency"
++        duplicatesStrategy 'exclude'
++    }
++
+ }
+
+ // all client and their related modules are published with Java 17 compatibility
+diff --git a/gradle/wrapper/gradle-wrapper.properties b/gradle/wrapper/gradle-wrapper.properties
+index b82aa23..1af9e09 100644
+--- a/gradle/wrapper/gradle-wrapper.properties
++++ b/gradle/wrapper/gradle-wrapper.properties
+@@ -1,6 +1,5 @@
+ distributionBase=GRADLE_USER_HOME
+ distributionPath=wrapper/dists
+-distributionSha256Sum=a01b6587e15fe7ed120a0ee299c25982a1eee045abd6a9dd5e216b2f628ef9ac
+-distributionUrl=https\://services.gradle.org/distributions/gradle-7.6.2-bin.zip
++distributionUrl=https\://services.gradle.org/distributions/gradle-8.8-bin.zip
+ zipStoreBase=GRADLE_USER_HOME
+ zipStorePath=wrapper/dists
+diff --git a/es7-persistence/build.gradle b/es7-persistence/build.gradle
+index a1b2c3d..e2f3g4h 100644
+--- a/es7-persistence/build.gradle
++++ b/es7-persistence/build.gradle
+@@ -41,7 +41,7 @@ dependencies {
+ // Drop the classifier and delete jar task actions to replace the regular jar artifact with the shadow artifact
+ shadowJar {
+     configurations = [project.configurations.shadow]
+-    classifier = null
++    archiveClassifier = null
+
+     // Service files are not included by default.
+     mergeServiceFiles {

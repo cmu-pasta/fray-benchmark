@@ -23,6 +23,7 @@
             python
             uv
             jdk21
+            jdk17
             jdk11
             time
             cmake
@@ -39,9 +40,10 @@
             gcc
             vim
           ];
-          
+
           shellHook = ''
             export JDK11_HOME="${pkgs.jdk11.home}"
+            export JDK17_HOME="${pkgs.jdk17.home}"
             export JDK21_HOME="${pkgs.jdk21.home}"
             export LD_LIBRARY_PATH="${pkgs.stdenv.cc.cc.lib}/lib:$LD_LIBRARY_PATH"
             

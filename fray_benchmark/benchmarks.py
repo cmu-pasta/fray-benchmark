@@ -3,7 +3,7 @@
 from typing import Dict
 
 import glob
-import importlib
+import importlib.util
 import os
 import inspect
 from .commons import SCRIPT_PATH

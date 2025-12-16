@@ -1,0 +1,2 @@
+com.netflix.conductor.test.integration.grpc.GrpcEndToEndTest
+com.netflix.conductor.test.integration.grpc.mysql.MySQLGrpcEndToEndTest
