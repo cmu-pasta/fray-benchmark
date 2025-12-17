@@ -320,7 +320,7 @@ class UnitTestBenchmark(BenchmarkBase):
 
     def generate_collector_command(self) -> List[str]:
         command = [
-            f"{FRAY_PATH}/instrumentation/jdk/build/java-inst/bin/java",
+            "java",  # Use system Java for test discovery (no instrumentation needed)
             f"-javaagent:{HELPER_PATH}/junit-analyzer/build/libs/junit-analyzer-all.jar",
             "--add-opens", "java.base/java.lang=ALL-UNNAMED",
             "--add-opens", "java.base/java.util=ALL-UNNAMED",

@@ -22,3 +22,6 @@
 [submodule "bms/conductor"]
 	path = bms/conductor
 	url = https://github.com/conductor-oss/conductor
+[submodule "bms/opensearch"]
+	path = bms/opensearch
+	url = https://github.com/opensearch-project/OpenSearch

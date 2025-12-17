@@ -1,0 +1,63 @@
+diff --git a/buildSrc/src/main/java/org/opensearch/gradle/info/GlobalBuildInfoPlugin.java b/buildSrc/src/main/java/org/opensearch/gradle/info/GlobalBuildInfoPlugin.java
+index a42121f7da1..5bb917d51e9 100644
+--- a/buildSrc/src/main/java/org/opensearch/gradle/info/GlobalBuildInfoPlugin.java
++++ b/buildSrc/src/main/java/org/opensearch/gradle/info/GlobalBuildInfoPlugin.java
+@@ -400,8 +400,9 @@ public class GlobalBuildInfoPlugin implements Plugin<Project> {
+             }
+             return new GitInfo(revision, findOriginUrl(gitDir.resolve("config")));
+         } catch (final IOException e) {
+-            // for now, do not be lenient until we have better understanding of real-world scenarios where this happens
+-            throw new GradleException("unable to read the git revision", e);
++            // In submodule contexts (like fray-benchmark), git info may not be readable
++            // Return unknown values instead of failing the build
++            return new GitInfo("unknown", "unknown");
+         }
+     }
+ 
+diff --git a/server/build.gradle b/server/build.gradle
+index c2b3b1b2788..a30634637fe 100644
+--- a/server/build.gradle
++++ b/server/build.gradle
+@@ -520,3 +520,12 @@ def getGitShaFromJar(String jarPath) {
+     }
+     return sha
+ }
++
++tasks.register("copyDependencies", Copy) {
++  from configurations.testRuntimeClasspath
++  into "$buildDir/dependency"
++  include '*.jar'
++  exclude 'jna-*.jar'
++  exclude 'junit-*.jar'
++  exclude 'hamcrest-*.jar'
++}
+diff --git a/test/framework/build.gradle b/test/framework/build.gradle
+index 463a0668228..322ab191df8 100644
+--- a/test/framework/build.gradle
++++ b/test/framework/build.gradle
+@@ -113,3 +113,12 @@ tasks.register("integTest", Test) {
+ tasks.register("verifyVersions") {
+   dependsOn test
+ }
++
++tasks.register("copyDependencies", Copy) {
++  from configurations.runtimeClasspath
++  into "$buildDir/dependency"
++  include '*.jar'
++  exclude 'jna-*.jar'
++  exclude 'junit-*.jar'
++  exclude 'hamcrest-*.jar'
++}
+diff --git a/test/framework/src/main/java/org/opensearch/bootstrap/BootstrapForTesting.java b/test/framework/src/main/java/org/opensearch/bootstrap/BootstrapForTesting.java
+index b7ecf379e3f..b317945578a 100644
+--- a/test/framework/src/main/java/org/opensearch/bootstrap/BootstrapForTesting.java
++++ b/test/framework/src/main/java/org/opensearch/bootstrap/BootstrapForTesting.java
+@@ -248,7 +248,7 @@ public class BootstrapForTesting {
+         try {
+             Class<?> clazz = BootstrapForTesting.class.getClassLoader().loadClass(classname);
+             URL location = clazz.getProtectionDomain().getCodeSource().getLocation();
+-            if (location.toString().endsWith(".jar") == false) {
++            if (location != null && location.toString().endsWith(".jar") == false) {
+                 if (codebases.put(name, location) != null) {
+                     throw new IllegalStateException("Already added " + name + " codebase for testing");
+                 }

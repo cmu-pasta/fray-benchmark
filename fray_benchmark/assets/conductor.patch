@@ -1,8 +1,8 @@
 diff --git a/build.gradle b/build.gradle
-index a1b2c3d..e2f3g4h 100644
+index 98fed4641..ea2f10786 100644
 --- a/build.gradle
 +++ b/build.gradle
-@@ -89,6 +89,15 @@ allprojects {
+@@ -89,6 +89,16 @@ allprojects {
              showStandardStreams = false
          }
      }
@@ -10,11 +10,12 @@ index a1b2c3d..e2f3g4h 100644
 +    tasks.create(name: "copyDependencies", type: Copy) {
 +        from (configurations.testRuntimeClasspath) {
 +            include('*.jar')
++            exclude('junit-*.jar')
++            exclude('log4j-*.jar')
 +        }
 +        into "$buildDir/dependency"
 +        duplicatesStrategy 'exclude'
 +    }
-+
  }
 
  // all client and their related modules are published with Java 17 compatibility
