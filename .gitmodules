@@ -19,3 +19,6 @@
 [submodule "tools/jpf-core"]
 	path = tools/jpf-core
 	url = https://github.com/aoli-al/jpf-core
+[submodule "bms/httpcore"]
+	path = bms/httpcore
+	url = https://github.com/apache/httpcore

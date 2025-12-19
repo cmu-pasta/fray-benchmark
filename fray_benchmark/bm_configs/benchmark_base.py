@@ -242,53 +242,34 @@ class BenchmarkBase(object):
             with open(f"{log_path}/config.json", "w") as f:
                 f.write(config_data.to_json())
             test_index += 1
+
+            print(f"DEBUG: config_data.executor.classpaths has {len(config_data.executor.classpaths)} entries")
+            resolved = resolve_classpaths(config_data.executor.classpaths)
+            print(f"DEBUG: After resolve_classpaths: {len(resolved)} entries")
+            print(f"DEBUG: First 10 entries: {resolved[:10]}")
+            classpath_str = ":".join(resolved)
+
             command = [
-                "time",
-                "-p",
-                "-o",
-                f"{log_path}/time.txt",
-                "timeout",
-                "--signal=SIGTERM",
-                "--kill-after=2s",
-                str(timeout + 120),
-                f"{FRAY_PATH}/result/java-inst-jdk21/bin/java",
-                "-ea",
-                "-Xmx4g",
-                f"-agentpath:{FRAY_PATH}/result/native-libs/libjvmti.so",
-                f"-javaagent:{FRAY_PATH}/result/libs/fray-instrumentation-agent-{FRAY_VERSION}.jar",
-                "--add-opens", "java.base/java.lang=ALL-UNNAMED",
-                "--add-opens", "java.base/java.util=ALL-UNNAMED",
-                "--add-opens", "java.base/java.net=ALL-UNNAMED",
-                "--add-opens", "java.base/java.io=ALL-UNNAMED",
-                "--add-opens", "java.base/java.nio=ALL-UNNAMED",
-                "--add-opens", "java.base/java.math=ALL-UNNAMED",
-                "--add-opens", "java.base/java.time=ALL-UNNAMED",
-                "--add-opens", "java.base/java.util.concurrent.atomic=ALL-UNNAMED",
-                "--add-opens", "java.base/sun.nio.ch=ALL-UNNAMED",
-                "--add-opens", "java.base/java.lang.reflect=ALL-UNNAMED",
-                "--add-opens", "java.base/java.lang.invoke=ALL-UNNAMED",
-                "--add-opens", "java.base/jdk.internal.misc=ALL-UNNAMED",
-                "--add-opens", "java.base/jdk.internal.access=ALL-UNNAMED",
-                "--add-opens", "java.base/sun.security.x509=ALL-UNNAMED",
-                "-cp", ":".join(resolve_classpaths([
-                    f"{FRAY_PATH}/result/libs/fray-core-{FRAY_VERSION}.jar",
-                ])),
-                "org.pastalab.fray.core.MainKt",
-                "--run-config",
-                "json",
-                "--config-path",
-                f"{log_path}/config.json",
-                "-o", f"{log_path}/report",
-                "--iter", "-1",
-                "--timeout", str(timeout),
-                "--network-delegate-type", "none",
-                "--system-time-delegate-type", "none",
-                "--sleep-as-yield",
-                *config
+                f"{FRAY_PATH}/result/bin/fray",
+                "-cp",
+                classpath_str,
             ]
+
+            for key, value in config_data.executor.properties.items():
+                command.append(f"-J-D{key}={value}")
+
+            command.append("-J-Dnet.bytebuddy.experimental=true")
+            command.append(config_data.executor.clazz)
+            command.extend(config_data.executor.args)
+
+            command.append("--")
+            command.extend(config)
+            command.extend(["--iter", "-1", "--sleep-as-yield"])
+            command.extend(["-o", f"{log_path}/report"])
+
             if perf_mode:
                 command.append("--explore")
-            command.extend(["--iter", "-1"])
+
             yield command, log_path, FRAY_PATH
 
     def get_test_cases(self, _tool_name: str) -> Iterator[RunConfig]:
@@ -340,7 +321,7 @@ class UnitTestBenchmark(BenchmarkBase):
 
     def generate_collector_command(self) -> List[str]:
         command = [
-            f"{FRAY_PATH}/instrumentation/jdk/build/java-inst/bin/java",
+            "java",  # Use system Java for test discovery (no instrumentation needed)
             f"-javaagent:{HELPER_PATH}/junit-analyzer/build/libs/junit-analyzer-all.jar",
             "--add-opens", "java.base/java.lang=ALL-UNNAMED",
             "--add-opens", "java.base/java.util=ALL-UNNAMED",
